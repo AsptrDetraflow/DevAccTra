@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex" />
-<title>Coba Gratis â€” DevAccTra</title>
+<title>Coba Gratis - DevAccTra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
@@ -161,30 +161,30 @@ const DIST_BASE = 'https://asptrdetraflow.github.io/DevAccTra/dist';
 
 const PRODUCTS = {
   'coretax-toolkit': {
-    name: 'Coretax PDF Extension',
+    name: 'Coretax PDF Downloader',
     type: 'Chrome Extension',
     accent: 'dev',
     icon: 'fa-file-invoice',
     description: 'Unduh PDF Faktur Pajak Keluaran, Faktur Pajak Masukan, dan Bukti Potong langsung dari Coretax secara massal.',
     features: [
-      'Bulk download â€” ratusan PDF dalam 1 klik',
+      'Bulk download - ratusan PDF dalam 1 klik',
       'Support Chrome, Edge, Brave, Opera',
       'Auto-organize file by tanggal',
     ],
-    downloadFile: 'CoretaxPDFToolkit-Trial.zip',
+    downloadFile: 'CoretaxPDFDownloader-Trial.zip',
     installSteps: [
       'Download file ZIP di atas',
       'Extract folder hasil download',
       'Buka <code>chrome://extensions</code> di Chrome',
       'Aktifkan <b>Developer mode</b> (kanan atas)',
-      'Klik <b>Load unpacked</b> â†’ pilih folder hasil extract',
+      'Klik <b>Load unpacked</b> -> pilih folder hasil extract',
       'Klik icon extension di toolbar',
     ],
     activationSteps: [
-      'Klik icon <b>Coretax PDF Extension</b> di toolbar Chrome',
+      'Klik icon <b>Coretax PDF Downloader</b> di toolbar Chrome',
       'Paste license key di kolom <b>License</b>',
       'Klik <b>Activate</b>',
-      'Buka halaman Coretax â†’ refresh (F5)',
+      'Buka halaman Coretax -> refresh (F5)',
       'Panel extension siap digunakan',
     ],
   },
@@ -201,7 +201,7 @@ const PRODUCTS = {
       'Extract folder ke lokasi pilihan',
       'Buka folder hasil extract',
       'Double-click <code>RekapinFaktur.exe</code>',
-      'Kalau Windows minta konfirmasi â†’ klik <b>Run anyway</b>',
+      'Kalau Windows minta konfirmasi -> klik <b>Run anyway</b>',
     ],
     activationSteps: [
       'Buka aplikasi <b>Rekap Faktur</b>',
@@ -224,7 +224,7 @@ const PRODUCTS = {
       'Extract folder ke lokasi pilihan',
       'Buka folder hasil extract',
       'Double-click <code>RekapinBupotBPPU.exe</code>',
-      'Kalau Windows minta konfirmasi â†’ klik <b>Run anyway</b>',
+      'Kalau Windows minta konfirmasi -> klik <b>Run anyway</b>',
     ],
     activationSteps: [
       'Buka aplikasi <b>Rekap Bupot BPPU</b>',
@@ -247,7 +247,7 @@ const PRODUCTS = {
       'Extract folder ke lokasi pilihan',
       'Buka folder hasil extract',
       'Double-click <code>RekapinBankBCA.exe</code>',
-      'Kalau Windows minta konfirmasi â†’ klik <b>Run anyway</b>',
+      'Kalau Windows minta konfirmasi -> klik <b>Run anyway</b>',
     ],
     activationSteps: [
       'Buka aplikasi <b>Rekap Bank BCA</b>',
@@ -298,9 +298,9 @@ if (!product) {
 function renderPage(p) {
   $('#appContainer').innerHTML = `
     <div class="page-head">
-      <div class="badge">Trial Gratis Â· 3 Hari</div>
+      <div class="badge">Trial Gratis - 3 Hari</div>
       <h1>Coba <em>${escapeHtml(p.name)}</em> sekarang</h1>
-      <p>Ikuti 3 langkah di bawah. Setup pertama cuma butuh 5 menit â€” tanpa kartu kredit.</p>
+      <p>Ikuti 3 langkah di bawah. Setup pertama cuma butuh 5 menit - tanpa kartu kredit.</p>
     </div>
 
     <div class="trial-grid">
@@ -362,7 +362,7 @@ function renderPage(p) {
             <div class="form-row single">
               <div class="field">
                 <label>Machine ID</label>
-                <input type="text" id="machineId" placeholder="Buka aplikasi/extension â†’ copy Machine ID â†’ paste di sini" required />
+                <input type="text" id="machineId" placeholder="Buka aplikasi/extension -> copy Machine ID -> paste di sini" required />
                 <div class="hint">Machine ID muncul setelah kamu install & buka aplikasi/extension-nya.</div>
               </div>
             </div>
