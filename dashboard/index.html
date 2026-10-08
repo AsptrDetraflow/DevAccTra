@@ -4,29 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Dashboard Customer - DevAccTra</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261008m">
-<style>
-.mid-input-row{display:flex !important;gap:8px !important;align-items:stretch !important;width:100% !important}
-.mid-input-row input{flex:1 1 auto !important;min-width:0 !important;width:auto !important}
-.btn-generate{flex:0 0 auto !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;gap:6px !important;padding:0 14px !important;min-height:42px !important;border-radius:10px !important;background:#004D2F !important;color:#fff !important;font-weight:800 !important;font-size:.78rem !important;cursor:pointer !important;border:1px solid #004D2F !important;white-space:nowrap !important;font-family:inherit !important}
-.btn-generate:hover{background:#003521 !important}
-.btn-generate svg{width:14px !important;height:14px !important;flex-shrink:0 !important;fill:currentColor !important}
-.mid-detail-box{background:#F4F6F1 !important;border:1px solid rgba(23,34,29,.14) !important;border-radius:12px !important;padding:14px 16px !important;display:flex !important;gap:10px !important;align-items:center !important}
-.mid-detail-box code{flex:1 1 auto !important;font-family:Consolas,monospace !important;font-size:.72rem !important;line-height:1.5 !important;color:#17221D !important;word-break:break-all !important;user-select:all !important;background:transparent !important;padding:0 !important;border:0 !important}
-.mid-detail-box .btn-copy-mid{padding:8px 12px !important;border-radius:8px !important;background:#32A852 !important;color:#fff !important;font-weight:800 !important;font-size:.72rem !important;cursor:pointer !important;border:0 !important;white-space:nowrap !important;flex-shrink:0 !important}
-.spinner-dot{display:inline-block !important;width:12px !important;height:12px !important;border:2px solid rgba(0,77,47,.2) !important;border-top-color:#004D2F !important;border-radius:50% !important;animation:spin .8s linear infinite !important;vertical-align:middle !important;margin-right:6px !important}
-@keyframes spin{to{transform:rotate(360deg)}}
-.tabs{display:flex;gap:0;background:#F4F6F1;border-radius:10px;padding:4px;margin-bottom:22px}
-.tab-btn{flex:1;padding:10px;text-align:center;font-weight:800;font-size:.85rem;border-radius:8px;cursor:pointer;border:0;background:transparent;color:#69756D;font-family:inherit;transition:all .18s}
-.tab-btn.active{background:#fff;color:#004D2F;box-shadow:0 2px 8px rgba(0,77,47,.08)}
-.view-panel{display:none}
-.view-panel.active{display:block}
-.field-error{color:#DC2626;font-size:.72rem;margin-top:4px;display:none}
-.field-error.show{display:block}
-.field input.error{border-color:#DC2626 !important;box-shadow:0 0 0 4px rgba(220,38,38,.08) !important}
-</style>
+<title>Dashboard Customer — DevAccTra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261008s">
 </head>
 <body>
 
@@ -46,50 +28,50 @@
   </div>
 </nav>
 
-<!-- ============ AUTH VIEW (Register + Login tabs) ============ -->
-<div id="authView" class="login-wrap">
-  <div class="login-card">
+<!-- AUTH VIEW -->
+<div id="authView" class="auth-wrap">
+  <div class="auth-card">
     <div class="card">
-      <div class="login-icon">
+      <div class="auth-icon">
         <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/></svg>
       </div>
 
-      <div class="tabs">
-        <button type="button" class="tab-btn active" data-tab="login">Masuk</button>
-        <button type="button" class="tab-btn" data-tab="register">Daftar</button>
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab active" data-tab="login">Masuk</button>
+        <button type="button" class="auth-tab" data-tab="register">Daftar</button>
       </div>
 
-      <!-- LOGIN PANEL -->
-      <div id="panelLogin" class="view-panel active">
-        <h1 class="login-title">Masuk ke Dashboard</h1>
-        <p class="login-sub">Masukkan username/email dan Machine ID Anda.</p>
+      <!-- LOGIN -->
+      <div id="panelLogin" class="auth-panel active">
+        <h1 class="auth-title">Masuk ke Dashboard</h1>
+        <p class="auth-sub">Masukkan username/email dan Machine ID Anda.</p>
 
         <div id="loginError" class="alert alert-error hidden"></div>
 
         <form id="loginForm" autocomplete="off">
           <div class="field">
             <label>Username atau Email</label>
-            <input type="text" id="loginIdentifier" placeholder="username atau email@contoh.com" required autofocus>
+            <input type="text" id="loginIdentifier" placeholder="username atau email@contoh.com" required>
           </div>
           <div class="field">
             <label>Machine ID</label>
             <div class="mid-input-row">
-              <input type="text" id="loginMid" placeholder="Klik Generate" style="font-family:Consolas,monospace;font-size:.72rem">
+              <input type="text" id="loginMid" placeholder="Klik Generate" style="font-family:'JetBrains Mono',monospace;font-size:.72rem">
               <button type="button" class="btn-generate" data-mid-target="loginMid">
                 <svg viewBox="0 0 24 24"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm7 10l.8 2.4L22 15l-2.2.6L19 18l-.8-2.4L16 15l2.2-.6L19 12zM5 12l.8 2.4L8 15l-2.2.6L5 18l-.8-2.4L2 15l2.2-.6L5 12z"/></svg>
                 <span>Generate</span>
               </button>
             </div>
-            <div class="hint" id="loginMidHint">Klik <b>Generate</b> atau copy dari extension.</div>
+            <div class="hint" id="loginMidHint">Machine ID dari fingerprint device ini.</div>
           </div>
           <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Masuk</button>
         </form>
       </div>
 
-      <!-- REGISTER PANEL -->
-      <div id="panelRegister" class="view-panel">
-        <h1 class="login-title">Buat Akun Baru</h1>
-        <p class="login-sub">Isi data di bawah. Username &amp; email akan jadi identitas login Anda.</p>
+      <!-- REGISTER -->
+      <div id="panelRegister" class="auth-panel">
+        <h1 class="auth-title">Buat Akun</h1>
+        <p class="auth-sub">Isi data di bawah. Machine ID device ini akan terdaftar otomatis.</p>
 
         <div id="registerError" class="alert alert-error hidden"></div>
 
@@ -97,38 +79,35 @@
           <div class="field">
             <label>Username</label>
             <input type="text" id="regUsername" placeholder="contoh: budi_santoso" required>
-            <div class="field-error" id="errUsername">Username: 3-20 karakter, huruf/angka/underscore</div>
+            <div class="hint">3-20 karakter (a-z, A-Z, 0-9, _)</div>
           </div>
           <div class="field">
             <label>Email</label>
             <input type="email" id="regEmail" placeholder="email@contoh.com" required>
-            <div class="field-error" id="errEmail">Format email tidak valid</div>
           </div>
           <div class="field">
             <label>Machine ID</label>
             <div class="mid-input-row">
-              <input type="text" id="regMid" placeholder="Klik Generate" style="font-family:Consolas,monospace;font-size:.72rem">
+              <input type="text" id="regMid" placeholder="Klik Generate" style="font-family:'JetBrains Mono',monospace;font-size:.72rem">
               <button type="button" class="btn-generate" data-mid-target="regMid">
                 <svg viewBox="0 0 24 24"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm7 10l.8 2.4L22 15l-2.2.6L19 18l-.8-2.4L16 15l2.2-.6L19 12zM5 12l.8 2.4L8 15l-2.2.6L5 18l-.8-2.4L2 15l2.2-.6L5 12z"/></svg>
                 <span>Generate</span>
               </button>
             </div>
-            <div class="hint" id="regMidHint">Klik <b>Generate</b> atau copy dari extension popup.</div>
-            <div class="field-error" id="errMid">Machine ID: 64 karakter hex</div>
+            <div class="hint" id="regMidHint">Machine ID device ini.</div>
           </div>
           <button type="submit" class="btn btn-primary btn-block" id="registerBtn">Daftar &amp; Login</button>
         </form>
 
         <div class="alert alert-info" style="margin-top:16px">
           <i>&#8505;</i>
-          <div>Setelah daftar, Anda akan auto-download file <b>JSON backup</b>. Simpan file tersebut untuk pindah device.</div>
+          <div>Setelah daftar, akan auto-download file <b>JSON backup</b> credential. Simpan file tersebut!</div>
         </div>
 
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(23,34,29,.08)">
-          <div style="font-size:.72rem;color:#69756D;margin-bottom:8px;text-align:center">Sudah punya backup JSON?</div>
-          <button type="button" class="btn btn-ghost btn-block" id="importJsonBtn" style="font-size:.82rem;padding:10px">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg>
-            Import dari JSON Backup
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:.72rem;color:var(--muted);margin-bottom:8px;text-align:center">Sudah punya backup JSON?</div>
+          <button type="button" class="btn btn-ghost btn-block" id="importJsonBtn" style="font-size:.82rem">
+            <i class="fa-solid fa-file-import"></i> Import dari JSON Backup
           </button>
           <input type="file" id="importJsonFile" accept=".json,application/json" style="display:none">
         </div>
@@ -136,27 +115,22 @@
 
     </div>
 
-    <footer class="site-footer">
+    <div class="site-footer">
       <div class="footer-brand">
         <div class="brand-logo-sm">D</div>
-        <div class="footer-brand-text">
-          <b>DevAccTra</b>
-          <small>Tools &amp; Software</small>
-        </div>
+        <div class="footer-brand-text"><b>DevAccTra</b><small>Tools &amp; Software</small></div>
       </div>
       <div class="footer-links">
-        <a href="../">Produk</a>
-        <span>&middot;</span>
-        <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/" target="_blank" rel="noopener">Portfolio</a>
-        <span>&middot;</span>
+        <a href="../">Produk</a><span>&middot;</span>
+        <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/" target="_blank" rel="noopener">Portfolio</a><span>&middot;</span>
         <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
       </div>
       <div class="footer-copy">&copy; 2026 DevAccTra. Semua hak dilindungi.</div>
-    </footer>
+    </div>
   </div>
 </div>
 
-<!-- ============ DASHBOARD VIEW ============ -->
+<!-- DASHBOARD VIEW -->
 <div id="dashboardView" class="main hidden">
   <div class="container">
 
@@ -167,47 +141,40 @@
         <div class="hero-mid">
           <span>Machine ID:</span>
           <b id="heroMid">-</b>
-          <button type="button" class="copy-btn" id="copyMidHero" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);color:#fff">Copy</button>
+          <button type="button" class="copy-btn" id="copyMidHero">Copy</button>
         </div>
       </div>
     </div>
 
-    <!-- SECTION 1: PRODUK -->
-    <div style="margin-bottom:8px">
-      <h2 class="section-title">Produk Tersedia</h2>
-      <p class="section-sub">Semua produk bisa di-download versi Trial. Untuk versi PRO, masukkan License Key dari Admin.</p>
-    </div>
-
+    <div class="section-title">Produk Tersedia</div>
+    <div class="section-sub">Semua produk bisa di-download versi Trial. Untuk PRO, masukkan License Key dari Admin.</div>
     <div class="products-grid" id="productsGrid"></div>
 
-    <!-- SECTION 2: STATUS LICENSE (di bawah produk) -->
-    <div class="card" style="margin-top:28px;margin-bottom:24px">
-      <div class="license-status">
-        <div class="license-status-info">
-          <h2 class="card-title">Status License</h2>
-          <p class="card-sub" style="margin-bottom:0">License PRO berlaku untuk <b>semua produk</b> di atas.</p>
-          <div id="licenseStatusContent" style="margin-top:12px"></div>
-        </div>
-        <div class="license-status-actions">
-          <button type="button" class="btn btn-primary btn-sm hidden" id="pasteLicenseBtn">Masukkan License Key</button>
-          <button type="button" class="btn btn-wa btn-sm" id="buyProBtn">Beli PRO via WhatsApp</button>
-          <button type="button" class="btn btn-danger btn-sm hidden" id="removeLicenseBtn">Hapus License</button>
-        </div>
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header">
+        <div class="card-title">Status License</div>
+        <p class="card-sub">License PRO berlaku sesuai scope (universal atau produk tertentu).</p>
+      </div>
+      <div id="licenseStatusContent"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">
+        <button type="button" class="btn btn-primary hidden" id="pasteLicenseBtn">Masukkan License Key</button>
+        <button type="button" class="btn btn-wa" id="buyProBtn">Beli PRO via WhatsApp</button>
+        <button type="button" class="btn btn-danger hidden" id="removeLicenseBtn">Hapus License</button>
       </div>
     </div>
 
-    
-    <!-- SECTION: DEVICE AKTIF -->
-    <div class="card" style="margin-bottom:24px" id="deviceSection">
-      <h2 class="card-title">Device Aktif</h2>
-      <p class="card-sub">License Anda bisa aktif di maksimal <b id="deviceMax">2</b> device (bisa disesuaikan oleh admin). Kalau penuh, device paling lama otomatis terhapus saat tambah baru.</p>
-      <div id="deviceList" style="margin-top:12px"></div>
+    <div class="card" style="margin-bottom:24px">
+      <div class="card-header">
+        <div class="card-title">Device Aktif</div>
+        <p class="card-sub">License aktif di maksimal <b id="deviceMax">2</b> device. Device paling lama otomatis terhapus saat tambah baru.</p>
+      </div>
+      <div id="deviceList"></div>
     </div>
-    <!-- SECTION 3: AKUN SAYA -->
+
     <div class="acct-card">
       <div class="acct-header">
         <h2>Akun Saya</h2>
-        <p>Simpan backup credential Anda. Bisa digunakan untuk restore saat pindah device.</p>
+        <p>Simpan backup credential Anda. Bisa dipakai untuk restore saat pindah device.</p>
       </div>
       <div class="acct-actions">
         <button type="button" class="acct-action" id="downloadJsonBtn">
@@ -220,7 +187,7 @@
           </div>
           <span class="acct-action-arrow">&#8594;</span>
         </button>
-        <button type="button" class="acct-action acct-action-danger" id="logoutBtn2">
+        <button type="button" class="acct-action danger" id="logoutBtn2">
           <div class="acct-action-icon acct-icon-red">
             <svg viewBox="0 0 24 24"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8v2h8v14h-8v2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
           </div>
@@ -233,23 +200,18 @@
       </div>
     </div>
 
-    <footer class="site-footer">
+    <div class="site-footer">
       <div class="footer-brand">
         <div class="brand-logo-sm">D</div>
-        <div class="footer-brand-text">
-          <b>DevAccTra</b>
-          <small>Tools &amp; Software</small>
-        </div>
+        <div class="footer-brand-text"><b>DevAccTra</b><small>Tools &amp; Software</small></div>
       </div>
       <div class="footer-links">
-        <a href="../">Produk</a>
-        <span>&middot;</span>
-        <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/" target="_blank" rel="noopener">Portfolio</a>
-        <span>&middot;</span>
+        <a href="../">Produk</a><span>&middot;</span>
+        <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/" target="_blank" rel="noopener">Portfolio</a><span>&middot;</span>
         <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
       </div>
       <div class="footer-copy">&copy; 2026 DevAccTra. Semua hak dilindungi.</div>
-    </footer>
+    </div>
 
   </div>
 </div>
@@ -258,15 +220,30 @@
 <div class="modal-bg" id="midModal">
   <div class="modal">
     <h2>Machine ID Anda</h2>
-    <p class="modal-sub">Machine ID unik untuk browser &amp; device ini. Copy dan simpan.</p>
-    <div id="midModalContent" style="margin-bottom:16px">
-      <div style="text-align:center;padding:24px 0;color:#69756D;font-size:.85rem">
-        <span class="spinner-dot"></span> Mendeteksi...
-      </div>
+    <p class="modal-sub">Machine ID unik untuk browser &amp; device ini. Copy untuk login.</p>
+    <div id="midModalContent"></div>
+    <div class="modal-actions">
+      <button type="button" id="midModalClose">Tutup</button>
+      <button type="button" class="confirm" id="midModalUse">Pakai ID Ini</button>
+    </div>
+  </div>
+</div>
+
+<!-- SYNC MODAL -->
+<div class="modal-bg" id="syncModal">
+  <div class="modal">
+    <h2>Akun Sudah Terdaftar</h2>
+    <p class="modal-sub">Akun ini terdaftar di device lain. Masukkan salah satu MID lama untuk sinkronisasi.</p>
+    <div id="syncError" class="alert alert-error hidden"></div>
+    <div id="syncInfo" class="alert alert-info hidden"></div>
+    <div class="field" style="margin-bottom:0">
+      <label>Machine ID Lama</label>
+      <input type="text" id="syncOldMid" placeholder="Paste MID dari device sebelumnya">
+      <div class="hint">Bisa dari extension popup di device lama atau file JSON backup.</div>
     </div>
     <div class="modal-actions">
-      <button type="button" class="cancel" id="midModalClose">Tutup</button>
-      <button type="button" class="confirm" id="midModalUse">Pakai ID Ini</button>
+      <button type="button" id="syncCancel">Batal</button>
+      <button type="button" class="confirm" id="syncConfirm">Sinkronkan</button>
     </div>
   </div>
 </div>
@@ -275,54 +252,18 @@
 <div class="modal-bg" id="licenseModal">
   <div class="modal">
     <h2>Masukkan License Key</h2>
-    <p class="modal-sub">Paste License Key dari Admin. Verifikasi dilakukan langsung di browser Anda.</p>
+    <p class="modal-sub">Paste license dari Admin. Verifikasi otomatis di browser.</p>
     <div id="modalError" class="alert alert-error hidden"></div>
     <textarea id="licenseTextarea" placeholder="Paste License Key di sini..."></textarea>
     <div class="modal-actions">
-      <button type="button" class="cancel" id="modalCancel">Batal</button>
-      <button type="button" class="confirm" id="modalConfirm">Verifikasi &amp; Simpan</button>
+      <button type="button" id="modalCancel">Batal</button>
+      <button type="button" class="confirm" id="modalConfirm">Simpan</button>
     </div>
   </div>
 </div>
 
-<script src="app.js?v=20261008m"></script>
+<div class="toast-wrap" id="toastWrap"></div>
 
-<!-- MODAL: REBIND DEVICE -->
-<div class="modal-bg" id="rebindModal">
-  <div class="modal">
-    <h2>Pindah License ke Device Ini</h2>
-    <p class="modal-sub">License Anda terikat ke Machine ID lain. Masukkan Machine ID lama untuk pindah ke device ini. MID lama &amp; baru akan sama-sama aktif (maks <b id="rebindMax">3</b> device).</p>
-    <div id="rebindError" class="alert alert-error hidden"></div>
-    <div id="rebindInfo" class="alert alert-info hidden"></div>
-    <div class="field" style="margin-bottom:14px">
-      <label style="font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px">Machine ID LAMA</label>
-      <input type="text" id="rebindOldMid" placeholder="Paste Machine ID lama dari device sebelumnya" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:Consolas,monospace;font-size:.75rem">
-      <div class="hint" style="font-size:.72rem;color:var(--muted);margin-top:6px;line-height:1.5">Machine ID lama Anda bisa dilihat di extension popup di device lama, atau dari file JSON backup.</div>
-    </div>
-    <div class="modal-actions">
-      <button type="button" class="cancel" id="rebindCancel">Batal</button>
-      <button type="button" class="confirm" id="rebindConfirm">Pindah ke Device Ini</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: SYNC ACCOUNT (MID baru + MID lama) -->
-<div class="modal-bg" id="syncModal">
-  <div class="modal">
-    <h2>Akun Sudah Terdaftar</h2>
-    <p class="modal-sub">Username/email ini sudah pernah dipakai di device lain. Untuk sinkronisasi, masukkan salah satu Machine ID lama Anda. MID lama &amp; baru akan sama-sama aktif (maks <b id="syncMax">3</b> device).</p>
-    <div id="syncError" class="alert alert-error hidden"></div>
-    <div id="syncInfo" class="alert alert-info hidden"></div>
-    <div class="field" style="margin-bottom:14px">
-      <label style="font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#69756D;display:block;margin-bottom:8px">Machine ID LAMA</label>
-      <input type="text" id="syncOldMid" placeholder="Paste Machine ID dari device sebelumnya" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(23,34,29,.14);font-family:Consolas,monospace;font-size:.75rem">
-      <div class="hint" style="font-size:.72rem;color:#69756D;margin-top:6px;line-height:1.5">MID lama bisa dilihat di extension popup di device lama, atau dari file JSON backup yang pernah Anda download.</div>
-    </div>
-    <div class="modal-actions">
-      <button type="button" class="cancel" id="syncCancel">Batal</button>
-      <button type="button" class="confirm" id="syncConfirm">Sinkronkan</button>
-    </div>
-  </div>
-</div>
+<script src="app.js?v=20261008s"></script>
 </body>
 </html>
