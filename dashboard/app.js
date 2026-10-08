@@ -333,13 +333,17 @@
         btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
 
         try {
+            console.log("[Register] POST /api/customer/register:", { username, email, mid: mid.substring(0,16)+"..." });
             const data = await apiCall("/api/customer/register", {
                 username: username,
                 email: email,
                 machine_id: mid,
             });
+            console.log("[Register] Response:", data);
+            console.log("[Register] needs_sync:", data.needs_sync, "| action:", data.action);
 
             if (data.needs_sync) {
+                console.log("[Register] → Opening sync modal");
                 // Buka modal sync
                 try {
                     const syncResult = await openSyncModal(data.customer, mid);
@@ -395,12 +399,16 @@
         btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
 
         try {
+            console.log("[Login] POST /api/customer/login with:", { identifier, mid: mid.substring(0,16)+"..." });
             const data = await apiCall("/api/customer/login", {
                 identifier: identifier,
                 machine_id: mid,
             });
+            console.log("[Login] Response:", data);
+            console.log("[Login] needs_sync:", data.needs_sync);
 
             if (data.needs_sync) {
+                console.log("[Login] → Opening sync modal with customer:", data.customer?.username);
                 try {
                     const syncResult = await openSyncModal(data.customer, mid);
                     CURRENT_CUSTOMER = syncResult.customer;
@@ -418,6 +426,52 @@
             await loadLicensePayload();
             showDashboard();
         } catch (e) {
+            console.error("[Login] Error:", e);
+
+            // Fallback: kalau "Akun tidak ditemukan", cek localStorage lama
+            if (e.message && e.message.toLowerCase().includes("tidak ditemukan")) {
+                try {
+                    const oldAccounts = JSON.parse(localStorage.getItem("devacctra_accounts_v1") || "{}");
+                    const lower = identifier.toLowerCase();
+                    let found = null;
+                    for (const k in oldAccounts) {
+                        if (k.toLowerCase() === lower || (oldAccounts[k].email || "").toLowerCase() === lower) {
+                            found = oldAccounts[k];
+                            break;
+                        }
+                    }
+
+                    if (found) {
+                        console.log("[Login] Auto-migrating from localStorage:", found.username);
+                        // Register ke backend
+                        const regResp = await apiCall("/api/customer/register", {
+                            username: found.username,
+                            email: found.email,
+                            machine_id: mid,
+                        });
+                        console.log("[Register] Migration response:", regResp);
+
+                        if (regResp.needs_sync) {
+                            const syncResult = await openSyncModal(regResp.customer, mid);
+                            CURRENT_CUSTOMER = syncResult.customer;
+                            saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
+                            await loadLicensePayload();
+                            showDashboard();
+                            return;
+                        }
+                        if (regResp.customer) {
+                            CURRENT_CUSTOMER = regResp.customer;
+                            saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
+                            await loadLicensePayload();
+                            showDashboard();
+                            return;
+                        }
+                    }
+                } catch (migErr) {
+                    console.error("[Migration] Failed:", migErr);
+                }
+            }
+
             err.textContent = e.message;
             show(err);
         } finally {
