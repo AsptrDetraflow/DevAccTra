@@ -489,9 +489,11 @@ tbody tr:hover{background:var(--surface-soft)}
       <div class="field">
         <label>Produk <span style="text-transform:none;font-weight:500;color:var(--muted)">— pilih produk atau kosongkan untuk universal</span></label>
         <div class="product-chips" id="genLicProducts"></div>
-        <div style="font-size:.72rem;color:var(--muted);margin-top:10px;line-height:1.55">
-          <b style="color:var(--ink)">Kosong (universal)</b> = License berlaku untuk SEMUA produk DevAccTra.<br>
-          <b style="color:var(--ink)">Pilih produk</b> = License khusus produk tersebut saja.
+        <div id="genLicProductsHint" style="font-size:.76rem;color:var(--muted);margin-top:12px;padding:10px 12px;background:var(--surface-soft);border-radius:8px;line-height:1.55;border:1px solid var(--border)">
+          <b style="color:#32A852">Universal aktif</b> — License berlaku untuk SEMUA produk DevAccTra.
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:8px;line-height:1.55">
+          Pilih <b>satu atau lebih produk</b> untuk license spesifik. Pilih <b>Universal</b> kalau mau berlaku semua.
         </div>
       </div>
 
@@ -541,7 +543,8 @@ let editingCustId = null;
 let editingMids = [];
 let editingMaxDevices = 2;
 let generatingForCustId = null;
-let selectedProduct = ''; // '' = universal
+let selectedProducts = []; // array of product IDs (multi-select)
+    let universalMode = true;  // true = universal (semua produk)
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -771,11 +774,24 @@ function renderEditLicense(licenseKey) {
 
   const tier = (payload && payload.t) || '?';
   const exp = (payload && payload.e) || null;
-  const tool = (payload && payload.tool) || '';
   const days = daysLeft(exp);
-  const productLabel = tool
-    ? '<span class="badge blue"><i class="fa-solid fa-cube"></i> ' + escapeHtml(PRODUCTS[tool]?.name || tool) + '</span>'
-    : '<span class="badge universal"><i class="fa-solid fa-globe"></i> Universal (semua produk)</span>';
+
+  // Handle backward compat + multi-product
+  let productLabel;
+  if (payload && payload.tools && Array.isArray(payload.tools) && payload.tools.length) {
+    // Multi-product
+    productLabel = payload.tools.map(t =>
+      '<span class="badge blue" style="margin-right:4px"><i class="fa-solid fa-cube"></i> ' +
+      escapeHtml(PRODUCTS[t]?.name || t) + '</span>'
+    ).join(' ');
+  } else if (payload && payload.tool) {
+    // Single product (legacy)
+    productLabel = '<span class="badge blue"><i class="fa-solid fa-cube"></i> ' +
+      escapeHtml(PRODUCTS[payload.tool]?.name || payload.tool) + '</span>';
+  } else {
+    // Universal
+    productLabel = '<span class="badge universal"><i class="fa-solid fa-globe"></i> Universal (semua produk)</span>';
+  }
 
   box.innerHTML =
     '<div class="meta" style="margin:0 0 12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">' + productLabel +
@@ -860,18 +876,55 @@ function renderProductChips() {
   const entries = [['', 'Universal', 'fa-globe', 'Semua produk']].concat(
     Object.entries(PRODUCTS).map(([id, p]) => [id, p.name, p.icon, ''])
   );
-  box.innerHTML = entries.map(([id, name, icon, hint]) =>
-    '<button class="product-chip' + (selectedProduct === id ? ' selected' : '') + '" data-product="' + id + '">' +
+  box.innerHTML = entries.map(([id, name, icon, hint]) => {
+    let isSelected = false;
+    if (id === '') {
+      isSelected = universalMode;
+    } else {
+      isSelected = !universalMode && selectedProducts.includes(id);
+    }
+    return '<button class="product-chip' + (isSelected ? ' selected' : '') + '" data-product="' + id + '">' +
       '<i class="fa-solid ' + icon + '"></i>' +
       '<span>' + escapeHtml(name) + (hint ? '<small>' + escapeHtml(hint) + '</small>' : '') + '</span>' +
-    '</button>'
-  ).join('');
+    '</button>';
+  }).join('');
+
   box.querySelectorAll('[data-product]').forEach(btn => {
     btn.addEventListener('click', () => {
-      selectedProduct = btn.dataset.product;
+      const id = btn.dataset.product;
+      if (id === '') {
+        // Universal — eksklusif
+        universalMode = true;
+        selectedProducts = [];
+      } else {
+        // Product — toggle, auto-off universal
+        universalMode = false;
+        const idx = selectedProducts.indexOf(id);
+        if (idx >= 0) {
+          selectedProducts.splice(idx, 1);
+          // Kalau kosong → balik ke universal
+          if (selectedProducts.length === 0) universalMode = true;
+        } else {
+          selectedProducts.push(id);
+        }
+      }
       renderProductChips();
+      updateProductsHint();
     });
   });
+
+  updateProductsHint();
+}
+
+function updateProductsHint() {
+  const hintEl = $('#genLicProductsHint');
+  if (!hintEl) return;
+  if (universalMode) {
+    hintEl.innerHTML = '<b style="color:#32A852">Universal aktif</b> — License berlaku untuk SEMUA produk DevAccTra.';
+  } else {
+    hintEl.innerHTML = '<b style="color:#1E5BB8">' + selectedProducts.length + ' produk dipilih</b> — ' +
+      selectedProducts.map(id => PRODUCTS[id]?.name || id).join(', ');
+  }
 }
 
 window.openGenLic = function(custId) {
@@ -879,7 +932,8 @@ window.openGenLic = function(custId) {
   const c = custCache.find(x => x.id === custId);
   $('#genLicSub').textContent = c ? c.username + ' · ' + (c.machine_ids || []).length + ' MID terdaftar' : '';
   $('#genLicAlert').innerHTML = '';
-  selectedProduct = '';
+  selectedProducts = [];
+  universalMode = true;
   renderProductChips();
   const d = new Date();
   d.setFullYear(d.getFullYear() + 1);
@@ -896,13 +950,16 @@ async function doGenerateLicenseForCust() {
     const body = {
       tier: $('#genLicTier').value,
       expires_at: $('#genLicDate').value || null,
-      product: selectedProduct || null,
+      products: universalMode ? [] : selectedProducts.slice(),
     };
     const data = await api('/api/admin/customer/' + generatingForCustId + '/generate-license', {
       method: 'POST',
       body: body,
     });
-    toast('License dibuat untuk ' + data.machine_ids.length + ' MID' + (data.product ? ' (' + data.product + ')' : ' (universal)'));
+    const prodLabel = (data.products && data.products.length)
+      ? ' (' + data.products.length + ' produk)'
+      : ' (universal)';
+    toast('License dibuat untuk ' + data.machine_ids.length + ' MID' + prodLabel);
     const c = custCache.find(x => x.id === generatingForCustId);
     if (c) c.license_key = data.license_key;
     closeModal('genLicModal');
