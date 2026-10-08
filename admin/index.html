@@ -218,6 +218,7 @@ tbody tr:hover{background:var(--surface-soft)}
     <div class="sidebar-title">Manage</div>
     <button class="sidebar-item active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
     <button class="sidebar-item" data-view="licenses"><i class="fa-solid fa-key"></i> Licenses</button>
+    <button class="sidebar-item" data-view="customers"><i class="fa-solid fa-users"></i> Customers</button>
     <button class="sidebar-item" data-view="trials"><i class="fa-solid fa-flask"></i> Trials</button>
     <button class="sidebar-item" data-view="generate"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License</button>
     <div class="sidebar-footer">
@@ -298,6 +299,30 @@ tbody tr:hover{background:var(--surface-soft)}
           <i class="fa-solid fa-inbox"></i>
           <h3>Belum ada trial</h3>
           <p>Trial akan muncul setelah customer mencoba</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: CUSTOMERS ============ -->
+    <div class="view" id="view-customers" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-users"></i> Customers <span class="count" id="cCust">0</span></div>
+          <div class="card-actions">
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchCust" placeholder="Cari username, email, MID..." /></div>
+            <button class="btn" id="refreshCust"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Username</th><th>Email</th><th>Machine IDs</th><th>License</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+            <tbody id="tbCust"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyCust" style="display:none">
+          <i class="fa-solid fa-inbox"></i>
+          <h3>Belum ada customer</h3>
+          <p>Customer akan muncul setelah mereka register di dashboard</p>
         </div>
       </div>
     </div>
@@ -491,6 +516,7 @@ function switchView(view) {
     dashboard: ['Dashboard', 'Ringkasan aktivitas DevAccTra'],
     licenses: ['Licenses', 'Kelola semua license customer'],
     trials: ['Trials', 'Daftar user trial'],
+    customers: ['Customers', 'Kelola akun customer & multi-device'],
     generate: ['Generate License', 'Bikin license manual untuk customer'],
   };
   $('#pageTitle').innerHTML = titles[view][0];
@@ -498,6 +524,7 @@ function switchView(view) {
   if (view === 'dashboard') loadStats();
   if (view === 'licenses') loadLicenses();
   if (view === 'trials') loadTrials();
+  if (view === 'customers') loadCustomers();
   $('#sidebar').classList.remove('open');
 }
 $('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
@@ -729,6 +756,139 @@ $('#searchTrial').addEventListener('input', () => { clearTimeout(sT); sT = setTi
 $('#refreshLic').addEventListener('click', loadLicenses);
 $('#refreshTrial').addEventListener('click', loadTrials);
 
+// ============ CUSTOMERS ============
+let custCache = [];
+
+function escapeHtmlC(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+
+async function loadCustomers() {
+  const q = $('#searchCust').value.trim();
+  const tb = $('#tbCust');
+  tb.innerHTML = '<tr><td colspan="6"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  try {
+    const data = await api('/api/admin/customers?search=' + encodeURIComponent(q) + '&limit=500');
+    custCache = data.customers || [];
+    $('#cCust').textContent = data.total;
+    if (!custCache.length) { tb.innerHTML = ''; $('#emptyCust').style.display = 'block'; return; }
+    $('#emptyCust').style.display = 'none';
+    tb.innerHTML = custCache.map(c => {
+      const mids = c.machine_ids || [];
+      const midPreview = mids.length
+        ? '<div style="font-family:JetBrains Mono,monospace;font-size:.68rem;color:var(--text)">' +
+          mids.map(m => '<div title="' + escapeHtmlC(m) + '" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">' + escapeHtmlC(m.substring(0,16)) + '…</div>').join('') +
+          '</div>'
+        : '<span style="color:var(--muted);font-size:.78rem">—</span>';
+      const midCount = '<div style="font-size:.68rem;color:var(--muted);margin-top:4px">' + mids.length + ' / 3 device</div>';
+      const licBadge = c.license_key
+        ? '<span class="badge green">Ada</span>'
+        : '<span class="badge gray">Belum</span>';
+      const statusBadge = c.is_active
+        ? '<span class="badge green">Aktif</span>'
+        : '<span class="badge red">Nonaktif</span>';
+      return `<tr>
+        <td><div class="cell-strong">${escapeHtmlC(c.username)}</div><div class="cell-sub">ID #${c.id}</div></td>
+        <td><div style="font-size:.82rem">${escapeHtmlC(c.email)}</div></td>
+        <td>${midPreview}${midCount}</td>
+        <td>${licBadge}</td>
+        <td>${statusBadge}</td>
+        <td><div class="row-actions">
+          <button class="btn-mini" onclick="editCust(${c.id})" title="Edit"><i class="fa-solid fa-pen"></i></button>
+          <button class="btn-mini danger" onclick="deleteCust(${c.id})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+let editCustId = null;
+window.editCust = function(id) {
+  const c = custCache.find(x => x.id === id);
+  if (!c) return;
+  editCustId = id;
+  $('#editCustUsername').value = c.username;
+  $('#editCustEmail').value = c.email;
+  $('#editCustMids').value = (c.machine_ids || []).join('\n');
+  $('#editCustLicense').value = c.license_key || '';
+  $('#editCustActive').value = c.is_active ? '1' : '0';
+  $('#editCustSub').textContent = c.username + ' · ID #' + c.id;
+  $('#editCustError').style.display = 'none';
+  $('#editCustModal').classList.add('show');
+};
+
+$('#editCustCancel').addEventListener('click', () => { $('#editCustModal').classList.remove('show'); });
+$('#editCustModal').addEventListener('click', (e) => { if (e.target === $('#editCustModal')) $('#editCustModal').classList.remove('show'); });
+
+$('#editCustSave').addEventListener('click', async () => {
+  if (!editCustId) return;
+  const errEl = $('#editCustError');
+  errEl.style.display = 'none';
+
+  const email = $('#editCustEmail').value.trim();
+  const midsRaw = $('#editCustMids').value.trim();
+  const license = $('#editCustLicense').value.trim();
+  const isActive = $('#editCustActive').value === '1';
+
+  const mids = midsRaw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if (mids.length > 3) {
+    errEl.textContent = 'Maksimal 3 MID. Hapus beberapa baris dulu.';
+    errEl.style.display = 'flex';
+    return;
+  }
+  for (const m of mids) {
+    if (!/^[a-f0-9]{64}$/.test(m)) {
+      errEl.textContent = 'MID harus 64 karakter hex: ' + m.substring(0, 16) + '...';
+      errEl.style.display = 'flex';
+      return;
+    }
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errEl.textContent = 'Format email tidak valid.';
+    errEl.style.display = 'flex';
+    return;
+  }
+
+  const btn = $('#editCustSave');
+  btn.disabled = true;
+  btn.textContent = 'Menyimpan...';
+
+  try {
+    await api('/api/admin/customer/' + editCustId, {
+      method: 'PATCH',
+      body: {
+        email: email,
+        machine_ids: mids,
+        license_key: license || null,
+        is_active: isActive,
+      },
+    });
+    $('#editCustModal').classList.remove('show');
+    toast('Customer diupdate');
+    loadCustomers();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'flex';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Simpan';
+  }
+});
+
+window.deleteCust = async function(id) {
+  const c = custCache.find(x => x.id === id);
+  if (!c) return;
+  if (!await confirmModal('Hapus Customer?', 'Customer ' + c.username + ' akan dihapus permanen. Tidak bisa dibatalkan.', 'danger')) return;
+  try {
+    await api('/api/admin/customer/' + id, { method: 'DELETE' });
+    toast('Customer dihapus');
+    loadCustomers();
+  } catch (e) { toast(e.message, 'error'); }
+};
+
+let sCT;
+$('#searchCust').addEventListener('input', () => { clearTimeout(sCT); sCT = setTimeout(loadCustomers, 300); });
+$('#refreshCust').addEventListener('click', loadCustomers);
 // ============ INIT ============
 if (TOKEN) {
   (async () => {
@@ -737,5 +897,47 @@ if (TOKEN) {
   })();
 } else showLogin();
 </script>
+
+<!-- MODAL: EDIT CUSTOMER -->
+<div class="modal-backdrop" id="editCustModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-icon primary"><i class="fa-solid fa-user-pen"></i></div>
+      <div><h3>Edit Customer</h3><p id="editCustSub"></p></div>
+    </div>
+    <div class="modal-body">
+      <div class="field" style="margin-bottom:14px">
+        <label>Username</label>
+        <input type="text" id="editCustUsername" readonly style="background:var(--surface-soft);color:var(--muted)">
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Email</label>
+        <input type="email" id="editCustEmail" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:inherit;font-size:.9rem">
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Machine IDs (1 per baris, maks 3)</label>
+        <textarea id="editCustMids" rows="3" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:Consolas,monospace;font-size:.72rem;resize:vertical"></textarea>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Satu MID per baris. Kalau > 3, yang paling lama akan dihapus otomatis saat disimpan.</div>
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>License Key</label>
+        <textarea id="editCustLicense" rows="2" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:Consolas,monospace;font-size:.68rem;resize:vertical"></textarea>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Kosongkan kalau tidak ada license.</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Status</label>
+        <select id="editCustActive" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:inherit;font-size:.9rem">
+          <option value="1">Aktif</option>
+          <option value="0">Nonaktif</option>
+        </select>
+      </div>
+      <div id="editCustError" class="alert alert-error" style="display:none;margin-top:14px"></div>
+    </div>
+    <div class="modal-footer">
+      <button id="editCustCancel">Batal</button>
+      <button class="primary" id="editCustSave">Simpan</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
