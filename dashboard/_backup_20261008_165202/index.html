@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Dashboard Customer - DevAccTra</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=20261008">
+<style>
+/* ==== INLINE CRITICAL — biar tombol Generate tampil benar ==== */
+.mid-input-row{display:flex !important;gap:8px !important;align-items:stretch !important;width:100% !important}
+.mid-input-row input{flex:1 1 auto !important;min-width:0 !important;width:auto !important}
+.btn-generate{flex:0 0 auto !important;display:inline-flex !important;flex-direction:row !important;align-items:center !important;justify-content:center !important;gap:6px !important;padding:0 16px !important;height:auto !important;min-height:42px !important;border-radius:10px !important;background:#004D2F !important;color:#fff !important;font-weight:800 !important;font-size:.78rem !important;cursor:pointer !important;border:1px solid #004D2F !important;white-space:nowrap !important;font-family:inherit !important;line-height:1 !important}
+.btn-generate svg{width:14px !important;height:14px !important;flex-shrink:0 !important;fill:currentColor !important}
+.btn-generate:hover{background:#003521 !important;transform:translateY(-1px) !important}
+.btn-generate span{display:inline !important}
+
+.mid-detail-box{background:#F4F6F1 !important;border:1px solid rgba(23,34,29,.14) !important;border-radius:12px !important;padding:14px 16px !important;display:flex !important;gap:10px !important;align-items:center !important}
+.mid-detail-box code{flex:1 1 auto !important;font-family:Consolas,monospace !important;font-size:.72rem !important;line-height:1.5 !important;color:#17221D !important;word-break:break-all !important;user-select:all !important;background:transparent !important;padding:0 !important;border:0 !important}
+.mid-detail-box .btn-copy-mid{padding:8px 12px !important;border-radius:8px !important;background:#32A852 !important;color:#fff !important;font-weight:800 !important;font-size:.72rem !important;cursor:pointer !important;border:0 !important;white-space:nowrap !important;flex-shrink:0 !important;font-family:inherit !important}
+.mid-detail-box .btn-copy-mid:hover{background:#268843 !important}
+.mid-detail-box .btn-copy-mid.ok{background:#004D2F !important}
+.spinner-dot{display:inline-block !important;width:12px !important;height:12px !important;border:2px solid rgba(0,77,47,.2) !important;border-top-color:#004D2F !important;border-radius:50% !important;animation:spin .8s linear infinite !important;vertical-align:middle !important;margin-right:6px !important}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="../" class="brand">
+      <div class="brand-logo"><span>D</span></div>
+      <div class="brand-text">
+        <span class="brand-name"><span class="dev">Dev</span><span class="acc">Acc</span><span class="tra">Tra</span></span>
+        <span class="brand-tagline">Customer Dashboard</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <a href="../trial/" class="btn btn-ghost btn-sm">Trial</a>
+      <button id="navLogout" class="btn btn-danger btn-sm hidden">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div id="loginView" class="login-wrap">
+  <div class="login-card">
+    <div class="card">
+      <div class="login-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/></svg>
+      </div>
+      <h1 class="login-title">Login Customer</h1>
+      <p class="login-sub">Isi email dan Machine ID Anda. Machine ID bisa digenerate otomatis dari browser ini.</p>
+
+      <div id="loginError" class="alert alert-error hidden"></div>
+
+      <form id="loginForm" autocomplete="off">
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="emailInput" placeholder="email@contoh.com" required autofocus>
+        </div>
+
+        <div class="field">
+          <label>Machine ID</label>
+          <div class="mid-input-row">
+            <input type="text" id="midInput" placeholder="Klik tombol Generate di samping" style="font-family:Consolas,monospace;font-size:.75rem">
+            <button type="button" class="btn-generate" id="generateMidBtn">
+              <svg viewBox="0 0 24 24"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm7 10l.8 2.4L22 15l-2.2.6L19 18l-.8-2.4L16 15l2.2-.6L19 12zM5 12l.8 2.4L8 15l-2.2.6L5 18l-.8-2.4L2 15l2.2-.6L5 12z"/></svg>
+              <span>Generate</span>
+            </button>
+          </div>
+          <div class="hint" id="midHint">Klik <b>Generate</b> untuk deteksi Machine ID otomatis, atau copy manual dari extension.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Login ke Dashboard</button>
+      </form>
+
+      <div class="alert alert-info" style="margin-top:20px">
+        <i>&#8505;</i>
+        <div>Semua produk bisa di-download versi <b>Trial</b>. Versi <b>PRO</b> butuh License Key dari Admin.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="../">Produk</a> &middot;
+      <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/">Portfolio</a> &middot;
+      <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
+      <div style="margin-top:8px">DevAccTra &copy; 2026 - Tidak berafiliasi dengan DJP</div>
+    </div>
+  </div>
+</div>
+
+<div id="dashboardView" class="main hidden">
+  <div class="container">
+    <div class="hero-dash">
+      <div class="hero-dash-content">
+        <h1>Halo, <em id="heroEmail">-</em></h1>
+        <p>Download produk versi <b>Trial</b> secara bebas. Untuk versi <b>PRO</b>, masukkan License Key dari Admin.</p>
+        <div class="hero-mid">
+          <span>Machine ID:</span>
+          <b id="heroMid">-</b>
+          <button type="button" class="copy-btn" id="copyMidHero" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.25);color:#fff">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:24px">
+      <div class="license-status">
+        <div class="license-status-info">
+          <h2 class="card-title">Status License</h2>
+          <div id="licenseStatusContent" style="margin-top:12px"></div>
+        </div>
+        <div class="license-status-actions">
+          <button type="button" class="btn btn-primary btn-sm hidden" id="pasteLicenseBtn">Masukkan License Key</button>
+          <button type="button" class="btn btn-wa btn-sm" id="buyProBtn">Beli PRO via WhatsApp</button>
+          <button type="button" class="btn btn-danger btn-sm hidden" id="removeLicenseBtn">Hapus License</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:8px">
+      <h2 class="section-title">Produk Tersedia</h2>
+      <p class="section-sub">Semua produk bisa di-download versi Trial. Untuk versi PRO, masukkan License Key dari Admin.</p>
+    </div>
+
+    <div class="products-grid" id="productsGrid"></div>
+
+    <div class="footer">
+      DevAccTra &copy; 2026 &middot;
+      <a href="../">Produk</a> &middot;
+      <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/">Portfolio</a> &middot;
+      <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
+      <br>Tidak berafiliasi dengan Direktorat Jenderal Pajak (DJP)
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="midModal">
+  <div class="modal">
+    <h2>Machine ID Anda</h2>
+    <p class="modal-sub">Machine ID unik untuk browser &amp; device ini. Copy dan simpan. License yang dibeli akan terikat ke ID ini.</p>
+    <div id="midModalContent" style="margin-bottom:16px">
+      <div style="text-align:center;padding:24px 0;color:#69756D;font-size:.85rem">
+        <span class="spinner-dot"></span> Mendeteksi...
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="cancel" id="midModalClose">Tutup</button>
+      <button type="button" class="confirm" id="midModalUse">Pakai ID Ini</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="licenseModal">
+  <div class="modal">
+    <h2>Masukkan License Key</h2>
+    <p class="modal-sub">Paste License Key dari Admin. Verifikasi dilakukan langsung di browser Anda.</p>
+    <div id="modalError" class="alert alert-error hidden"></div>
+    <textarea id="licenseTextarea" placeholder="Paste License Key di sini..."></textarea>
+    <div class="modal-actions">
+      <button type="button" class="cancel" id="modalCancel">Batal</button>
+      <button type="button" class="confirm" id="modalConfirm">Verifikasi &amp; Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js?v=20261008"></script>
+</body>
+</html>

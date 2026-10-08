@@ -1,22 +1,17 @@
 // ============================================================
-// DevAccTra Dashboard — Self-contained
-// Register + Login + Universal License + JSON Backup
+// DevAccTra Dashboard — Self-contained App
+// Semua function ada di file ini (tidak butuh auth.js)
 // ============================================================
 (function () {
     "use strict";
 
     const PUBLIC_KEY_B64 = "kN08rrwZddPxF2KjSIgZ0bH6veMmE94ExuEE3FbGs6s=";
-    const ACCOUNTS_KEY  = "devacctra_accounts_v1";
-    const SESSION_KEY   = "devacctra_session_v1";
+    const SESSION_KEY = "coretax_dashboard_session_v3";
     const MID_CACHE_KEY = "devacctra_machine_id_v3";
-    const WA_NUMBER     = "6287888370395";
-    const WA_MSG        = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
-    const WA_URL        = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
-    const DIST          = "https://asptrdetraflow.github.io/DevAccTra/dist";
-
-    const RX_USERNAME = /^[a-zA-Z0-9_]{3,20}$/;
-    const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const RX_MID      = /^[a-f0-9]{64}$/;
+    const WA_NUMBER = "6287888370395";
+    const WA_MSG = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
+    const WA_URL = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
+    const DIST = "https://asptrdetraflow.github.io/DevAccTra/dist";
 
     const PRODUCTS = [
         { id: "coretax-toolkit", name: "Coretax PDF Downloader", type: "Chrome Extension", accent: "dev",
@@ -41,35 +36,14 @@
     };
 
     const $ = (s, r) => (r || document).querySelector(s);
-    const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
     const show = el => el && el.classList.remove("hidden");
     const hide = el => el && el.classList.add("hidden");
 
     // ============================================================
-    // STORAGE
-    // ============================================================
-    function getAccounts() {
-        try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || "{}"); }
-        catch (e) { return {}; }
-    }
-    function saveAccounts(a) {
-        try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); } catch (e) {}
-    }
-    function getSession() {
-        try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
-        catch (e) { return null; }
-    }
-    function saveSession(s) {
-        try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch (e) {}
-    }
-    function clearSession() {
-        try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
-    }
-
-    // ============================================================
-    // MACHINE ID
+    // MACHINE ID — definisi di sini biar gak butuh file lain
     // ============================================================
     async function getMachineId() {
+        // 1. URL param
         try {
             const params = new URLSearchParams(location.search);
             const urlMid = params.get("mid");
@@ -80,15 +54,18 @@
             }
         } catch (e) {}
 
+        // 2. Cached
         try {
             const cached = localStorage.getItem(MID_CACHE_KEY);
             if (cached && cached.length >= 20) return cached;
         } catch (e) {}
 
+        // 3. Cek crypto.subtle
         if (!window.crypto || !window.crypto.subtle || !window.crypto.subtle.digest) {
             throw new Error("Browser tidak support crypto.subtle. Pakai Chrome/Edge/Firefox terbaru.");
         }
 
+        // 4. Generate dari fingerprint
         const parts = [
             navigator.platform || "",
             navigator.hardwareConcurrency || 0,
@@ -102,12 +79,14 @@
         const fp = parts.join("|");
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fp));
         const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+
         try { localStorage.setItem(MID_CACHE_KEY, hex); } catch (e) {}
+        console.log("[MID] Generated:", hex.substring(0, 16) + "...");
         return hex;
     }
 
     // ============================================================
-    // LICENSE VERIFY (universal — tidak cek tool)
+    // LICENSE VERIFY
     // ============================================================
     function b64ToBytes(b64) {
         const bin = atob(b64);
@@ -123,22 +102,28 @@
         for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
         return bytes;
     }
-    async function verifyLicense(key) {
-        const parts = String(key || "").trim().split(".");
+    async function verifyLicense(licenseKey) {
+        const parts = String(licenseKey || "").trim().split(".");
         if (parts.length !== 2) throw new Error("Format License Key tidak valid");
+        const [payloadB64, sigB64] = parts;
         const pk = await crypto.subtle.importKey("raw", b64ToBytes(PUBLIC_KEY_B64), { name: "Ed25519" }, false, ["verify"]);
-        const ok = await crypto.subtle.verify(
-            { name: "Ed25519" },
-            pk,
-            b64urlToBytes(parts[1]),
-            new TextEncoder().encode(parts[0])
-        );
+        const sig = b64urlToBytes(sigB64);
+        const data = new TextEncoder().encode(payloadB64);
+        const ok = await crypto.subtle.verify({ name: "Ed25519" }, pk, sig, data);
         if (!ok) throw new Error("License tidak sah");
-        const payload = JSON.parse(new TextDecoder().decode(b64urlToBytes(parts[0])));
+        const payload = JSON.parse(new TextDecoder().decode(b64urlToBytes(payloadB64)));
         const today = new Date().toISOString().slice(0, 10);
         if (payload.e < today) throw new Error("License sudah kadaluarsa");
         return payload;
     }
+
+    // ============================================================
+    // SESSION
+    // ============================================================
+    function saveSession(data) { try { localStorage.setItem(SESSION_KEY, JSON.stringify(Object.assign({}, data, { savedAt: Date.now() }))); } catch (e) {} }
+    function getSession() { try { const raw = localStorage.getItem(SESSION_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+    function clearSession() { try { localStorage.removeItem(SESSION_KEY); } catch (e) {} }
+    function updateSession(patch) { const s = getSession() || {}; saveSession(Object.assign({}, s, patch)); }
 
     // ============================================================
     // HELPERS
@@ -171,36 +156,27 @@
     // ============================================================
     // VIEWS
     // ============================================================
-    function showAuth() {
-        show($("#authView"));
+    function showLogin() {
+        show($("#loginView"));
         hide($("#dashboardView"));
         hide($("#navLogout"));
-        switchTab("login");
     }
     function showDashboard() {
-        hide($("#authView"));
+        hide($("#loginView"));
         show($("#dashboardView"));
         show($("#navLogout"));
         renderDashboard();
-    }
-    function switchTab(tab) {
-        $$(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-        $$(".view-panel").forEach(p => p.classList.remove("active"));
-        const panel = $("#panel" + tab.charAt(0).toUpperCase() + tab.slice(1));
-        if (panel) panel.classList.add("active");
-        hide($("#loginError"));
-        hide($("#registerError"));
     }
 
     // ============================================================
     // MID MODAL
     // ============================================================
     let _generatedMid = null;
-    let _midTarget = null;
 
     async function generateMid() {
         const box = $("#midModalContent");
         box.innerHTML = '<div style="text-align:center;padding:24px 0;color:#69756D;font-size:.85rem"><span class="spinner-dot"></span> Mendeteksi Machine ID...</div>';
+
         try {
             const mid = await getMachineId();
             _generatedMid = mid;
@@ -209,116 +185,55 @@
                     '<code id="midDetail">' + mid + '</code>' +
                     '<button type="button" class="btn-copy-mid" id="copyMidDetail">Copy</button>' +
                 '</div>' +
-                '<div class="alert alert-info" style="margin:14px 0 0"><i>&#8505;</i><div>Simpan ID ini. Akan dipakai untuk login.</div></div>';
+                '<div class="alert alert-info" style="margin:14px 0 0"><i>&#8505;</i><div>Simpan ID ini. License yang dibeli akan terikat ke Machine ID ini.</div></div>';
+
             const cb = $("#copyMidDetail");
             cb.addEventListener("click", function () {
                 navigator.clipboard.writeText(mid).then(function () {
+                    const orig = cb.textContent;
                     cb.textContent = "OK!";
                     cb.classList.add("ok");
-                    setTimeout(function () { cb.textContent = "Copy"; cb.classList.remove("ok"); }, 1500);
-                }).catch(function () { alert("Copy manual: " + mid); });
+                    setTimeout(function () { cb.textContent = orig; cb.classList.remove("ok"); }, 1500);
+                }).catch(function () {
+                    alert("Copy manual: " + mid);
+                });
             });
         } catch (e) {
-            box.innerHTML = '<div class="alert alert-error" style="margin:0"><i>&#10007;</i><div><b>Gagal generate MID.</b><br>' + escapeHtml(e.message) + '<br><br>Buka di Chrome/Edge terbaru atau copy manual dari extension.</div></div>';
+            box.innerHTML =
+                '<div class="alert alert-error" style="margin:0"><i>&#10007;</i><div><b>Gagal generate MID.</b><br>' + escapeHtml(e.message || "Browser tidak mendukung") + '<br><br><b>Solusi:</b><br>1. Buka di Chrome/Edge terbaru<br>2. Copy manual dari extension popup<br>3. Cek HTTPS aktif (bukan HTTP)</div></div>';
         }
     }
-    function openMidModal(targetId) {
-        _midTarget = targetId;
+
+    function openMidModal() {
         $("#midModal").classList.add("show");
         generateMid();
     }
-    function closeMidModal() { $("#midModal").classList.remove("show"); }
-
-    // ============================================================
-    // VALIDASI
-    // ============================================================
-    function showFieldError(el, msg) {
-        if (!el) return;
-        el.textContent = msg;
-        el.classList.add("show");
-    }
-    function hideFieldError(el) {
-        if (el) el.classList.remove("show");
-    }
-    function validateUsername(u, accounts) {
-        if (!RX_USERNAME.test(u)) return "Username: 3-20 karakter, huruf/angka/underscore";
-        if (accounts[u]) return "Username sudah dipakai";
-        return null;
-    }
-    function validateEmail(e, accounts, exceptUsername) {
-        if (!RX_EMAIL.test(e)) return "Format email tidak valid";
-        const lower = e.toLowerCase();
-        for (const k in accounts) {
-            if (k === exceptUsername) continue;
-            if ((accounts[k].email || "").toLowerCase() === lower) return "Email sudah dipakai";
-        }
-        return null;
-    }
-    function validateMid(m) {
-        if (!RX_MID.test(m)) return "Machine ID harus 64 karakter hex (a-f, 0-9)";
-        return null;
+    function closeMidModal() {
+        $("#midModal").classList.remove("show");
     }
 
     // ============================================================
-    // REGISTER
+    // AUTO-LOAD MID (silent)
     // ============================================================
-    function handleRegister(e) {
-        e.preventDefault();
-        const username = $("#regUsername").value.trim();
-        const email = $("#regEmail").value.trim();
-        const mid = ($("#regMid").value || "").trim();
-        const err = $("#registerError");
-        hide(err);
-        hideFieldError($("#errUsername"));
-        hideFieldError($("#errEmail"));
-        hideFieldError($("#errMid"));
-        $$("#registerForm input").forEach(i => i.classList.remove("error"));
-
-        const accounts = getAccounts();
-        let hasErr = false;
-
-        const uErr = validateUsername(username, accounts);
-        if (uErr) { showFieldError($("#errUsername"), uErr); $("#regUsername").classList.add("error"); hasErr = true; }
-
-        const eErr = validateEmail(email, accounts);
-        if (eErr) { showFieldError($("#errEmail"), eErr); $("#regEmail").classList.add("error"); hasErr = true; }
-
-        const mErr = validateMid(mid);
-        if (mErr) { showFieldError($("#errMid"), mErr); $("#regMid").classList.add("error"); hasErr = true; }
-
-        // Cross-check: username/email tidak boleh = MID
-        if (username.toLowerCase() === mid.toLowerCase()) {
-            showFieldError($("#errUsername"), "Username tidak boleh sama dengan Machine ID");
-            hasErr = true;
+    async function autoLoadMid() {
+        const midInput = $("#midInput");
+        const midHint = $("#midHint");
+        if (!midInput) return;
+        try {
+            const mid = await getMachineId();
+            if (!midInput.value) {
+                midInput.value = mid;
+                if (midHint) {
+                    midHint.innerHTML = "Machine ID sudah terisi otomatis. Bisa diedit manual.";
+                    midHint.style.color = "#32A852";
+                }
+            }
+        } catch (e) {
+            console.log("[MID] Auto-load skip:", e.message);
+            if (midHint) {
+                midHint.innerHTML = 'Klik <b>Generate</b> untuk deteksi Machine ID otomatis, atau copy manual dari extension.';
+            }
         }
-        if (email.toLowerCase() === mid.toLowerCase()) {
-            showFieldError($("#errEmail"), "Email tidak boleh sama dengan Machine ID");
-            hasErr = true;
-        }
-
-        if (hasErr) {
-            err.textContent = "Periksa kembali data yang diisi.";
-            show(err);
-            return;
-        }
-
-        // Save account
-        accounts[username] = {
-            username: username,
-            email: email,
-            machineId: mid,
-            createdAt: Date.now(),
-            licenseKey: null,
-            payload: null,
-        };
-        saveAccounts(accounts);
-
-        // Auto-login
-        saveSession({ username: username, loggedInAt: Date.now() });
-        showDashboard();
-
-        // Download JSON backup
-        downloadBackup(accounts[username]);
     }
 
     // ============================================================
@@ -326,95 +241,41 @@
     // ============================================================
     function handleLogin(e) {
         e.preventDefault();
-        const identifier = $("#loginIdentifier").value.trim();
-        const mid = ($("#loginMid").value || "").trim();
+        const email = $("#emailInput").value.trim();
+        const mid = ($("#midInput").value || "").trim();
         const err = $("#loginError");
         hide(err);
 
-        if (!identifier) { err.textContent = "Username/email wajib diisi."; show(err); return; }
-        if (!mid) { err.textContent = "Machine ID wajib diisi."; show(err); return; }
+        if (!email) { err.textContent = "Email wajib diisi."; show(err); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "Format email tidak valid."; show(err); return; }
+        if (!mid || mid.length < 20) { err.textContent = "Machine ID kosong. Klik Generate atau copy dari extension."; show(err); return; }
 
-        const accounts = getAccounts();
-        let found = null;
-        const lower = identifier.toLowerCase();
-
-        for (const k in accounts) {
-            if (k.toLowerCase() === lower || (accounts[k].email || "").toLowerCase() === lower) {
-                found = accounts[k];
-                break;
-            }
-        }
-
-        if (!found) { err.textContent = "Akun tidak ditemukan. Periksa username/email atau daftar dulu."; show(err); return; }
-        if (found.machineId !== mid) { err.textContent = "Machine ID tidak cocok dengan akun ini."; show(err); return; }
-
-        saveSession({ username: found.username, loggedInAt: Date.now() });
+        saveSession({ email: email, machineId: mid });
         showDashboard();
     }
 
     function doLogout() {
-        if (!confirm("Logout dari dashboard?")) return;
+        if (!confirm("Logout dari dashboard? License yang sudah dimasukkan akan dihapus.")) return;
         clearSession();
-        showAuth();
+        $("#emailInput").value = "";
+        showLogin();
     }
 
     // ============================================================
-    // DOWNLOAD JSON BACKUP
-    // ============================================================
-    function downloadBackup(account) {
-        if (!account) {
-            const s = getSession();
-            if (!s) return;
-            account = getAccounts()[s.username];
-            if (!account) return;
-        }
-        const data = {
-            app: "DevAccTra",
-            version: "1.0",
-            type: "account_backup",
-            exportedAt: new Date().toISOString(),
-            account: {
-                username: account.username,
-                email: account.email,
-                machineId: account.machineId,
-                createdAt: account.createdAt,
-                licenseKey: account.licenseKey || null,
-                license: account.payload ? {
-                    tier: account.payload.t,
-                    issued: account.payload.i,
-                    expires: account.payload.e,
-                } : null,
-            },
-            note: "Simpan file ini. Bisa dipakai untuk restore akun kalau lupa credential.",
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "devacctra-" + account.username + "-backup.json";
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    // ============================================================
-    // LICENSE STATUS RENDER
+    // RENDER LICENSE STATUS
     // ============================================================
     function renderLicenseStatus(session) {
         const box = $("#licenseStatusContent");
         const payBtn = $("#buyProBtn");
         const pasteBtn = $("#pasteLicenseBtn");
         const removeBtn = $("#removeLicenseBtn");
-        const account = getAccounts()[session.username];
-        if (!account) return;
 
-        if (!account.licenseKey || !account.payload) {
-            box.innerHTML = '<div class="alert alert-warn" style="margin:0"><i>&#9888;</i><div><b>Belum ada License PRO.</b><br>Anda hanya bisa download versi <b>Trial</b>. Untuk versi PRO (berlaku semua produk), masukkan License Key dari Admin atau hubungi kami.</div></div>';
+        if (!session.licenseKey) {
+            box.innerHTML = '<div class="alert alert-warn" style="margin:0"><i>&#9888;</i><div><b>Belum ada License PRO.</b><br>Anda hanya bisa download versi <b>Trial</b>. Untuk versi PRO, masukkan License Key dari Admin atau hubungi kami.</div></div>';
             show(pasteBtn); show(payBtn); hide(removeBtn);
             return;
         }
-        const p = account.payload;
+        const p = session.payload || {};
         const tier = (p.t || "").toLowerCase();
         const isPro = isProTier(tier);
         const exp = p.e || "-";
@@ -422,22 +283,22 @@
 
         box.innerHTML =
             '<div class="info-row"><span class="label">Tier</span><span class="value"><span class="badge badge-' + (tier || "pro") + '">' + (tier || "pro") + '</span></span></div>' +
+            '<div class="info-row"><span class="label">Produk</span><span class="value">' + escapeHtml(p.tool || "coretax-toolkit") + '</span></div>' +
             '<div class="info-row"><span class="label">Berlaku sampai</span><span class="value">' + fmtDate(exp) + ' <small style="color:#69756D">(' + days + ' hari)</small></span></div>' +
             (isPro
-                ? '<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk di atas bisa di-download versi PRO.</div></div>'
-                : '<div class="alert alert-info" style="margin:12px 0 0"><i>&#8505;</i><div>License tier <b>' + tier + '</b> tidak membuka akses PRO.</div></div>');
+                ? '<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk bisa di-download versi PRO.</div></div>'
+                : '<div class="alert alert-info" style="margin:12px 0 0"><i>&#8505;</i><div>License tier <b>' + tier + '</b> tidak membuka akses PRO. Masukkan License PRO dari Admin.</div></div>');
         show(removeBtn);
         if (isPro) hide(pasteBtn); else show(pasteBtn);
         show(payBtn);
     }
 
     // ============================================================
-    // PRODUCTS RENDER
+    // RENDER PRODUCTS
     // ============================================================
     function renderProducts(session) {
         const grid = $("#productsGrid");
-        const account = getAccounts()[session.username];
-        const hasPro = account && account.payload && isProTier(account.payload.t);
+        const hasPro = session.payload && isProTier(session.payload.t);
 
         grid.innerHTML = PRODUCTS.map(function (p) {
             const icon = ICONS[p.id] || "";
@@ -449,7 +310,7 @@
                 ? '<button class="product-btn product-btn-pro" disabled><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Coming Soon</button>'
                 : (hasPro
                     ? '<a class="product-btn product-btn-pro" href="' + DIST + "/" + p.pro + '" download><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Download PRO</a>'
-                    : '<button class="product-btn product-btn-pro" data-open-license="1" type="button"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Butuh License</button>');
+                    : '<button class="product-btn product-btn-pro" disabled type="button" data-open-license="1"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Butuh License</button>');
             return '<div class="product-card">' +
                 (!isAvail ? '<span class="product-badge">Coming Soon</span>' : "") +
                 '<div class="product-head">' +
@@ -471,22 +332,19 @@
 
     function renderDashboard() {
         const s = getSession();
-        if (!s || !s.username) { showAuth(); return; }
-        const account = getAccounts()[s.username];
-        if (!account) { clearSession(); showAuth(); return; }
-
-        $("#heroUsername").textContent = account.username;
-        $("#heroEmail").textContent = account.email;
-        $("#heroMid").textContent = shortMid(account.machineId);
-        renderProducts(s);
+        if (!s || !s.email || !s.machineId) { showLogin(); return; }
+        $("#heroEmail").textContent = s.email;
+        $("#heroMid").textContent = shortMid(s.machineId);
         renderLicenseStatus(s);
+        renderProducts(s);
 
         const cb = $("#copyMidHero");
         cb.onclick = function () {
-            navigator.clipboard.writeText(account.machineId).then(function () {
+            navigator.clipboard.writeText(s.machineId).then(function () {
+                const orig = cb.textContent;
                 cb.textContent = "OK!";
                 cb.classList.add("ok");
-                setTimeout(function () { cb.textContent = "Copy"; cb.classList.remove("ok"); }, 1500);
+                setTimeout(function () { cb.textContent = orig; cb.classList.remove("ok"); }, 1500);
             });
         };
     }
@@ -498,7 +356,7 @@
         $("#licenseTextarea").value = "";
         hide($("#modalError"));
         $("#licenseModal").classList.add("show");
-        setTimeout(() => $("#licenseTextarea").focus(), 100);
+        setTimeout(function () { $("#licenseTextarea").focus(); }, 100);
     }
     function closeLicenseModal() { $("#licenseModal").classList.remove("show"); }
 
@@ -514,19 +372,11 @@
 
         try {
             const payload = await verifyLicense(key);
-            const s = getSession();
-            if (!s) throw new Error("Session hilang, login ulang.");
-            const accounts = getAccounts();
-            const account = accounts[s.username];
-            if (!account) throw new Error("Akun tidak ditemukan.");
-
-            if (payload.m && payload.m !== "*" && payload.m !== account.machineId) {
-                throw new Error("License ini untuk Machine ID lain. Machine ID Anda: " + shortMid(account.machineId));
+            const session = getSession();
+            if (payload.m && payload.m !== "*" && payload.m !== session.machineId) {
+                throw new Error("License ini untuk Machine ID lain. Machine ID Anda: " + shortMid(session.machineId));
             }
-
-            account.licenseKey = key;
-            account.payload = payload;
-            saveAccounts(accounts);
+            updateSession({ licenseKey: key, payload: payload });
             closeLicenseModal();
             renderDashboard();
         } catch (e) {
@@ -539,53 +389,30 @@
     }
 
     // ============================================================
-    // AUTO-LOAD MID
-    // ============================================================
-    async function autoLoadMid(inputId, hintId) {
-        const input = $("#" + inputId);
-        const hint = $("#" + hintId);
-        if (!input) return;
-        try {
-            const mid = await getMachineId();
-            if (!input.value) {
-                input.value = mid;
-                if (hint) { hint.innerHTML = "Machine ID terisi otomatis. Bisa diedit manual."; hint.style.color = "#32A852"; }
-            }
-        } catch (e) {
-            console.log("[MID] Auto-load skip:", e.message);
-        }
-    }
-
-    // ============================================================
-    // INIT
+    // INIT — semua event listener
     // ============================================================
     function init() {
-        // Tabs
-        $$(".tab-btn").forEach(function (btn) {
-            btn.addEventListener("click", function () { switchTab(btn.dataset.tab); });
-        });
+        // Login form
+        const form = $("#loginForm");
+        if (form) form.addEventListener("submit", handleLogin);
 
-        // Forms
-        const rForm = $("#registerForm");
-        if (rForm) rForm.addEventListener("submit", handleRegister);
-        const lForm = $("#loginForm");
-        if (lForm) lForm.addEventListener("submit", handleLogin);
+        // Logout
+        const navLogout = $("#navLogout");
+        if (navLogout) navLogout.addEventListener("click", doLogout);
 
-        // MID generate buttons
-        $$("[data-mid-target]").forEach(function (btn) {
-            btn.addEventListener("click", function () { openMidModal(btn.dataset.midTarget); });
-        });
+        // MID modal
+        const genBtn = $("#generateMidBtn");
+        if (genBtn) genBtn.addEventListener("click", openMidModal);
         const midClose = $("#midModalClose");
         if (midClose) midClose.addEventListener("click", closeMidModal);
         const midBg = $("#midModal");
         if (midBg) midBg.addEventListener("click", function (e) { if (e.target === midBg) closeMidModal(); });
         const midUse = $("#midModalUse");
         if (midUse) midUse.addEventListener("click", function () {
-            if (_generatedMid && _midTarget) {
-                const target = $("#" + _midTarget);
-                if (target) target.value = _generatedMid;
-                const hint = target && target.parentElement.parentElement.querySelector(".hint");
-                if (hint) { hint.innerHTML = "Machine ID terisi."; hint.style.color = "#32A852"; }
+            if (_generatedMid) {
+                $("#midInput").value = _generatedMid;
+                const hint = $("#midHint");
+                if (hint) { hint.innerHTML = "Machine ID sudah diisi otomatis. Siap login."; hint.style.color = "#32A852"; }
             }
             closeMidModal();
         });
@@ -603,15 +430,11 @@
         // Remove license
         const removeBtn = $("#removeLicenseBtn");
         if (removeBtn) removeBtn.addEventListener("click", function () {
-            if (!confirm("Hapus License dari akun? Bisa masukkan lagi kapan saja.")) return;
-            const s = getSession();
-            if (!s) return;
-            const accounts = getAccounts();
-            const account = accounts[s.username];
-            if (!account) return;
-            delete account.licenseKey;
-            delete account.payload;
-            saveAccounts(accounts);
+            if (!confirm("Hapus License dari dashboard? Anda bisa masukkan lagi kapan saja.")) return;
+            const s = getSession() || {};
+            delete s.licenseKey;
+            delete s.payload;
+            saveSession(s);
             renderDashboard();
         });
 
@@ -619,30 +442,16 @@
         const buyBtn = $("#buyProBtn");
         if (buyBtn) buyBtn.addEventListener("click", function () { window.open(WA_URL, "_blank", "noopener"); });
 
-        // Download JSON
-        const dlBtn = $("#downloadJsonBtn");
-        if (dlBtn) dlBtn.addEventListener("click", function () {
-            const s = getSession();
-            if (!s) return;
-            const account = getAccounts()[s.username];
-            if (account) downloadBackup(account);
-        });
-
-        // Logout
-        const navLogout = $("#navLogout");
-        if (navLogout) navLogout.addEventListener("click", doLogout);
-        const logout2 = $("#logoutBtn2");
-        if (logout2) logout2.addEventListener("click", doLogout);
-
         // Start
         const s = getSession();
-        if (s && s.username && getAccounts()[s.username]) {
+        if (s && s.email && s.machineId) {
             showDashboard();
         } else {
-            showAuth();
-            autoLoadMid("loginMid", "loginMidHint");
-            autoLoadMid("regMid", "regMidHint");
+            showLogin();
+            autoLoadMid(); // hanya auto-load kalau belum login
         }
+
+        console.log("[App] Init complete. getMachineId typeof:", typeof getMachineId);
     }
 
     if (document.readyState === "loading") {
