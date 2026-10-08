@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Admin — DevAccTra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+<style>
+:root{--bg:#FAFBF8;--surface:#FFFFFF;--surface-soft:#F4F6F1;--sage:#A8B99A;--sage-soft:#EEF3EA;--dev-green:#004D2F;--dev-green-dark:#003521;--acc-green:#32A852;--tra-blue:#1E5BB8;--warning:#D97706;--warning-soft:#FEF3C7;--danger:#DC2626;--danger-soft:#FEE2E2;--ink:#17221D;--text:#29352E;--muted:#69756D;--border:rgba(23,34,29,.08);--border-strong:rgba(23,34,29,.14);--shadow-sm:0 2px 8px rgba(0,77,47,.05);--shadow:0 8px 24px rgba(0,77,47,.07);--shadow-lg:0 20px 50px rgba(0,77,47,.10);--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:0;background:none}
+input{font-family:inherit}
+::selection{background:var(--sage);color:var(--dev-green)}
+
+/* Login */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,rgba(0,77,47,.08),transparent 40%),radial-gradient(circle at 80% 90%,rgba(50,168,82,.06),transparent 40%),var(--bg)}
+.login-box{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--shadow-lg)}
+.login-logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--dev-green),var(--acc-green));display:grid;place-items:center;color:#fff;font-size:22px;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,77,47,.25)}
+.login-box h1{font-size:1.4rem;font-weight:800;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink)}
+.login-box > p{color:var(--muted);font-size:.86rem;margin-bottom:26px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.field input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;color:var(--ink);transition:all .15s}
+.field input:focus{outline:none;border-color:var(--dev-green);box-shadow:0 0 0 4px rgba(0,77,47,.08)}
+.login-btn{width:100%;padding:13px;border-radius:10px;background:var(--dev-green);color:#fff;font-weight:800;font-size:.9rem;transition:all .2s;cursor:pointer}
+.login-btn:hover:not(:disabled){background:var(--dev-green-dark);transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,77,47,.25)}
+.login-btn:disabled{opacity:.6;cursor:not-allowed}
+.login-err{color:var(--danger);font-size:.82rem;margin-top:12px;padding:10px 12px;background:var(--danger-soft);border-radius:8px;display:none}
+.login-err.show{display:block}
+
+/* App */
+.app{display:none;min-height:100vh;grid-template-columns:220px 1fr}
+.app.active{display:grid}
+.sidebar{background:var(--dev-green);color:#fff;padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-brand{padding:6px 8px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px}
+.sidebar-brand .logo{width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.15);display:grid;place-items:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.05rem;font-weight:400}
+.sidebar-brand .name{font-weight:800;font-size:.9rem;letter-spacing:-.02em}
+.sidebar-brand .sub{font-size:.6rem;opacity:.6;letter-spacing:.06em;text-transform:uppercase;font-weight:600}
+.sidebar-title{font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.45;padding:14px 10px 6px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:.84rem;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;transition:all .15s;width:100%;text-align:left;margin-bottom:2px}
+.sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.sidebar-item.active{background:rgba(255,255,255,.15);color:#fff}
+.sidebar-item i{font-size:13px;width:16px;text-align:center}
+.sidebar-logout{margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-logout button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:8px;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.15)}
+.sidebar-logout button:hover{background:rgba(255,50,50,.2);border-color:rgba(255,80,80,.4);color:#fca5a5}
+
+.main{padding:24px 32px;min-width:0}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.topbar h1{font-size:1.3rem;font-weight:800;letter-spacing:-.02em;color:var(--ink)}
+.topbar p{color:var(--muted);font-size:.84rem;margin-top:2px}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);display:grid;place-items:center;font-size:13px;cursor:pointer;transition:all .15s}
+.icon-btn:hover{border-color:var(--dev-green);color:var(--dev-green)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;transition:all .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--sage)}
+.stat-label{font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-value{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;color:var(--dev-green);font-variant-numeric:tabular-nums;line-height:1}
+
+/* Card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px}
+.card-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.card-title{font-size:.98rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:10px}
+.card-title .count{background:var(--sage-soft);color:var(--dev-green);font-size:.68rem;font-weight:800;padding:3px 9px;border-radius:999px}
+.card-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-wrap{position:relative;min-width:240px}
+.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+.search-wrap input{width:100%;padding:9px 12px 9px 34px;border-radius:10px;border:1px solid var(--border);background:var(--surface-soft);font-size:.84rem;color:var(--ink)}
+.search-wrap input:focus{outline:none;border-color:var(--dev-green);background:var(--surface);box-shadow:0 0 0 4px rgba(0,77,47,.06)}
+.btn{padding:9px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--dev-green);color:var(--dev-green)}
+.btn.primary{background:var(--dev-green);color:#fff;border-color:var(--dev-green)}
+.btn.primary:hover{background:var(--dev-green-dark);border-color:var(--dev-green-dark)}
+
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+thead{background:var(--surface-soft)}
+th{padding:11px 16px;text-align:left;font-weight:800;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+td{padding:12px 16px;border-top:1px solid var(--border);vertical-align:middle}
+tbody tr:hover{background:var(--surface-soft)}
+.cell-strong{font-weight:700;color:var(--ink);font-size:.86rem}
+.cell-sub{color:var(--muted);font-size:.75rem;margin-top:2px}
+.mono{font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--surface-soft);padding:3px 7px;border-radius:5px;color:var(--text);display:inline-flex;align-items:center;gap:6px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:.68rem;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.badge.green{background:rgba(50,168,82,.12);color:var(--acc-green)}
+.badge.red{background:var(--danger-soft);color:var(--danger)}
+.badge.yellow{background:var(--warning-soft);color:var(--warning)}
+.badge.blue{background:rgba(30,91,184,.1);color:var(--tra-blue)}
+.badge.gray{background:var(--border);color:var(--muted)}
+
+.row-actions{display:flex;gap:5px;justify-content:flex-end}
+.btn-mini{padding:5px 9px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.btn-mini:hover{border-color:var(--dev-green);color:var(--dev-green);background:var(--sage-soft)}
+.btn-mini.danger:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-soft)}
+
+.empty-state{padding:48px 24px;text-align:center}
+.empty-state i{font-size:36px;color:var(--muted);opacity:.4;margin-bottom:14px}
+.empty-state h3{font-size:.92rem;font-weight:700;margin-bottom:4px;color:var(--ink)}
+.empty-state p{color:var(--muted);font-size:.82rem}
+
+.skeleton{display:inline-block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface-soft) 0%,var(--border) 50%,var(--surface-soft) 100%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* Modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000;animation:fade .15s}
+.modal-backdrop.show{display:flex}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;width:100%;max-width:440px;box-shadow:var(--shadow-lg);overflow:hidden;animation:up .2s var(--ease)}
+@keyframes up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-head{padding:20px 22px;display:flex;gap:12px;align-items:center;border-bottom:1px solid var(--border)}
+.modal-icon{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:15px;flex-shrink:0}
+.modal-icon.danger{background:var(--danger-soft);color:var(--danger)}
+.modal-icon.primary{background:var(--sage-soft);color:var(--dev-green)}
+.modal-icon.warn{background:var(--warning-soft);color:var(--warning)}
+.modal-head h3{font-size:.98rem;font-weight:800;color:var(--ink)}
+.modal-head p{font-size:.78rem;color:var(--muted);margin-top:2px}
+.modal-body{padding:20px 22px;font-size:.86rem;color:var(--text);line-height:1.6}
+.modal-body input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;margin-top:10px;color:var(--ink)}
+.modal-body input:focus{outline:none;border-color:var(--dev-green)}
+.modal-footer{padding:14px 22px;background:var(--surface-soft);border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.modal-footer button{padding:9px 18px;border-radius:10px;font-weight:700;font-size:.84rem;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink)}
+.modal-footer button.primary{background:var(--dev-green);color:#fff;border-color:var(--dev-green)}
+.modal-footer button.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;pointer-events:none}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow-lg);animation:tin .25s var(--ease);pointer-events:auto;min-width:240px}
+@keyframes tin{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast i{font-size:14px}
+.toast.success{border-color:var(--acc-green)}.toast.success i{color:var(--acc-green)}
+.toast.error{border-color:var(--danger)}.toast.error i{color:var(--danger)}
+
+@media(max-width:900px){.app.active{grid-template-columns:1fr}.sidebar{position:fixed;top:0;left:0;width:220px;z-index:100;transform:translateX(-100%);transition:transform .25s}.sidebar.open{transform:translateX(0)}.menu-toggle{display:grid!important}.main{padding:20px}}
+.menu-toggle{display:none}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
+    <h1>Admin Panel</h1>
+    <p>DevAccTra — License Management</p>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Masukkan password admin" autofocus />
+    </div>
+    <button class="login-btn" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- App -->
+<div class="app" id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">D</div>
+      <div>
+        <div class="name">DevAccTra</div>
+        <div class="sub">Admin</div>
+      </div>
+    </div>
+    <div class="sidebar-title">Manage</div>
+    <button class="sidebar-item active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
+    <button class="sidebar-item" data-view="licenses"><i class="fa-solid fa-key"></i> Licenses</button>
+    <button class="sidebar-item" data-view="trials"><i class="fa-solid fa-flask"></i> Trials</button>
+    <button class="sidebar-item" data-view="generate"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Manual</button>
+    <div class="sidebar-logout">
+      <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="icon-btn menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSub">Ringkasan aktivitas DevAccTra</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="refreshBtn" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+    </div>
+
+    <!-- View: Dashboard -->
+    <div class="view" id="view-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total License</div><div class="stat-value" id="stTotal">—</div></div>
+        <div class="stat-card"><div class="stat-label">License Aktif</div><div class="stat-value" id="stActive">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Trial</div><div class="stat-value" id="stTrial">—</div></div>
+        <div class="stat-card"><div class="stat-label">Trial Aktif</div><div class="stat-value" id="stTrialActive">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total Download</div><div class="stat-value" id="stDl">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title"><i class="fa-solid fa-chart-simple"></i> Breakdown by Tier</div></div>
+        <div style="padding:20px" id="tierBreakdown"></div>
+      </div>
+    </div>
+
+    <!-- View: Licenses -->
+    <div class="view" id="view-licenses" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-key"></i> Licenses <span class="count" id="cLic">0</span></div>
+          <div class="card-actions">
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchLic" placeholder="Cari email, nama, machine ID..." /></div>
+            <button class="btn" id="refreshLic"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Customer</th><th>Tier</th><th>Machine ID</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+            <tbody id="tbLic"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyLic" style="display:none">
+          <i class="fa-solid fa-inbox"></i>
+          <h3>Belum ada license</h3>
+          <p>License akan muncul setelah customer membeli</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Trials -->
+    <div class="view" id="view-trials" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-flask"></i> Trials <span class="count" id="cTrial">0</span></div>
+          <div class="card-actions">
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchTrial" placeholder="Cari email atau nama..." /></div>
+            <button class="btn" id="refreshTrial"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Email</th><th>Nama</th><th>Product</th><th>Machine ID</th><th>Expired</th><th>Status</th></tr></thead>
+            <tbody id="tbTrial"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyTrial" style="display:none">
+          <i class="fa-solid fa-inbox"></i>
+          <h3>Belum ada trial</h3>
+          <p>Trial akan muncul setelah customer mencoba</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: Generate -->
+    <div class="view" id="view-generate" style="display:none">
+      <div class="card" style="max-width:560px">
+        <div class="card-header"><div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License Manual</div></div>
+        <div style="padding:24px">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label style="font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Nama Customer</label>
+              <input type="text" id="genName" placeholder="Nama lengkap" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;color:var(--ink)" />
+            </div>
+            <div>
+              <label style="font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Email</label>
+              <input type="email" id="genEmail" placeholder="email@contoh.com" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;color:var(--ink)" />
+            </div>
+            <div>
+              <label style="font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Product</label>
+              <select id="genTool" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;color:var(--ink)">
+                <option value="coretax-toolkit">Coretax PDF Extension</option>
+                <option value="rekap-faktur">Rekap Faktur</option>
+                <option value="rekap-bupot-bppu">Rekap Bupot BPPU</option>
+                <option value="rekap-bank-bca">Rekap Bank BCA</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Machine ID</label>
+              <input type="text" id="genMid" placeholder="Copy dari aplikasi customer" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;color:var(--ink)" />
+            </div>
+            <div>
+              <label style="font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Masa Berlaku (hari)</label>
+              <input type="number" id="genDays" value="365" min="1" style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;color:var(--ink)" />
+            </div>
+            <button class="btn primary" id="genBtn" style="width:100%;justify-content:center;padding:13px"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License</button>
+
+            <div id="genResult" style="display:none">
+              <div style="font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;margin-top:8px">License Key</div>
+              <div class="mono" id="genLicense" style="max-width:100%;display:block;white-space:pre-wrap;word-break:break-all;padding:12px;font-size:.72rem;line-height:1.5;user-select:all"></div>
+              <button class="btn primary" id="genCopy" style="width:100%;justify-content:center;margin-top:10px"><i class="fa-solid fa-copy"></i> Copy License</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-icon" id="mIcon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <div><h3 id="mTitle">Konfirmasi</h3><p id="mSub"></p></div>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-footer">
+      <button id="mCancel">Batal</button>
+      <button class="primary" id="mConfirm">Konfirmasi</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+const API_URL = 'https://coretax-backend-production.up.railway.app';
+const KEY = 'devacctra_admin_token';
+
+const PRODUCTS = {
+  'coretax-toolkit': 'Coretax PDF Extension',
+  'rekap-faktur': 'Rekap Faktur',
+  'rekap-bupot-bppu': 'Rekap Bupot BPPU',
+  'rekap-bank-bca': 'Rekap Bank BCA',
+};
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+let TOKEN = localStorage.getItem(KEY) || '';
+let licCache = [], trialCache = [];
+
+function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return isNaN(d) ? '—' : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+function shortMid(m) { return !m ? '—' : m.substring(0, 10) + '…' + m.substring(m.length - 4); }
+function toast(msg, type = 'success') {
+  const el = document.createElement('div');
+  el.className = 'toast ' + type;
+  el.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check'}"></i><span>${escapeHtml(msg)}</span>`;
+  $('#toastWrap').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+async function api(path, opts = {}) {
+  const headers = { ...(opts.headers || {}) };
+  if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
+  if (opts.body && typeof opts.body === 'object') { headers['Content-Type'] = 'application/json'; opts.body = JSON.stringify(opts.body); }
+  const res = await fetch(API_URL + path, { ...opts, headers });
+  if (res.status === 401) { localStorage.removeItem(KEY); location.reload(); return; }
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.detail || 'Error');
+  return data;
+}
+
+// ============ LOGIN ============
+function showLogin() { $('#loginScreen').style.display = 'flex'; $('#app').classList.remove('active'); }
+function showApp() { $('#loginScreen').style.display = 'none'; $('#app').classList.add('active'); loadStats(); loadLicenses(); loadTrials(); }
+
+$('#loginBtn').addEventListener('click', doLogin);
+$('#password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+async function doLogin() {
+  const pw = $('#password').value.trim();
+  const err = $('#loginErr');
+  err.classList.remove('show');
+  if (!pw) { err.textContent = 'Password kosong'; err.classList.add('show'); return; }
+  const btn = $('#loginBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...';
+  try {
+    const data = await api('/api/admin/login', { method: 'POST', body: { password: pw } });
+    TOKEN = data.token;
+    localStorage.setItem(KEY, TOKEN);
+    $('#password').value = '';
+    showApp();
+    toast('Login berhasil');
+  } catch (e) { err.textContent = e.message; err.classList.add('show'); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login'; }
+}
+
+$('#logoutBtn').addEventListener('click', () => { localStorage.removeItem(KEY); TOKEN = ''; location.reload(); });
+
+// ============ NAV ============
+$$('.sidebar-item[data-view]').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+function switchView(view) {
+  $$('.sidebar-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  $$('.view').forEach(v => v.style.display = 'none');
+  $('#view-' + view).style.display = 'block';
+  const titles = {
+    dashboard: ['Dashboard', 'Ringkasan aktivitas DevAccTra'],
+    licenses: ['Licenses', 'Kelola semua license customer'],
+    trials: ['Trials', 'Daftar user trial'],
+    generate: ['Generate License', 'Bikin license manual untuk customer'],
+  };
+  $('#pageTitle').textContent = titles[view][0];
+  $('#pageSub').textContent = titles[view][1];
+  if (view === 'dashboard') loadStats();
+  if (view === 'licenses') loadLicenses();
+  if (view === 'trials') loadTrials();
+  $('#sidebar').classList.remove('open');
+}
+$('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+$('#refreshBtn').addEventListener('click', () => {
+  const active = $('.sidebar-item.active').dataset.view;
+  switchView(active);
+});
+
+// ============ STATS ============
+async function loadStats() {
+  try {
+    const s = await api('/api/admin/stats');
+    $('#stTotal').textContent = s.total_licenses;
+    $('#stActive').textContent = s.active_licenses;
+    $('#stTrial').textContent = s.total_trials;
+    $('#stTrialActive').textContent = s.active_trials;
+    $('#stDl').textContent = s.total_downloads;
+    const tiers = s.by_tier || {};
+    const total = Object.values(tiers).reduce((a, b) => a + b, 0) || 1;
+    const colors = { pro: 'var(--dev-green)', basic: 'var(--tra-blue)', enterprise: 'var(--acc-green)', trial: 'var(--warning)', unknown: 'var(--muted)' };
+    $('#tierBreakdown').innerHTML = Object.entries(tiers).map(([tier, count]) => {
+      const pct = Math.round((count / total) * 100);
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:5px"><b style="text-transform:capitalize;color:var(--ink)">${escapeHtml(tier)}</b><span style="color:var(--muted)">${count} (${pct}%)</span></div>
+        <div style="height:7px;background:var(--border);border-radius:999px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${colors[tier] || colors.unknown};border-radius:999px;transition:width .6s"></div></div>
+      </div>`;
+    }).join('') || '<div class="empty-state" style="padding:20px"><p>Belum ada data</p></div>';
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ============ LICENSES ============
+async function loadLicenses() {
+  const q = $('#searchLic').value.trim();
+  const tb = $('#tbLic');
+  tb.innerHTML = '<tr><td colspan="6"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  try {
+    const data = await api('/api/admin/licenses?search=' + encodeURIComponent(q) + '&limit=200');
+    licCache = data.licenses;
+    $('#cLic').textContent = data.total;
+    if (!data.licenses.length) { tb.innerHTML = ''; $('#emptyLic').style.display = 'block'; return; }
+    $('#emptyLic').style.display = 'none';
+    tb.innerHTML = data.licenses.map(l => {
+      const expired = l.expires_at && new Date(l.expires_at) < new Date();
+      const status = !l.is_active ? '<span class="badge red">Revoked</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
+      return `<tr>
+        <td><div class="cell-strong">${escapeHtml(l.customer_name || '—')}</div><div class="cell-sub">${escapeHtml(l.customer_email || '—')}</div></td>
+        <td><span class="badge blue">${escapeHtml((l.tier || 'pro').toUpperCase())}</span></td>
+        <td><span class="mono" title="${escapeHtml(l.machine_id || '')}">${escapeHtml(shortMid(l.machine_id))}</span></td>
+        <td style="font-size:.8rem;color:var(--muted)">${fmtDate(l.expires_at)}</td>
+        <td>${status}</td>
+        <td><div class="row-actions">
+          ${l.is_active ? `<button class="btn-mini danger" onclick="revokeLic(${l.id})"><i class="fa-solid fa-ban"></i></button>` : `<button class="btn-mini" onclick="reactivateLic(${l.id})"><i class="fa-solid fa-check"></i></button>`}
+          <button class="btn-mini" onclick="extendLic(${l.id})"><i class="fa-solid fa-calendar-plus"></i></button>
+          <button class="btn-mini danger" onclick="deleteLic(${l.id})"><i class="fa-solid fa-trash"></i></button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+window.revokeLic = async (id) => {
+  if (!await confirmModal('Revoke License?', 'Customer tidak akan bisa pakai sampai di-reactivate.', 'danger')) return;
+  try { await api('/api/admin/license/revoke', { method: 'POST', body: { license_id: id } }); toast('License di-revoke'); loadLicenses(); loadStats(); }
+  catch (e) { toast(e.message, 'error'); }
+};
+window.reactivateLic = async (id) => {
+  try { await api('/api/admin/license/reactivate', { method: 'POST', body: { license_id: id } }); toast('License aktif kembali'); loadLicenses(); loadStats(); }
+  catch (e) { toast(e.message, 'error'); }
+};
+window.extendLic = async (id) => {
+  const days = await inputModal('Extend License', 'Tambah berapa hari?', '30');
+  if (!days) return;
+  try { await api('/api/admin/license/extend', { method: 'POST', body: { license_id: id, days: parseInt(days) } }); toast('Extended ' + days + ' hari'); loadLicenses(); }
+  catch (e) { toast(e.message, 'error'); }
+};
+window.deleteLic = async (id) => {
+  if (!await confirmModal('Hapus License?', 'Tindakan ini permanen. Tidak bisa dibatalkan.', 'danger')) return;
+  try { await api('/api/admin/license/' + id, { method: 'DELETE' }); toast('License dihapus'); loadLicenses(); loadStats(); }
+  catch (e) { toast(e.message, 'error'); }
+};
+
+// ============ TRIALS ============
+async function loadTrials() {
+  const q = $('#searchTrial').value.trim();
+  const tb = $('#tbTrial');
+  tb.innerHTML = '<tr><td colspan="6"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  try {
+    const data = await api('/api/admin/trials?search=' + encodeURIComponent(q) + '&limit=200');
+    trialCache = data.trials;
+    $('#cTrial').textContent = data.total;
+    if (!data.trials.length) { tb.innerHTML = ''; $('#emptyTrial').style.display = 'block'; return; }
+    $('#emptyTrial').style.display = 'none';
+    tb.innerHTML = data.trials.map(t => {
+      const expired = t.expires_at && new Date(t.expires_at) < new Date();
+      const status = expired ? '<span class="badge gray">Expired</span>' : '<span class="badge green">Aktif</span>';
+      return `<tr>
+        <td><div class="cell-strong">${escapeHtml(t.email || '—')}</div></td>
+        <td>${escapeHtml(t.name || '—')}</td>
+        <td><span style="font-size:.8rem">${escapeHtml(PRODUCTS[t.tool] || t.tool || '—')}</span></td>
+        <td><span class="mono" title="${escapeHtml(t.machine_id || '')}">${escapeHtml(shortMid(t.machine_id))}</span></td>
+        <td style="font-size:.8rem;color:var(--muted)">${fmtDate(t.expires_at)}</td>
+        <td>${status}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+// ============ GENERATE MANUAL ============
+$('#genBtn').addEventListener('click', async () => {
+  const name = $('#genName').value.trim();
+  const email = $('#genEmail').value.trim();
+  const tool = $('#genTool').value;
+  const mid = $('#genMid').value.trim();
+  const days = parseInt($('#genDays').value) || 365;
+  if (!email || !mid) { toast('Email & Machine ID wajib diisi', 'error'); return; }
+  const btn = $('#genBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+  try {
+    const data = await api('/api/admin/generate', {
+      method: 'POST',
+      body: { name: name, email: email, tool: tool, machine_id: mid, days: days }
+    });
+    $('#genLicense').textContent = data.license_key;
+    $('#genResult').style.display = 'block';
+    toast('License berhasil dibuat');
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License'; }
+});
+$('#genCopy').addEventListener('click', () => {
+  const t = $('#genLicense').textContent;
+  navigator.clipboard.writeText(t).then(() => toast('License di-copy'));
+});
+
+// ============ MODALS ============
+let modalResolve = null;
+function closeModal(r) { $('#modalBackdrop').classList.remove('show'); if (modalResolve) modalResolve(r); modalResolve = null; }
+$('#mCancel').addEventListener('click', () => closeModal(null));
+$('#mConfirm').addEventListener('click', () => { const i = $('#mInput'); closeModal(i ? i.value : true); });
+$('#modalBackdrop').addEventListener('click', e => { if (e.target === $('#modalBackdrop')) closeModal(null); });
+
+function confirmModal(title, body, type = 'primary') {
+  return new Promise(resolve => {
+    modalResolve = resolve;
+    $('#mIcon').className = 'modal-icon ' + type;
+    $('#mIcon').innerHTML = `<i class="fa-solid ${type === 'danger' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i>`;
+    $('#mTitle').textContent = title;
+    $('#mSub').textContent = '';
+    $('#mBody').innerHTML = body;
+    $('#mConfirm').className = type === 'danger' ? 'danger' : 'primary';
+    $('#mConfirm').textContent = 'Ya, Lanjutkan';
+    $('#mCancel').textContent = 'Batal';
+    $('#modalBackdrop').classList.add('show');
+  });
+}
+function inputModal(title, label, def) {
+  return new Promise(resolve => {
+    modalResolve = resolve;
+    $('#mIcon').className = 'modal-icon primary';
+    $('#mIcon').innerHTML = '<i class="fa-solid fa-pen"></i>';
+    $('#mTitle').textContent = title;
+    $('#mSub').textContent = '';
+    $('#mBody').innerHTML = `<label style="font-size:.72rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">${escapeHtml(label)}</label><input type="number" id="mInput" value="${escapeHtml(def)}" min="1" />`;
+    $('#mConfirm').className = 'primary';
+    $('#mConfirm').textContent = 'OK';
+    $('#mCancel').textContent = 'Batal';
+    $('#modalBackdrop').classList.add('show');
+    setTimeout(() => { const i = $('#mInput'); if (i) { i.focus(); i.select(); i.addEventListener('keydown', e => { if (e.key === 'Enter') closeModal(i.value); }); } }, 100);
+  });
+}
+
+// ============ SEARCH ============
+let sT;
+$('#searchLic').addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(loadLicenses, 300); });
+$('#searchTrial').addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(loadTrials, 300); });
+$('#refreshLic').addEventListener('click', loadLicenses);
+$('#refreshTrial').addEventListener('click', loadTrials);
+
+// ============ INIT ============
+if (TOKEN) {
+  (async () => {
+    try { await api('/api/admin/stats'); showApp(); }
+    catch { /* api() will reload */ }
+  })();
+} else showLogin();
+</script>
+</body>
+</html>
