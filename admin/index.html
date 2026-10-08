@@ -612,9 +612,38 @@ function closeModal(id) { $('#' + id).classList.remove('show'); }
 window.closeModal = closeModal;
 
 async function copyText(text) {
-  if (!text) return false;
-  try { await navigator.clipboard.writeText(text); return true; }
-  catch (e) { return false; }
+  if (!text) {
+    toast('Tidak ada text untuk di-copy', 'error');
+    return false;
+  }
+  // Try modern clipboard API
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('License ter-copy ke clipboard');
+    return true;
+  } catch (e) {
+    // Fallback: textarea + execCommand
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      ta.setAttribute('readonly', '');
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (ok) {
+        toast('License ter-copy ke clipboard');
+        return true;
+      }
+      toast('Gagal copy. Copy manual dari box di bawah.', 'error');
+      return false;
+    } catch (e2) {
+      toast('Gagal copy: ' + e2.message, 'error');
+      return false;
+    }
+  }
 }
 window.copyText = copyText;
 
@@ -864,9 +893,7 @@ function renderEditLicense(licenseKey) {
 }
 
 window.doCopy = async function(text) {
-  const ok = await copyText(text);
-  if (ok) toast('Copied');
-  else toast('Gagal copy', 'error');
+  await copyText(text);
 };
 
 async function saveCustomer() {
