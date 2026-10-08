@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Admin Console — DevAccTra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -98,6 +98,7 @@ input,select,textarea{font-family:inherit}
 .btn:hover{border-color:var(--tra-blue);color:var(--tra-blue);background:var(--tra-blue-soft)}
 .btn.primary{background:var(--tra-blue);color:#fff;border-color:var(--tra-blue)}
 .btn.primary:hover{background:var(--tra-blue-dark);border-color:var(--tra-blue-dark);color:#fff}
+.btn.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
 /* TABLE */
@@ -187,7 +188,7 @@ tbody tr:hover{background:var(--surface-soft)}
 .license-box .btn-row{display:flex;gap:8px}
 
 /* TOAST */
-.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:360px}
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:2000;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:360px}
 .toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow-lg);animation:tin .3s var(--ease);pointer-events:auto;min-width:260px}
 @keyframes tin{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 .toast i{font-size:14px;flex-shrink:0}
@@ -209,7 +210,6 @@ tbody tr:hover{background:var(--surface-soft)}
 </head>
 <body>
 
-<!-- LOGIN -->
 <div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-box">
     <div class="login-logo">D</div>
@@ -225,7 +225,6 @@ tbody tr:hover{background:var(--surface-soft)}
   </div>
 </div>
 
-<!-- APP -->
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
@@ -261,7 +260,6 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
 
-    <!-- DASHBOARD -->
     <div class="view" id="view-dashboard">
       <div class="stats-grid">
         <div class="stat-card" style="--tone:var(--tra-blue)"><div class="stat-label">Total License</div><div class="stat-value" id="stTotal">—</div></div>
@@ -275,7 +273,6 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
 
-    <!-- CUSTOMERS -->
     <div class="view" id="view-customers" style="display:none">
       <div class="card">
         <div class="card-header">
@@ -299,7 +296,6 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
 
-    <!-- LICENSES -->
     <div class="view" id="view-licenses" style="display:none">
       <div class="card">
         <div class="card-header">
@@ -323,7 +319,6 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
 
-    <!-- TRIALS -->
     <div class="view" id="view-trials" style="display:none">
       <div class="card">
         <div class="card-header">
@@ -334,7 +329,7 @@ tbody tr:hover{background:var(--surface-soft)}
         </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Email</th><th>Nama</th><th>Product</th><th>Machine ID</th><th>Expired</th></tr></thead>
+            <thead><tr><th>Email</th><th>Nama</th><th>Product</th><th>Machine ID</th><th>Count</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
             <tbody id="tbTrial"></tbody>
           </table>
         </div>
@@ -346,14 +341,12 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
 
-    <!-- GENERATE MANUAL -->
     <div class="view" id="view-generate" style="display:none">
       <div class="card" style="max-width:720px;margin:0 auto">
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License Manual</div>
         </div>
         <div style="padding:28px">
-
           <div class="alert alert-info">
             <i class="fa-solid fa-circle-info"></i>
             <div>2 cara: <b>Pilih Customer</b> (recommended) atau <b>Buat Customer Baru</b>. Data tunggal: <b>Customers</b>.</div>
@@ -420,17 +413,15 @@ tbody tr:hover{background:var(--surface-soft)}
             <pre id="genLicense"></pre>
             <div class="meta" id="genMeta"></div>
             <div class="btn-row">
-              <button class="btn primary" id="genCopy" style="flex:1;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License</button>
+              <button class="btn primary" id="genCopy" type="button" style="flex:1;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License</button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
   </main>
 </div>
 
-<!-- MODAL: KELOLA CUSTOMER -->
 <div class="modal-backdrop" id="editCustModal">
   <div class="modal">
     <div class="modal-head">
@@ -443,17 +434,14 @@ tbody tr:hover{background:var(--surface-soft)}
     </div>
     <div class="modal-body">
       <div id="editCustAlert"></div>
-
       <div class="field">
         <label>Username</label>
         <input type="text" id="editUsername" readonly style="background:var(--surface-soft);color:var(--muted);cursor:not-allowed">
       </div>
-
       <div class="field">
         <label>Email</label>
         <input type="email" id="editEmail">
       </div>
-
       <div class="field">
         <label>Machine IDs</label>
         <div class="mid-list" id="editMidList"></div>
@@ -462,12 +450,10 @@ tbody tr:hover{background:var(--surface-soft)}
           <button class="btn" id="addMidBtn"><i class="fa-solid fa-plus"></i></button>
         </div>
       </div>
-
       <div class="field">
         <label>Maks Device <span style="text-transform:none;font-weight:500;color:var(--muted)">(1-10, default 2)</span></label>
         <input type="number" id="editMaxDevices" min="1" max="10" value="2">
       </div>
-
       <div class="field">
         <label>Status</label>
         <select id="editActive">
@@ -475,19 +461,17 @@ tbody tr:hover{background:var(--surface-soft)}
           <option value="0">Nonaktif</option>
         </select>
       </div>
-
       <div class="field">
         <label>Catatan Admin</label>
         <textarea id="editNotes" rows="2" placeholder="Opsional"></textarea>
       </div>
-
       <div class="license-box" id="editLicenseBox">
         <h4><i class="fa-solid fa-key"></i> License</h4>
         <div id="editLicenseContent"></div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="danger" id="deleteCustBtn" title="Hapus customer permanen"><i class="fa-solid fa-trash"></i> Hapus Customer</button>
+      <button class="danger" id="deleteCustBtn"><i class="fa-solid fa-trash"></i> Hapus Customer</button>
       <div style="flex:1"></div>
       <button onclick="closeModal('editCustModal')">Batal</button>
       <button class="primary" id="saveCustBtn"><i class="fa-solid fa-check"></i> Simpan</button>
@@ -495,7 +479,6 @@ tbody tr:hover{background:var(--surface-soft)}
   </div>
 </div>
 
-<!-- MODAL: GENERATE LICENSE -->
 <div class="modal-backdrop" id="genLicModal">
   <div class="modal" style="max-width:520px">
     <div class="modal-head">
@@ -508,13 +491,11 @@ tbody tr:hover{background:var(--surface-soft)}
     </div>
     <div class="modal-body">
       <div id="genLicAlert"></div>
-
       <div class="field">
         <label>Produk <span style="text-transform:none;font-weight:500;color:var(--muted)">— kosong = universal</span></label>
         <div class="product-chips" id="genLicProducts"></div>
         <div id="genLicProductsHint" class="hint"></div>
       </div>
-
       <div class="field">
         <label>Tier</label>
         <select id="genLicTier">
@@ -523,12 +504,10 @@ tbody tr:hover{background:var(--surface-soft)}
           <option value="enterprise">Enterprise</option>
         </select>
       </div>
-
       <div class="field">
         <label>Berlaku Sampai</label>
         <input type="date" id="genLicDate">
       </div>
-
       <div class="alert alert-info">
         <i class="fa-solid fa-circle-info"></i>
         <div>License akan di-sign untuk <b>semua MID</b> yang terdaftar di customer ini.</div>
@@ -541,6 +520,42 @@ tbody tr:hover{background:var(--surface-soft)}
   </div>
 </div>
 
+<div class="modal-backdrop" id="suspendModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <div class="modal-icon danger"><i class="fa-solid fa-ban"></i></div>
+      <div style="flex:1">
+        <h3>Suspend Trial</h3>
+        <p id="suspendSub"></p>
+      </div>
+      <button class="icon-btn" onclick="closeModal('suspendModal')" style="width:32px;height:32px"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="suspendAlert"></div>
+      <div class="field">
+        <label>Durasi Suspend</label>
+        <select id="suspendDays">
+          <option value="1">1 hari</option>
+          <option value="3">3 hari</option>
+          <option value="7" selected>7 hari (default)</option>
+          <option value="14">14 hari</option>
+          <option value="30">30 hari</option>
+          <option value="90">90 hari</option>
+          <option value="365">1 tahun</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Alasan</label>
+        <textarea id="suspendReason" rows="2" placeholder="Opsional"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('suspendModal')">Batal</button>
+      <button class="danger" id="doSuspendBtn"><i class="fa-solid fa-ban"></i> Suspend</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
@@ -548,8 +563,8 @@ tbody tr:hover{background:var(--surface-soft)}
 // CONFIG & STATE
 // ============================================================
 const API_URL = 'https://devacctra-api.up.railway.app';
-const TOKEN_KEY = 'devacctra_admin_token_v3';
-const VIEW_KEY = 'devacctra_admin_view_v3';
+const TOKEN_KEY = 'devacctra_admin_token_v4';
+const VIEW_KEY = 'devacctra_admin_view_v4';
 
 const PRODUCTS = {
   'coretax-toolkit': { name: 'Coretax PDF Downloader', icon: 'fa-file-invoice' },
@@ -562,6 +577,7 @@ let TOKEN = '';
 let CURRENT_VIEW = 'dashboard';
 let custCache = [];
 let licCache = [];
+let trialCache = [];
 let custSimpleCache = [];
 
 let editingCustId = null;
@@ -576,12 +592,15 @@ let genLicCustId = null;
 let genLicSelectedProducts = [];
 let genLicUniversalMode = true;
 
-// ============================================================
-// HELPERS
-// ============================================================
+let suspendTargetMid = null;
+let suspendTargetTool = null;
+
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 
+// ============================================================
+// HELPERS
+// ============================================================
 function escapeHtml(s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 }
@@ -612,17 +631,12 @@ function closeModal(id) { $('#' + id).classList.remove('show'); }
 window.closeModal = closeModal;
 
 async function copyText(text) {
-  if (!text) {
-    toast('Tidak ada text untuk di-copy', 'error');
-    return false;
-  }
-  // Try modern clipboard API
+  if (!text) { toast('Tidak ada text untuk di-copy', 'error'); return false; }
   try {
     await navigator.clipboard.writeText(text);
     toast('License ter-copy ke clipboard');
     return true;
   } catch (e) {
-    // Fallback: textarea + execCommand
     try {
       const ta = document.createElement('textarea');
       ta.value = text;
@@ -631,13 +645,11 @@ async function copyText(text) {
       ta.setAttribute('readonly', '');
       document.body.appendChild(ta);
       ta.select();
+      ta.setSelectionRange(0, 99999);
       const ok = document.execCommand('copy');
       document.body.removeChild(ta);
-      if (ok) {
-        toast('License ter-copy ke clipboard');
-        return true;
-      }
-      toast('Gagal copy. Copy manual dari box di bawah.', 'error');
+      if (ok) { toast('License ter-copy ke clipboard'); return true; }
+      toast('Gagal copy. Copy manual dari box.', 'error');
       return false;
     } catch (e2) {
       toast('Gagal copy: ' + e2.message, 'error');
@@ -661,7 +673,6 @@ async function api(path, opts) {
   let res;
   try { res = await fetch(API_URL + path, Object.assign({}, opts, { headers: headers })); }
   catch (e) { throw new Error('Network error: ' + e.message); }
-
   if (res.status === 401) {
     TOKEN = '';
     localStorage.removeItem(TOKEN_KEY);
@@ -692,7 +703,6 @@ function showApp() {
   $('#loginScreen').style.display = 'none';
   $('#app').classList.add('active');
 }
-
 async function doLogin() {
   const pw = $('#password').value.trim();
   const err = $('#loginErr');
@@ -716,7 +726,6 @@ async function doLogin() {
     btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Masuk';
   }
 }
-
 function doLogout() {
   if (!confirm('Logout dari admin console?')) return;
   localStorage.removeItem(TOKEN_KEY);
@@ -735,17 +744,15 @@ function switchView(view) {
   $$('.sidebar-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   $$('.view').forEach(v => v.style.display = 'none');
   $('#view-' + view).style.display = 'block';
-
   const titles = {
     dashboard: ['Dashboard', 'Ringkasan aktivitas dan statistik'],
     customers: ['Customers', 'Kelola akun customer & akses produk'],
     licenses: ['Licenses', 'Semua license yang pernah di-generate'],
-    trials: ['Trials', 'Daftar user trial dari semua produk'],
+    trials: ['Trials', 'Daftar user trial & kontrol suspend'],
     generate: ['Generate Manual', 'Generate license untuk customer'],
   };
   $('#pageTitle').textContent = titles[view][0];
   $('#pageSub').textContent = titles[view][1];
-
   if (view === 'dashboard') loadStats();
   if (view === 'customers') loadCustomers();
   if (view === 'licenses') loadLicenses();
@@ -764,7 +771,6 @@ async function loadStats() {
     $('#stActive').textContent = s.active_licenses || 0;
     $('#stCust').textContent = s.total_customers || 0;
     $('#stTrial').textContent = s.total_trials || 0;
-
     const tiers = s.by_tier || {};
     const total = Object.values(tiers).reduce((a, b) => a + b, 0) || 1;
     const colors = { pro: 'var(--tra-blue)', basic: 'var(--acc-green)', enterprise: 'var(--dev-green)', trial: 'var(--warning)', unknown: 'var(--muted)' };
@@ -789,7 +795,6 @@ async function loadCustomers() {
     $('#cCust').textContent = data.total;
     if (!custCache.length) { tb.innerHTML = ''; $('#emptyCust').style.display = 'block'; return; }
     $('#emptyCust').style.display = 'none';
-
     tb.innerHTML = custCache.map(c => {
       const mids = c.machine_ids || [];
       const midPreview = mids.length
@@ -797,7 +802,6 @@ async function loadCustomers() {
         : '<span style="color:var(--muted)">—</span>';
       const licBadge = c.license_key ? '<span class="badge green">Aktif</span>' : '<span class="badge gray">Belum</span>';
       const statusBadge = c.is_active ? '<span class="badge green">Aktif</span>' : '<span class="badge red">Nonaktif</span>';
-
       return '<tr>' +
         '<td><div class="cell-strong">' + escapeHtml(c.username) + '</div><div class="cell-sub">' + escapeHtml(c.email) + '</div></td>' +
         '<td>' + midPreview + '<div class="cell-sub" style="margin-top:6px">' + mids.length + ' / ' + c.max_devices + ' device</div></td>' +
@@ -816,7 +820,6 @@ window.editCustomer = function(id) {
   editingCustId = id;
   editingMids = (c.machine_ids || []).slice();
   editingMaxDevices = parseInt(c.max_devices) || 2;
-
   $('#editCustName').textContent = c.username;
   $('#editCustSub').textContent = 'ID #' + c.id + ' · Dibuat ' + fmtDate(c.created_at);
   $('#editUsername').value = c.username;
@@ -825,7 +828,6 @@ window.editCustomer = function(id) {
   $('#editActive').value = c.is_active ? '1' : '0';
   $('#editNotes').value = c.notes || '';
   $('#editCustAlert').innerHTML = '';
-
   renderMids();
   renderEditLicense(c.license_key);
   openModal('editCustModal');
@@ -841,7 +843,6 @@ function renderMids() {
     '<div class="mid-item"><span title="' + escapeHtml(m) + '">' + escapeHtml(m) + '</span><button class="btn-mini danger" onclick="removeMid(' + i + ')"><i class="fa-solid fa-xmark"></i></button></div>'
   ).join('') + '<div class="hint" style="text-align:center;margin-top:6px">' + editingMids.length + ' / ' + editingMaxDevices + ' device</div>';
 }
-
 window.removeMid = function(i) { editingMids.splice(i, 1); renderMids(); };
 
 function renderEditLicense(licenseKey) {
@@ -852,7 +853,6 @@ function renderEditLicense(licenseKey) {
       '<div class="btn-row"><button class="btn primary" onclick="openGenLic(' + editingCustId + ')" style="flex:1;justify-content:center"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License</button></div>';
     return;
   }
-
   let payload = null;
   try {
     const parts = licenseKey.split('.');
@@ -862,12 +862,10 @@ function renderEditLicense(licenseKey) {
       payload = JSON.parse(atob(b64));
     }
   } catch (e) {}
-
   const tier = (payload && payload.t) || '?';
   const exp = (payload && payload.e) || null;
   const tool = (payload && payload.tool) || '';
   const tools = (payload && payload.tools) || null;
-
   let prodLabel;
   if (tools && Array.isArray(tools) && tools.length) {
     prodLabel = tools.map(t => '<span class="badge blue" style="margin-right:4px">' + escapeHtml(PRODUCTS[t]?.name || t) + '</span>').join('');
@@ -876,9 +874,7 @@ function renderEditLicense(licenseKey) {
   } else {
     prodLabel = '<span class="badge universal"><i class="fa-solid fa-globe"></i> Universal</span>';
   }
-
   const keyEsc = licenseKey.replace(/'/g, "\\'");
-
   box.innerHTML =
     '<div class="meta">' + prodLabel +
       '<div>Tier: <b>' + escapeHtml(tier.toUpperCase()) + '</b></div>' +
@@ -891,22 +887,16 @@ function renderEditLicense(licenseKey) {
       '<button class="btn" onclick="removeLicense(' + editingCustId + ')" style="color:var(--danger);border-color:var(--danger-soft)"><i class="fa-solid fa-trash"></i></button>' +
     '</div>';
 }
-
-window.doCopy = async function(text) {
-  await copyText(text);
-};
+window.doCopy = async function(text) { await copyText(text); };
 
 async function saveCustomer() {
   if (!editingCustId) return;
   const btn = $('#saveCustBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
-
   try {
     const maxDev = parseInt($('#editMaxDevices').value) || 2;
-    if (maxDev < 1 || maxDev > 10) {
-      throw new Error('Maks device harus 1-10');
-    }
+    if (maxDev < 1 || maxDev > 10) throw new Error('Maks device harus 1-10');
     await api('/api/admin/customer/' + editingCustId, {
       method: 'PATCH',
       body: {
@@ -932,7 +922,7 @@ async function saveCustomer() {
 async function deleteCustomer() {
   if (!editingCustId) return;
   const c = custCache.find(x => x.id === editingCustId);
-  if (!confirm('Hapus customer "' + c.username + '"? Tidak bisa dibatalkan.')) return;
+  if (!confirm('⚠️ HAPUS CUSTOMER PERMANEN?\n\nCustomer: ' + c.username + '\nEmail: ' + c.email + '\n\nSemua data (MID, license, notes) akan dihapus. TIDAK BISA DIBATALKAN.\n\nLanjutkan?')) return;
   try {
     await api('/api/admin/customer/' + editingCustId, { method: 'DELETE' });
     toast('Customer dihapus');
@@ -966,25 +956,21 @@ async function loadLicenses() {
     $('#cLic').textContent = data.total;
     if (!licCache.length) { tb.innerHTML = ''; $('#emptyLic').style.display = 'block'; return; }
     $('#emptyLic').style.display = 'none';
-
     tb.innerHTML = licCache.map(l => {
       const expired = l.expires_at && new Date(l.expires_at) < new Date();
       const status = !l.is_active ? '<span class="badge red">Nonaktif</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
-
       let prodLabel = '<span class="badge universal"><i class="fa-solid fa-globe"></i> Universal</span>';
       if (l.tools && Array.isArray(l.tools) && l.tools.length) {
         prodLabel = l.tools.map(t => '<span class="badge blue" style="margin-right:3px">' + escapeHtml(PRODUCTS[t]?.name || t) + '</span>').join('');
       } else if (l.tool) {
         prodLabel = '<span class="badge blue">' + escapeHtml(PRODUCTS[l.tool]?.name || l.tool) + '</span>';
       }
-
       const mids = l.machine_ids || [];
       const midPreview = mids.length
         ? '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;line-height:1.55">' + mids.map(m => '<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px" title="' + escapeHtml(m) + '">' + escapeHtml(m.substring(0,16)) + '…</div>').join('') + '</div>'
         : '<span style="color:var(--muted)">—</span>';
-
       const keyEsc = (l.license_key || '').replace(/'/g, "\\'");
-
+      const unameEsc = escapeHtml(l.username).replace(/'/g, "\\'");
       return '<tr>' +
         '<td><div class="cell-strong">' + escapeHtml(l.username) + '</div><div class="cell-sub">' + escapeHtml(l.customer_email) + '</div></td>' +
         '<td>' + prodLabel + '</td>' +
@@ -993,242 +979,13 @@ async function loadLicenses() {
         '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(l.expires_at) + '</td>' +
         '<td>' + status + '</td>' +
         '<td><div class="row-actions">' +
-          '<button class="btn-mini" onclick="doCopy(\'' + keyEsc + '\')" title="Copy License"><i class="fa-solid fa-copy"></i></button>' +
-          '<button class="btn-mini" onclick="editCustomer(' + l.id + ')" title="Kelola Customer"><i class="fa-solid fa-pen"></i></button>' +
-          '<button class="btn-mini danger" onclick="removeLicenseFromList(' + l.id + ', \'' + escapeHtml(l.username).replace(/'/g, "\\'") + '\')" title="Hapus License saja"><i class="fa-solid fa-key"></i></button>' +
+          '<button class="btn-mini" onclick="doCopy(\'' + keyEsc + '\')" title="Copy"><i class="fa-solid fa-copy"></i></button>' +
+          '<button class="btn-mini" onclick="editCustomer(' + l.id + ')" title="Kelola"><i class="fa-solid fa-pen"></i></button>' +
+          '<button class="btn-mini danger" onclick="removeLicenseFromList(' + l.id + ', \'' + unameEsc + '\')" title="Hapus license saja"><i class="fa-solid fa-key"></i></button>' +
         '</div></td>' +
         '</tr>';
     }).join('');
   } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
-}
-
-// ============================================================
-// TRIALS
-// ============================================================
-async function loadTrials() {
-  const tb = $('#tbTrial');
-  tb.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
-  try {
-    const data = await api('/api/admin/trials?limit=500', { method: 'GET' });
-    $('#cTrial').textContent = data.total;
-    if (!data.trials.length) { tb.innerHTML = ''; $('#emptyTrial').style.display = 'block'; return; }
-    $('#emptyTrial').style.display = 'none';
-    tb.innerHTML = data.trials.map(t =>
-      '<tr>' +
-        '<td><div class="cell-strong">' + escapeHtml(t.email || '—') + '</div></td>' +
-        '<td>' + escapeHtml(t.name || '—') + '</td>' +
-        '<td><span style="font-size:.78rem">' + escapeHtml(PRODUCTS[t.tool]?.name || t.tool || '—') + '</span></td>' +
-        '<td><span class="mono">' + escapeHtml(shortMid(t.machine_id)) + '</span></td>' +
-        '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(t.expires_at) + '</td>' +
-        '</tr>'
-    ).join('');
-  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
-}
-
-// ============================================================
-// GENERATE MANUAL
-// ============================================================
-async function loadCustomersSimple() {
-  try {
-    const data = await api('/api/admin/customers-simple', { method: 'GET' });
-    custSimpleCache = data.customers || [];
-    const sel = $('#genCustomerSelect');
-    if (!sel) return;
-    sel.innerHTML = '<option value="">— Pilih Customer —</option>' + custSimpleCache.map(c =>
-      '<option value="' + c.id + '">' + escapeHtml(c.username) + ' · ' + escapeHtml(c.email) + (c.has_license ? ' · sudah ada license' : '') + '</option>'
-    ).join('');
-  } catch (e) {
-    console.warn('loadCustomersSimple:', e.message);
-  }
-}
-
-function renderManualProductChips() {
-  const box = $('#genManualProducts');
-  if (!box) return;
-  const entries = [['', 'Universal', 'fa-globe', 'Semua produk']].concat(
-    Object.entries(PRODUCTS).map(([id, p]) => [id, p.name, p.icon, ''])
-  );
-  box.innerHTML = entries.map(([id, name, icon, hint]) => {
-    let isSelected = false;
-    if (id === '') isSelected = manualUniversalMode;
-    else isSelected = !manualUniversalMode && manualSelectedProducts.includes(id);
-    return '<button type="button" class="product-chip' + (isSelected ? ' selected' : '') + '" data-product="' + id + '">' +
-      '<i class="fa-solid ' + icon + '"></i><span>' + escapeHtml(name) + (hint ? ' <small style="opacity:.7">(' + escapeHtml(hint) + ')</small>' : '') + '</span></button>';
-  }).join('');
-
-  box.querySelectorAll('[data-product]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.product;
-      if (id === '') {
-        manualUniversalMode = true;
-        manualSelectedProducts = [];
-      } else {
-        manualUniversalMode = false;
-        const idx = manualSelectedProducts.indexOf(id);
-        if (idx >= 0) {
-          manualSelectedProducts.splice(idx, 1);
-          if (manualSelectedProducts.length === 0) manualUniversalMode = true;
-        } else {
-          manualSelectedProducts.push(id);
-        }
-      }
-      renderManualProductChips();
-    });
-  });
-
-  const hintEl = $('#genManualProductsHint');
-  if (hintEl) {
-    if (manualUniversalMode) {
-      hintEl.innerHTML = '<b style="color:var(--acc-green)">Universal</b> — semua produk.';
-    } else {
-      hintEl.innerHTML = '<b style="color:var(--tra-blue)">' + manualSelectedProducts.length + ' produk</b> — ' +
-        manualSelectedProducts.map(id => PRODUCTS[id]?.name || id).join(', ');
-    }
-  }
-}
-
-async function genManual() {
-  const btn = $('#genBtn');
-  let body = {};
-
-  if (genMode === 'existing') {
-    const custId = parseInt($('#genCustomerSelect').value);
-    if (!custId) { toast('Pilih customer dulu', 'error'); return; }
-    body.customer_id = custId;
-  } else {
-    const username = $('#genUsername').value.trim();
-    const email = $('#genEmailNew').value.trim();
-    const mid = $('#genMidNew').value.trim();
-    if (!username || !email || !mid) { toast('Username, Email, MID wajib', 'error'); return; }
-    body.username = username;
-    body.email = email;
-    body.machine_id = mid;
-  }
-
-  body.tier = $('#genTier').value;
-  body.products = manualUniversalMode ? [] : manualSelectedProducts.slice();
-  const dateVal = $('#genDate').value;
-  if (dateVal) body.expires_at = dateVal;
-  else body.days = 365;
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Generating...';
-
-  try {
-    const data = await api('/api/admin/generate-manual', { method: 'POST', body: body });
-    $('#genResult').style.display = 'block';
-    $('#genLicense').textContent = data.license_key;
-
-    const prods = data.products && data.products.length
-      ? data.products.map(p => PRODUCTS[p]?.name || p).join(', ')
-      : 'Universal (semua produk)';
-
-    const custInfo = data.customer
-      ? '<div>Customer: <b>' + escapeHtml(data.customer.username) + '</b></div>'
-      : '';
-
-    $('#genMeta').innerHTML =
-      custInfo +
-      '<div>Produk: <b>' + escapeHtml(prods) + '</b></div>' +
-      '<div>Tier: <b>' + escapeHtml(data.tier.toUpperCase()) + '</b></div>' +
-      '<div>Expired: <b>' + fmtDate(data.expires_at) + '</b></div>' +
-      '<div>Durasi: <b>' + data.days + ' hari</b></div>';
-
-    toast('License berhasil dibuat' + (data.customer ? ' untuk ' + data.customer.username : ''));
-    loadCustomersSimple();
-    if (CURRENT_VIEW === 'customers') loadCustomers();
-  } catch (e) {
-    toast(e.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License';
-  }
-}
-
-// ============================================================
-// GENERATE LICENSE (for customer modal)
-// ============================================================
-window.openGenLic = function(custId) {
-  genLicCustId = custId;
-  const c = custCache.find(x => x.id === custId);
-  $('#genLicSub').textContent = c ? c.username + ' · ' + (c.machine_ids || []).length + ' MID' : '';
-  $('#genLicAlert').innerHTML = '';
-  genLicUniversalMode = true;
-  genLicSelectedProducts = [];
-  renderGenLicProducts();
-
-  const d = new Date();
-  d.setFullYear(d.getFullYear() + 1);
-  $('#genLicDate').value = d.toISOString().slice(0, 10);
-  openModal('genLicModal');
-};
-
-function renderGenLicProducts() {
-  const box = $('#genLicProducts');
-  if (!box) return;
-  const entries = [['', 'Universal', 'fa-globe']].concat(
-    Object.entries(PRODUCTS).map(([id, p]) => [id, p.name, p.icon])
-  );
-  box.innerHTML = entries.map(([id, name, icon]) => {
-    let isSelected = false;
-    if (id === '') isSelected = genLicUniversalMode;
-    else isSelected = !genLicUniversalMode && genLicSelectedProducts.includes(id);
-    return '<button type="button" class="product-chip' + (isSelected ? ' selected' : '') + '" data-product="' + id + '"><i class="fa-solid ' + icon + '"></i><span>' + escapeHtml(name) + '</span></button>';
-  }).join('');
-
-  box.querySelectorAll('[data-product]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.dataset.product;
-      if (id === '') {
-        genLicUniversalMode = true;
-        genLicSelectedProducts = [];
-      } else {
-        genLicUniversalMode = false;
-        const idx = genLicSelectedProducts.indexOf(id);
-        if (idx >= 0) {
-          genLicSelectedProducts.splice(idx, 1);
-          if (genLicSelectedProducts.length === 0) genLicUniversalMode = true;
-        } else {
-          genLicSelectedProducts.push(id);
-        }
-      }
-      renderGenLicProducts();
-    });
-  });
-
-  const hint = $('#genLicProductsHint');
-  if (hint) {
-    hint.innerHTML = genLicUniversalMode
-      ? '<b style="color:var(--acc-green)">Universal</b> — semua produk.'
-      : '<b style="color:var(--tra-blue)">' + genLicSelectedProducts.length + ' produk</b> dipilih.';
-  }
-}
-
-async function doGenerateLicenseForCust() {
-  if (!genLicCustId) return;
-  const btn = $('#doGenLicBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Generating...';
-
-  try {
-    const body = {
-      tier: $('#genLicTier').value,
-      expires_at: $('#genLicDate').value || null,
-      products: genLicUniversalMode ? [] : genLicSelectedProducts.slice(),
-    };
-    const data = await api('/api/admin/customer/' + genLicCustId + '/generate-license', { method: 'POST', body: body });
-    toast('License dibuat');
-    closeModal('genLicModal');
-    const c = custCache.find(x => x.id === genLicCustId);
-    if (c) c.license_key = data.license_key;
-    if (editingCustId === genLicCustId) renderEditLicense(data.license_key);
-    if (CURRENT_VIEW === 'licenses') loadLicenses();
-  } catch (e) {
-    $('#genLicAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>' + escapeHtml(e.message) + '</div></div>';
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate';
-  }
 }
 
 window.removeLicenseFromList = async function(custId, username) {
@@ -1251,6 +1008,260 @@ window.removeLicense = async function(custId) {
     toast('License dihapus');
   } catch (e) { toast(e.message, 'error'); }
 };
+
+// ============================================================
+// TRIALS
+// ============================================================
+async function loadTrials() {
+  const tb = $('#tbTrial');
+  tb.innerHTML = '<tr><td colspan="8"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  try {
+    const data = await api('/api/admin/trials?limit=500', { method: 'GET' });
+    trialCache = data.trials || [];
+    $('#cTrial').textContent = data.total;
+    if (!trialCache.length) { tb.innerHTML = ''; $('#emptyTrial').style.display = 'block'; return; }
+    $('#emptyTrial').style.display = 'none';
+    tb.innerHTML = trialCache.map(t => {
+      const count = t.count || 1;
+      let countBadge = '<span class="badge gray">' + count + 'x</span>';
+      if (count >= 6) countBadge = '<span class="badge red">' + count + 'x</span>';
+      else if (count >= 3) countBadge = '<span class="badge yellow">' + count + 'x</span>';
+      else countBadge = '<span class="badge blue">' + count + 'x</span>';
+      let statusBadge = '<span class="badge green">Aktif</span>';
+      if (t.suspended) statusBadge = '<span class="badge red">Suspended</span>';
+      else if (t.status === 'expired') statusBadge = '<span class="badge gray">Expired</span>';
+      else if (t.status === 'warning') statusBadge = '<span class="badge yellow">Warning</span>';
+      const midEsc = escapeHtml(t.machine_id || '').replace(/'/g, "\\'");
+      const toolEsc = escapeHtml(t.tool || 'coretax-toolkit').replace(/'/g, "\\'");
+      const actionBtn = t.suspended
+        ? '<button class="btn-mini" onclick="unsuspendTrial(\'' + midEsc + '\', \'' + toolEsc + '\')" title="Unsuspend"><i class="fa-solid fa-unlock"></i> Buka</button>'
+        : '<button class="btn-mini danger" onclick="openSuspendModal(\'' + midEsc + '\', \'' + toolEsc + '\')" title="Suspend"><i class="fa-solid fa-ban"></i> Suspend</button>';
+      const suspendInfo = t.suspended && t.suspend_until
+        ? '<div class="cell-sub" style="color:var(--danger);font-size:.68rem;margin-top:3px">s/d ' + fmtDate(t.suspend_until) + '</div>'
+        : '';
+      return '<tr>' +
+        '<td><div class="cell-strong">' + escapeHtml(t.email || '—') + '</div>' + suspendInfo + '</td>' +
+        '<td>' + escapeHtml(t.name || '—') + '</td>' +
+        '<td><span style="font-size:.78rem">' + escapeHtml(PRODUCTS[t.tool]?.name || t.tool || '—') + '</span></td>' +
+        '<td><span class="mono" title="' + escapeHtml(t.machine_id || '') + '">' + escapeHtml(shortMid(t.machine_id)) + '</span></td>' +
+        '<td>' + countBadge + '</td>' +
+        '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(t.expires_at) + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td><div class="row-actions">' + actionBtn + '</div></td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+window.openSuspendModal = function(mid, tool) {
+  suspendTargetMid = mid;
+  suspendTargetTool = tool;
+  $('#suspendSub').textContent = 'MID: ' + shortMid(mid) + ' · ' + (PRODUCTS[tool]?.name || tool);
+  $('#suspendAlert').innerHTML = '';
+  $('#suspendDays').value = '7';
+  $('#suspendReason').value = '';
+  openModal('suspendModal');
+};
+
+window.unsuspendTrial = async function(mid, tool) {
+  if (!confirm('Buka suspend untuk MID ini?')) return;
+  try {
+    await api('/api/admin/trial/unsuspend', { method: 'POST', body: { machine_id: mid, tool: tool } });
+    toast('Suspend dibuka');
+    loadTrials();
+  } catch (e) { toast(e.message, 'error'); }
+};
+
+async function doSuspend() {
+  if (!suspendTargetMid) return;
+  const btn = $('#doSuspendBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Proses...';
+  try {
+    const days = parseInt($('#suspendDays').value) || 7;
+    const reason = $('#suspendReason').value.trim() || 'Disuspend oleh admin';
+    await api('/api/admin/trial/suspend', {
+      method: 'POST',
+      body: { machine_id: suspendTargetMid, tool: suspendTargetTool, days: days, reason: reason },
+    });
+    toast('Trial di-suspend ' + days + ' hari');
+    closeModal('suspendModal');
+    loadTrials();
+  } catch (e) {
+    $('#suspendAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>' + escapeHtml(e.message) + '</div></div>';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-ban"></i> Suspend';
+  }
+}
+
+// ============================================================
+// GENERATE MANUAL
+// ============================================================
+async function loadCustomersSimple() {
+  try {
+    const data = await api('/api/admin/customers-simple', { method: 'GET' });
+    custSimpleCache = data.customers || [];
+    const sel = $('#genCustomerSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— Pilih Customer —</option>' + custSimpleCache.map(c =>
+      '<option value="' + c.id + '">' + escapeHtml(c.username) + ' · ' + escapeHtml(c.email) + (c.has_license ? ' · sudah ada license' : '') + '</option>'
+    ).join('');
+  } catch (e) { console.warn(e); }
+}
+
+function renderManualProductChips() {
+  const box = $('#genManualProducts');
+  if (!box) return;
+  const entries = [['', 'Universal', 'fa-globe']].concat(Object.entries(PRODUCTS).map(([id, p]) => [id, p.name, p.icon]));
+  box.innerHTML = entries.map(([id, name, icon]) => {
+    let isSelected = false;
+    if (id === '') isSelected = manualUniversalMode;
+    else isSelected = !manualUniversalMode && manualSelectedProducts.includes(id);
+    return '<button type="button" class="product-chip' + (isSelected ? ' selected' : '') + '" data-product="' + id + '"><i class="fa-solid ' + icon + '"></i><span>' + escapeHtml(name) + '</span></button>';
+  }).join('');
+  box.querySelectorAll('[data-product]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.product;
+      if (id === '') { manualUniversalMode = true; manualSelectedProducts = []; }
+      else {
+        manualUniversalMode = false;
+        const idx = manualSelectedProducts.indexOf(id);
+        if (idx >= 0) {
+          manualSelectedProducts.splice(idx, 1);
+          if (manualSelectedProducts.length === 0) manualUniversalMode = true;
+        } else manualSelectedProducts.push(id);
+      }
+      renderManualProductChips();
+    });
+  });
+  const hint = $('#genManualProductsHint');
+  if (hint) {
+    hint.innerHTML = manualUniversalMode
+      ? '<b style="color:var(--acc-green)">Universal</b> — semua produk.'
+      : '<b style="color:var(--tra-blue)">' + manualSelectedProducts.length + ' produk</b> — ' + manualSelectedProducts.map(id => PRODUCTS[id]?.name || id).join(', ');
+  }
+}
+
+async function genManual() {
+  const btn = $('#genBtn');
+  let body = {};
+  if (genMode === 'existing') {
+    const custId = parseInt($('#genCustomerSelect').value);
+    if (!custId) { toast('Pilih customer dulu', 'error'); return; }
+    body.customer_id = custId;
+  } else {
+    const username = $('#genUsername').value.trim();
+    const email = $('#genEmailNew').value.trim();
+    const mid = $('#genMidNew').value.trim();
+    if (!username || !email || !mid) { toast('Username, Email, MID wajib', 'error'); return; }
+    body.username = username;
+    body.email = email;
+    body.machine_id = mid;
+  }
+  body.tier = $('#genTier').value;
+  body.products = manualUniversalMode ? [] : manualSelectedProducts.slice();
+  const dateVal = $('#genDate').value;
+  if (dateVal) body.expires_at = dateVal;
+  else body.days = 365;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Generating...';
+  try {
+    const data = await api('/api/admin/generate-manual', { method: 'POST', body: body });
+    $('#genResult').style.display = 'block';
+    $('#genLicense').textContent = data.license_key;
+    const prods = data.products && data.products.length
+      ? data.products.map(p => PRODUCTS[p]?.name || p).join(', ')
+      : 'Universal (semua produk)';
+    const custInfo = data.customer ? '<div>Customer: <b>' + escapeHtml(data.customer.username) + '</b></div>' : '';
+    $('#genMeta').innerHTML =
+      custInfo +
+      '<div>Produk: <b>' + escapeHtml(prods) + '</b></div>' +
+      '<div>Tier: <b>' + escapeHtml(data.tier.toUpperCase()) + '</b></div>' +
+      '<div>Expired: <b>' + fmtDate(data.expires_at) + '</b></div>' +
+      '<div>Durasi: <b>' + data.days + ' hari</b></div>';
+    toast('License berhasil dibuat' + (data.customer ? ' untuk ' + data.customer.username : ''));
+    loadCustomersSimple();
+    if (CURRENT_VIEW === 'customers') loadCustomers();
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License'; }
+}
+
+// ============================================================
+// GENERATE LICENSE UNTUK CUSTOMER (modal)
+// ============================================================
+window.openGenLic = function(custId) {
+  genLicCustId = custId;
+  const c = custCache.find(x => x.id === custId);
+  $('#genLicSub').textContent = c ? c.username + ' · ' + (c.machine_ids || []).length + ' MID' : '';
+  $('#genLicAlert').innerHTML = '';
+  genLicUniversalMode = true;
+  genLicSelectedProducts = [];
+  renderGenLicProducts();
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  $('#genLicDate').value = d.toISOString().slice(0, 10);
+  openModal('genLicModal');
+};
+
+function renderGenLicProducts() {
+  const box = $('#genLicProducts');
+  if (!box) return;
+  const entries = [['', 'Universal', 'fa-globe']].concat(Object.entries(PRODUCTS).map(([id, p]) => [id, p.name, p.icon]));
+  box.innerHTML = entries.map(([id, name, icon]) => {
+    let isSelected = false;
+    if (id === '') isSelected = genLicUniversalMode;
+    else isSelected = !genLicUniversalMode && genLicSelectedProducts.includes(id);
+    return '<button type="button" class="product-chip' + (isSelected ? ' selected' : '') + '" data-product="' + id + '"><i class="fa-solid ' + icon + '"></i><span>' + escapeHtml(name) + '</span></button>';
+  }).join('');
+  box.querySelectorAll('[data-product]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.product;
+      if (id === '') { genLicUniversalMode = true; genLicSelectedProducts = []; }
+      else {
+        genLicUniversalMode = false;
+        const idx = genLicSelectedProducts.indexOf(id);
+        if (idx >= 0) {
+          genLicSelectedProducts.splice(idx, 1);
+          if (genLicSelectedProducts.length === 0) genLicUniversalMode = true;
+        } else genLicSelectedProducts.push(id);
+      }
+      renderGenLicProducts();
+    });
+  });
+  const hint = $('#genLicProductsHint');
+  if (hint) {
+    hint.innerHTML = genLicUniversalMode
+      ? '<b style="color:var(--acc-green)">Universal</b> — semua produk.'
+      : '<b style="color:var(--tra-blue)">' + genLicSelectedProducts.length + ' produk</b> dipilih.';
+  }
+}
+
+async function doGenerateLicenseForCust() {
+  if (!genLicCustId) return;
+  const btn = $('#doGenLicBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Generating...';
+  try {
+    const body = {
+      tier: $('#genLicTier').value,
+      expires_at: $('#genLicDate').value || null,
+      products: genLicUniversalMode ? [] : genLicSelectedProducts.slice(),
+    };
+    const data = await api('/api/admin/customer/' + genLicCustId + '/generate-license', { method: 'POST', body: body });
+    toast('License dibuat');
+    closeModal('genLicModal');
+    const c = custCache.find(x => x.id === genLicCustId);
+    if (c) c.license_key = data.license_key;
+    if (editingCustId === genLicCustId) renderEditLicense(data.license_key);
+    if (CURRENT_VIEW === 'licenses') loadLicenses();
+  } catch (e) {
+    $('#genLicAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>' + escapeHtml(e.message) + '</div></div>';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate';
+  }
+}
 
 // ============================================================
 // INIT
@@ -1277,6 +1288,22 @@ function init() {
   $('#refreshTrial').addEventListener('click', loadTrials);
   $('#doGenLicBtn').addEventListener('click', doGenerateLicenseForCust);
   $('#genBtn').addEventListener('click', genManual);
+  $('#doSuspendBtn').addEventListener('click', doSuspend);
+
+  // Copy handler (once, tidak perlu repatch)
+  const genCopyBtn = $('#genCopy');
+  if (genCopyBtn) {
+    genCopyBtn.onclick = async () => {
+      const text = $('#genLicense').textContent;
+      const ok = await copyText(text);
+      if (ok) {
+        const orig = genCopyBtn.innerHTML;
+        genCopyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
+        genCopyBtn.disabled = true;
+        setTimeout(() => { genCopyBtn.innerHTML = orig; genCopyBtn.disabled = false; }, 1500);
+      }
+    };
+  }
 
   document.querySelectorAll('[data-genmode]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1296,11 +1323,10 @@ function init() {
       const c = custSimpleCache.find(x => x.id === id);
       if (!c) { info.innerHTML = ''; return; }
       info.innerHTML = '<b>MID:</b> ' + c.machine_ids.length + ' device' +
-        (c.has_license ? ' · <b style="color:#D97706">sudah ada license</b>' : ' · <b style="color:#32A852">belum ada</b>');
+        (c.has_license ? ' · <b style="color:#D97706">sudah ada license (akan di-replace)</b>' : ' · <b style="color:#32A852">belum ada license</b>');
     });
   }
 
-  // Auto-restore session
   const saved = localStorage.getItem(TOKEN_KEY);
   if (saved) {
     TOKEN = saved;
@@ -1313,125 +1339,11 @@ function init() {
         if (e.status !== 401) showLogin();
       }
     })();
-  } else {
-    showLogin();
-  }
+  } else showLogin();
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
-
-// ============================================================
-// COPY HANDLER — override onclick tombol Copy
-// ============================================================
-(function() {
-    function tryCopy(text) {
-        if (!text) return Promise.resolve(false);
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            return navigator.clipboard.writeText(text).then(function() { return true; }).catch(function() {
-                return fallbackCopy(text);
-            });
-        }
-        return Promise.resolve(fallbackCopy(text));
-    }
-    function fallbackCopy(text) {
-        try {
-            var ta = document.createElement("textarea");
-            ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.left = "-9999px";
-            ta.setAttribute("readonly", "");
-            document.body.appendChild(ta);
-            ta.select();
-            ta.setSelectionRange(0, 99999);
-            var ok = document.execCommand("copy");
-            document.body.removeChild(ta);
-            return ok;
-        } catch(e) { return false; }
-    }
-    function setupCopyBtn() {
-        var btn = document.getElementById("genCopy");
-        if (!btn || btn.dataset.copySetup) return;
-        btn.dataset.copySetup = "1";
-        btn.onclick = function(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
-            var box = document.getElementById("genLicense");
-            var text = box ? (box.textContent || box.innerText || "") : "";
-            if (!text || !text.trim()) {
-                try { if (typeof toast === "function") toast("License belum digenerate", "error"); } catch(_) {}
-                return false;
-            }
-            var orig = btn.innerHTML;
-            tryCopy(text.trim()).then(function(ok) {
-                if (ok) {
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
-                    btn.disabled = true;
-                    try { if (typeof toast === "function") toast("License ter-copy ke clipboard"); } catch(_) {}
-                    setTimeout(function() {
-                        btn.innerHTML = orig;
-                        btn.disabled = false;
-                    }, 1500);
-                } else {
-                    try { if (typeof toast === "function") toast("Gagal copy. Copy manual dari box.", "error"); } catch(_) {}
-                }
-            });
-            return false;
-        };
-    }
-    // Setup saat DOM ready + tiap 500ms sebagai fallback
-    document.addEventListener("DOMContentLoaded", setupCopyBtn);
-    window.addEventListener("load", setupCopyBtn);
-    setInterval(setupCopyBtn, 500);
-})();
 </script>
-
 </body>
 </html>
-
-// COPY_HANDLER_CLEAN_REMOVED — pasang onclick biar gak butuh event delegation
-window.addEventListener("load", function() {
-    setTimeout(function() {
-        var btn = document.getElementById("genCopy");
-        if (!btn) return;
-        // Override onclick (paling ampuh)
-        btn.onclick = function(e) {
-            if (e) { e.preventDefault(); e.stopPropagation(); }
-            var box = document.getElementById("genLicense");
-            var text = box ? (box.textContent || box.innerText || "") : "";
-            if (!text || !text.trim()) return false;
-
-            var doCopy = function() {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    return navigator.clipboard.writeText(text.trim()).then(function() { return true; }).catch(function() { return false; });
-                }
-                try {
-                    var ta = document.createElement("textarea");
-                    ta.value = text.trim();
-                    ta.style.position = "fixed";
-                    ta.style.left = "-9999px";
-                    document.body.appendChild(ta);
-                    ta.select();
-                    var ok = document.execCommand("copy");
-                    document.body.removeChild(ta);
-                    return Promise.resolve(ok);
-                } catch(ex) { return Promise.resolve(false); }
-            };
-
-            doCopy().then(function(ok) {
-                if (ok) {
-                    var orig = btn.innerHTML;
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
-                    btn.disabled = true;
-                    if (typeof toast === "function") toast("License ter-copy ke clipboard");
-                    setTimeout(function() {
-                        btn.innerHTML = orig;
-                        btn.disabled = false;
-                    }, 1500);
-                } else {
-                    if (typeof toast === "function") toast("Gagal copy. Copy manual dari box.", "error");
-                }
-            });
-            return false;
-        };
-    }, 300);
-});
