@@ -34,26 +34,28 @@
         <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/></svg>
       </div>
       <h1 class="login-title">Login Customer</h1>
-      <p class="login-sub">Masukkan email dan Machine ID Anda untuk mengakses dashboard. Semua produk bisa di-download sebagai versi Trial. Untuk versi PRO, Anda perlu License Key dari Admin.</p>
+      <p class="login-sub">Isi email Anda. Machine ID terdeteksi otomatis dari browser ini (bisa diedit manual jika perlu).</p>
 
       <div id="loginError" class="alert alert-error hidden"></div>
 
       <form id="loginForm" autocomplete="off">
         <div class="field">
           <label>Email</label>
-          <input type="email" id="emailInput" placeholder="email@contoh.com" required>
+          <input type="email" id="emailInput" placeholder="email@contoh.com" required autofocus>
         </div>
+
         <div class="field">
-          <label>Machine ID</label>
-          <input type="text" id="midInput" placeholder="Paste Machine ID dari extension" required style="font-family:Consolas,monospace;font-size:.8rem">
-          <div class="hint">Buka extension &rarr; klik icon di toolbar &rarr; copy Machine ID.</div>
+          <label>Machine ID <span id="midBadge" style="font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0">(mendeteksi...)</span></label>
+          <input type="text" id="midInput" placeholder="Mendeteksi dari browser..." style="font-family:Consolas,monospace;font-size:.75rem">
+          <div class="hint" id="midHint">Mendeteksi Machine ID dari browser...</div>
         </div>
+
         <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Login ke Dashboard</button>
       </form>
 
       <div class="alert alert-info" style="margin-top:20px">
         <i>&#8505;</i>
-        <div>Belum pernah pakai? Anda tetap bisa login &amp; download semua produk versi <b>Trial</b>.</div>
+        <div>Semua produk bisa di-download versi <b>Trial</b>. Versi <b>PRO</b> butuh License Key dari Admin.</div>
       </div>
     </div>
 
@@ -70,11 +72,10 @@
 <div id="dashboardView" class="main hidden">
   <div class="container">
 
-    <!-- HERO -->
     <div class="hero-dash">
       <div class="hero-dash-content">
         <h1>Halo, <em id="heroEmail">-</em></h1>
-        <p>Selamat datang di dashboard <b>DevAccTra</b>. Download produk dalam versi Trial (bebas), atau masukkan License Key dari Admin untuk membuka versi PRO.</p>
+        <p>Download produk versi <b>Trial</b> secara bebas. Untuk versi <b>PRO</b>, masukkan License Key dari Admin.</p>
         <div class="hero-mid">
           <span>Machine ID:</span>
           <b id="heroMid">-</b>
@@ -83,7 +84,6 @@
       </div>
     </div>
 
-    <!-- LICENSE STATUS -->
     <div class="card" style="margin-bottom:24px">
       <div class="license-status">
         <div class="license-status-info">
@@ -98,7 +98,6 @@
       </div>
     </div>
 
-    <!-- PRODUCTS -->
     <div style="margin-bottom:8px">
       <h2 class="section-title">Produk Tersedia</h2>
       <p class="section-sub">Semua produk bisa di-download versi Trial. Untuk versi PRO, masukkan License Key dari Admin.</p>
@@ -106,7 +105,6 @@
 
     <div class="products-grid" id="productsGrid"></div>
 
-    <!-- FOOTER -->
     <div class="footer">
       DevAccTra &copy; 2026 &middot;
       <a href="../">Produk</a> &middot;
@@ -118,11 +116,10 @@
   </div>
 </div>
 
-<!-- ============ MODAL: PASTE LICENSE ============ -->
 <div class="modal-bg" id="licenseModal">
   <div class="modal">
     <h2>Masukkan License Key</h2>
-    <p class="modal-sub">Paste License Key yang Anda terima dari Admin. License akan diverifikasi langsung di browser Anda.</p>
+    <p class="modal-sub">Paste License Key dari Admin. Verifikasi dilakukan langsung di browser Anda.</p>
     <div id="modalError" class="alert alert-error hidden"></div>
     <textarea id="licenseTextarea" placeholder="Paste License Key di sini..."></textarea>
     <div class="modal-actions">
