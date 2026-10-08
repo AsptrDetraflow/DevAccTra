@@ -13,7 +13,7 @@
     const WA_URL        = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
     const DIST          = "https://asptrdetraflow.github.io/DevAccTra/dist";
     const API_URL       = "https://devacctra-api.up.railway.app";
-    const MAX_MIDS      = 3;
+    const DEFAULT_MAX_DEVICES = 2;
 
     const RX_USERNAME = /^[a-zA-Z0-9_]{3,20}$/;
     const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -550,8 +550,10 @@
     function renderDeviceList() {
         const box = $("#deviceList");
         const maxEl = $("#deviceMax");
-        if (maxEl) maxEl.textContent = MAX_MIDS;
         if (!box || !CURRENT_CUSTOMER) return;
+
+        const maxDev = parseInt(CURRENT_CUSTOMER.max_devices) || DEFAULT_MAX_DEVICES;
+        if (maxEl) maxEl.textContent = maxDev;
 
         const mids = CURRENT_CUSTOMER.machine_ids || [];
         let curMid = "";
@@ -564,7 +566,7 @@
 
         box.innerHTML = mids.map(function (m, i) {
             const isCurrent = m === curMid;
-            const isOldest = i === 0 && mids.length >= MAX_MIDS;
+            const isOldest = i === 0 && mids.length >= maxDev;
             return '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid ' + (isCurrent ? '#32A852' : 'rgba(23,34,29,.08)') + ';border-radius:10px;margin-bottom:8px;background:' + (isCurrent ? 'rgba(50,168,82,.05)' : '#fff') + '">' +
                 '<div style="flex:1;min-width:0">' +
                     '<div style="font-family:Consolas,monospace;font-size:.72rem;word-break:break-all;color:#17221D">' + m + '</div>' +
