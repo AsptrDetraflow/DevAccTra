@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Dashboard Customer - DevAccTra</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261008e">
+<link rel="stylesheet" href="style.css?v=20261008d">
 <style>
 .mid-input-row{display:flex !important;gap:8px !important;align-items:stretch !important;width:100% !important}
 .mid-input-row input{flex:1 1 auto !important;min-width:0 !important;width:auto !important}
@@ -121,16 +121,7 @@
 
         <div class="alert alert-info" style="margin-top:16px">
           <i>&#8505;</i>
-          <div>Setelah daftar, Anda akan auto-download file <b>JSON backup</b>. Simpan file tersebut untuk pindah device.</div>
-        </div>
-
-        <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(23,34,29,.08)">
-          <div style="font-size:.72rem;color:#69756D;margin-bottom:8px;text-align:center">Sudah punya backup JSON?</div>
-          <button type="button" class="btn btn-ghost btn-block" id="importJsonBtn" style="font-size:.82rem;padding:10px">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:6px"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg>
-            Import dari JSON Backup
-          </button>
-          <input type="file" id="importJsonFile" accept=".json,application/json" style="display:none">
+          <div>Setelah daftar, Anda akan auto-download file <b>JSON backup</b> credential. Simpan file tersebut!</div>
         </div>
       </div>
 
@@ -262,7 +253,7 @@
   </div>
 </div>
 
-<script src="app.js?v=20261008e"></script>
+<script src="app.js?v=20261008d"></script>
 
 <!-- MODAL: REBIND DEVICE -->
 <div class="modal-bg" id="rebindModal">
