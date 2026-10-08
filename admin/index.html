@@ -447,6 +447,12 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
 
       <div class="field">
+        <label>Maks Device <span style="text-transform:none;font-weight:500;color:var(--muted)">(1-10, default 2)</span></label>
+        <input type="number" id="editMaxDevices" min="1" max="10" value="2" />
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Jumlah maksimal device yang bisa aktif dengan akun ini.</div>
+      </div>
+
+      <div class="field">
         <label>Catatan Admin</label>
         <textarea id="editNotes" rows="2" placeholder="Opsional — catatan internal"></textarea>
       </div>
@@ -533,6 +539,7 @@ let licCache = [];
 let custCache = [];
 let editingCustId = null;
 let editingMids = [];
+let editingMaxDevices = 2;
 let generatingForCustId = null;
 let selectedProduct = ''; // '' = universal
 
@@ -690,7 +697,8 @@ async function loadCustomers() {
       const midPreview = mids.length
         ? '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--text);line-height:1.55">' + mids.map(m => '<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px" title="' + escapeHtml(m) + '">' + escapeHtml(m.substring(0,22)) + '…</div>').join('') + '</div>'
         : '<span style="color:var(--muted);font-size:.78rem">—</span>';
-      const midCount = '<div style="font-size:.68rem;color:var(--muted);margin-top:6px">' + mids.length + ' / 3 device</div>';
+      const maxDevList = c.max_devices || 2;
+      const midCount = '<div style="font-size:.68rem;color:var(--muted);margin-top:6px">' + mids.length + ' / ' + maxDevList + ' device</div>';
       const lic = c.license_key
         ? '<span class="badge green">Aktif</span>'
         : '<span class="badge gray">Belum</span>';
@@ -715,11 +723,13 @@ window.editCustomer = function(id) {
   if (!c) return;
   editingCustId = id;
   editingMids = (c.machine_ids || []).slice();
+  editingMaxDevices = parseInt(c.max_devices) || 2;
   $('#editCustName').textContent = c.username;
   $('#editCustSub').textContent = 'ID #' + c.id + ' · Dibuat ' + fmtDate(c.created_at);
   $('#editUsername').value = c.username;
   $('#editEmail').value = c.email;
   $('#editActive').value = c.is_active ? '1' : '0';
+  $('#editMaxDevices').value = editingMaxDevices;
   $('#editNotes').value = c.notes || '';
   $('#editCustAlert').innerHTML = '';
   renderMids();
@@ -733,9 +743,10 @@ function renderMids() {
     box.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:10px;background:var(--surface-soft);border-radius:9px;text-align:center">Belum ada MID</div>';
     return;
   }
+  const counter = '<div style="font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center">' + editingMids.length + ' / ' + editingMaxDevices + ' device terdaftar</div>';
   box.innerHTML = editingMids.map((m, i) =>
     '<div class="mid-item"><span title="' + escapeHtml(m) + '">' + escapeHtml(m) + '</span><button class="btn-mini danger" onclick="removeMid(' + i + ')" title="Hapus"><i class="fa-solid fa-xmark"></i></button></div>'
-  ).join('');
+  ).join('') + '<div style="font-size:.68rem;color:var(--muted);margin-top:6px;text-align:center">' + editingMids.length + ' / ' + editingMaxDevices + ' device terdaftar</div>';
 }
 
 window.removeMid = function(i) { editingMids.splice(i, 1); renderMids(); };
@@ -790,12 +801,19 @@ async function saveCustomer() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
   try {
+    const maxDev = parseInt($('#editMaxDevices').value) || 2;
+    if (maxDev < 1 || maxDev > 10) {
+      $('#editCustAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>Maks device harus 1-10</div></div>';
+      btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check"></i> Simpan';
+      return;
+    }
     await api('/api/admin/customer/' + editingCustId, {
       method: 'PATCH',
       body: {
         email: $('#editEmail').value.trim(),
         machine_ids: editingMids,
         is_active: $('#editActive').value === '1',
+        max_devices: maxDev,
         notes: $('#editNotes').value.trim(),
       },
     });
@@ -828,7 +846,7 @@ function addMid() {
   const mid = input.value.trim();
   if (!/^[a-f0-9]{64}$/.test(mid)) { toast('MID harus 64 karakter hex', 'error'); return; }
   if (editingMids.includes(mid)) { toast('MID sudah ada', 'error'); return; }
-  if (editingMids.length >= 3) { toast('Maksimal 3 MID', 'error'); return; }
+  if (editingMids.length >= editingMaxDevices) { toast('Maksimal ' + editingMaxDevices + ' MID. Hapus salah satu dulu.', 'error'); return; }
   editingMids.push(mid);
   input.value = '';
   renderMids();
