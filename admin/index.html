@@ -966,8 +966,9 @@ async function loadLicenses() {
         '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(l.expires_at) + '</td>' +
         '<td>' + status + '</td>' +
         '<td><div class="row-actions">' +
-          '<button class="btn-mini" onclick="doCopy(\'' + keyEsc + '\')"><i class="fa-solid fa-copy"></i></button>' +
-          '<button class="btn-mini" onclick="editCustomer(' + l.id + ')"><i class="fa-solid fa-pen"></i></button>' +
+          '<button class="btn-mini" onclick="doCopy(\'' + keyEsc + '\')" title="Copy License"><i class="fa-solid fa-copy"></i></button>' +
+          '<button class="btn-mini" onclick="editCustomer(' + l.id + ')" title="Kelola Customer"><i class="fa-solid fa-pen"></i></button>' +
+          '<button class="btn-mini danger" onclick="removeLicenseFromList(' + l.id + ', \'' + escapeHtml(l.username).replace(/'/g, "\\'") + '\')" title="Hapus License saja"><i class="fa-solid fa-key"></i></button>' +
         '</div></td>' +
         '</tr>';
     }).join('');
@@ -1202,6 +1203,15 @@ async function doGenerateLicenseForCust() {
     btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate';
   }
 }
+
+window.removeLicenseFromList = async function(custId, username) {
+  if (!confirm("⚠️ HAPUS LICENSE?\n\nCustomer: " + username + "\n\nCustomer TIDAK akan terhapus. Hanya license yang dihapus.\n\nLanjutkan?")) return;
+  try {
+    await api('/api/admin/customer/' + custId, { method: 'PATCH', body: { license_key: '' } });
+    toast('License dihapus untuk ' + username);
+    loadLicenses();
+  } catch (e) { toast(e.message, 'error'); }
+};
 
 window.removeLicense = async function(custId) {
   if (!confirm('⚠️ HAPUS LICENSE?\n\nCustomer TIDAK akan terhapus. Hanya license yang dihapus.\n\nLanjutkan?')) return;
