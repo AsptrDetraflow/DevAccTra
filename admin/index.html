@@ -209,6 +209,136 @@ tbody tr:hover{background:var(--surface-soft)}
   .main{padding:22px}
 }
 .menu-toggle{display:none}
+
+/* ============================================================
+   FIX: Mode Toggle + Product Chips (Generate Manual)
+   ============================================================ */
+.mode-toggle {
+  display: inline-flex !important;
+  background: #F4F6F1 !important;
+  border: 1px solid rgba(23,34,29,.08) !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+  margin-bottom: 24px !important;
+  gap: 2px !important;
+}
+.mode-toggle .mode-btn {
+  padding: 9px 20px !important;
+  border-radius: 9px !important;
+  font-size: .82rem !important;
+  font-weight: 800 !important;
+  color: #69756D !important;
+  cursor: pointer !important;
+  transition: all .18s cubic-bezier(.22,1,.36,1) !important;
+  border: 0 !important;
+  background: transparent !important;
+  font-family: inherit !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+}
+.mode-toggle .mode-btn:hover {
+  color: #17221D !important;
+}
+.mode-toggle .mode-btn.active {
+  background: #FFFFFF !important;
+  color: #1E5BB8 !important;
+  box-shadow: 0 2px 8px rgba(30,91,184,.10) !important;
+}
+
+/* Product chips container */
+.product-chips {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  align-items: stretch !important;
+}
+.product-chip {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 14px !important;
+  border: 1.5px solid rgba(23,34,29,.14) !important;
+  border-radius: 10px !important;
+  background: #FFFFFF !important;
+  color: #29352E !important;
+  font-size: .8rem !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all .18s cubic-bezier(.22,1,.36,1) !important;
+  font-family: inherit !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  box-sizing: border-box !important;
+}
+.product-chip:hover {
+  border-color: #1E5BB8 !important;
+  color: #1E5BB8 !important;
+  background: #E8EFFB !important;
+  transform: translateY(-1px) !important;
+}
+.product-chip.selected {
+  border-color: #1E5BB8 !important;
+  background: #1E5BB8 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 6px 16px rgba(30,91,184,.22) !important;
+}
+.product-chip.selected:hover {
+  background: #184a94 !important;
+  transform: translateY(-1px) !important;
+}
+.product-chip.selected small {
+  color: rgba(255,255,255,.85) !important;
+}
+.product-chip i {
+  font-size: 13px !important;
+  flex-shrink: 0 !important;
+}
+.product-chip span {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 1px !important;
+}
+.product-chip small {
+  font-size: .64rem !important;
+  font-weight: 600 !important;
+  opacity: .75 !important;
+  display: block !important;
+  line-height: 1.2 !important;
+}
+
+/* Field spacing di generate form */
+#view-generate .field {
+  margin-bottom: 18px !important;
+}
+#view-generate .field > label {
+  display: block !important;
+  font-size: .68rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase !important;
+  color: #69756D !important;
+  margin-bottom: 8px !important;
+}
+#view-generate .field input,
+#view-generate .field select {
+  width: 100% !important;
+  padding: 12px 14px !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(23,34,29,.14) !important;
+  background: #FFFFFF !important;
+  font-size: .9rem !important;
+  color: #17221D !important;
+  font-family: inherit !important;
+  transition: all .15s !important;
+  box-sizing: border-box !important;
+}
+#view-generate .field input:focus,
+#view-generate .field select:focus {
+  outline: none !important;
+  border-color: #1E5BB8 !important;
+  box-shadow: 0 0 0 4px rgba(30,91,184,.08) !important;
+}
 </style>
 </head>
 <body>
@@ -365,8 +495,7 @@ tbody tr:hover{background:var(--surface-soft)}
           </div>
 
           <div class="mode-toggle" style="display:inline-flex;background:var(--surface-soft);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:22px">
-            <button type="button" class="mode-btn active" data-genmode="existing">Pilih Customer</button>
-            <button type="button" class="mode-btn" data-genmode="new">Buat Customer Baru</button>
+            <button type="button" class="mode-btn active" data-genmode="existing">Pilih Customer</button><button type="button" class="mode-btn" data-genmode="new">Buat Customer Baru</button>
           </div>
 
           <div id="genModeExisting">
