@@ -258,7 +258,7 @@
             $("#syncOldMid").value = "";
             hide($("#syncError"));
             const maxEl = $("#syncMax");
-            if (maxEl) maxEl.textContent = MAX_MIDS;
+            if (maxEl) maxEl.textContent = DEFAULT_MAX_DEVICES;
             const info = $("#syncInfo");
             const mids = customer.machine_ids || [];
             info.innerHTML =
@@ -577,7 +577,7 @@
                 '</div>' +
             '</div>';
         }).join("") +
-        '<div style="font-size:.72rem;color:#69756D;margin-top:8px">' + mids.length + ' / ' + MAX_MIDS + ' device aktif</div>';
+        '<div style="font-size:.72rem;color:#69756D;margin-top:8px">' + mids.length + ' / ' + DEFAULT_MAX_DEVICES + ' device aktif</div>';
     }
 
     // ============================================================
