@@ -1320,12 +1320,75 @@ function init() {
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
+
+// ============================================================
+// COPY HANDLER — override onclick tombol Copy
+// ============================================================
+(function() {
+    function tryCopy(text) {
+        if (!text) return Promise.resolve(false);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).then(function() { return true; }).catch(function() {
+                return fallbackCopy(text);
+            });
+        }
+        return Promise.resolve(fallbackCopy(text));
+    }
+    function fallbackCopy(text) {
+        try {
+            var ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            ta.setAttribute("readonly", "");
+            document.body.appendChild(ta);
+            ta.select();
+            ta.setSelectionRange(0, 99999);
+            var ok = document.execCommand("copy");
+            document.body.removeChild(ta);
+            return ok;
+        } catch(e) { return false; }
+    }
+    function setupCopyBtn() {
+        var btn = document.getElementById("genCopy");
+        if (!btn || btn.dataset.copySetup) return;
+        btn.dataset.copySetup = "1";
+        btn.onclick = function(e) {
+            if (e) { e.preventDefault(); e.stopPropagation(); }
+            var box = document.getElementById("genLicense");
+            var text = box ? (box.textContent || box.innerText || "") : "";
+            if (!text || !text.trim()) {
+                try { if (typeof toast === "function") toast("License belum digenerate", "error"); } catch(_) {}
+                return false;
+            }
+            var orig = btn.innerHTML;
+            tryCopy(text.trim()).then(function(ok) {
+                if (ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Tersalin!';
+                    btn.disabled = true;
+                    try { if (typeof toast === "function") toast("License ter-copy ke clipboard"); } catch(_) {}
+                    setTimeout(function() {
+                        btn.innerHTML = orig;
+                        btn.disabled = false;
+                    }, 1500);
+                } else {
+                    try { if (typeof toast === "function") toast("Gagal copy. Copy manual dari box.", "error"); } catch(_) {}
+                }
+            });
+            return false;
+        };
+    }
+    // Setup saat DOM ready + tiap 500ms sebagai fallback
+    document.addEventListener("DOMContentLoaded", setupCopyBtn);
+    window.addEventListener("load", setupCopyBtn);
+    setInterval(setupCopyBtn, 500);
+})();
 </script>
 
 </body>
 </html>
 
-// COPY_HANDLER_CLEAN — pasang onclick biar gak butuh event delegation
+// COPY_HANDLER_CLEAN_REMOVED — pasang onclick biar gak butuh event delegation
 window.addEventListener("load", function() {
     setTimeout(function() {
         var btn = document.getElementById("genCopy");
