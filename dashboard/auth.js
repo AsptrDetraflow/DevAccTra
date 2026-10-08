@@ -1,11 +1,10 @@
 // ============================================================
-// Coretax PDF Downloader — Dashboard Auth (Client-side)
-// Verifikasi license Ed25519 langsung di browser.
-// Gak butuh backend, gak butuh internet (setelah halaman load).
+// Coretax PDF Downloader - Dashboard Auth
+// Login via Email + Machine ID. License verify client-side.
 // ============================================================
 
 const PUBLIC_KEY_B64 = "kN08rrwZddPxF2KjSIgZ0bH6veMmE94ExuEE3FbGs6s=";
-const SESSION_KEY = "coretax_dashboard_session";
+const SESSION_KEY = "coretax_dashboard_session_v2";
 
 function b64ToBytes(b64) {
     const bin = atob(b64);
@@ -25,14 +24,11 @@ function b64urlToBytes(str) {
 
 async function verifyLicense(licenseKey) {
     const parts = String(licenseKey || "").trim().split(".");
-    if (parts.length !== 2) throw new Error("Format license tidak valid");
+    if (parts.length !== 2) throw new Error("Format License Key tidak valid");
 
     const [payloadB64, sigB64] = parts;
-
     const pkBytes = b64ToBytes(PUBLIC_KEY_B64);
-    const pk = await crypto.subtle.importKey(
-        "raw", pkBytes, { name: "Ed25519" }, false, ["verify"]
-    );
+    const pk = await crypto.subtle.importKey("raw", pkBytes, { name: "Ed25519" }, false, ["verify"]);
 
     const sig = b64urlToBytes(sigB64);
     const data = new TextEncoder().encode(payloadB64);
@@ -40,40 +36,49 @@ async function verifyLicense(licenseKey) {
     if (!ok) throw new Error("License tidak sah");
 
     const payload = JSON.parse(new TextDecoder().decode(b64urlToBytes(payloadB64)));
-
     const today = new Date().toISOString().slice(0, 10);
     if (payload.e < today) throw new Error("License sudah kadaluarsa");
 
     return payload;
 }
 
-function saveSession(payload, licenseKey) {
-    const data = { payload, licenseKey, savedAt: Date.now() };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+// ============ SESSION ============
+function saveSession(data) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ ...data, savedAt: Date.now() }));
 }
-
 function getSession() {
     try {
         const raw = localStorage.getItem(SESSION_KEY);
-        if (!raw) return null;
-        return JSON.parse(raw);
+        return raw ? JSON.parse(raw) : null;
     } catch { return null; }
 }
-
 function clearSession() {
     localStorage.removeItem(SESSION_KEY);
 }
+function updateSession(patch) {
+    const s = getSession() || {};
+    saveSession({ ...s, ...patch });
+}
 
+// ============ HELPERS ============
 function daysRemaining(expiresAt) {
     if (!expiresAt) return 0;
     const e = new Date(expiresAt + "T23:59:59").getTime();
-    const n = Date.now();
-    return Math.max(0, Math.ceil((e - n) / 86400000));
+    return Math.max(0, Math.ceil((e - Date.now()) / 86400000));
 }
-
 function fmtDate(iso) {
     if (!iso) return "-";
     const d = new Date(iso);
     if (isNaN(d)) return iso;
     return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+}
+function shortMid(m) {
+    if (!m) return "-";
+    return m.length > 20 ? m.substring(0, 10) + "..." + m.substring(m.length - 6) : m;
+}
+
+// PRO check: license tier BUKAN trial
+function isProTier(tier) {
+    const t = (tier || "").toLowerCase();
+    return t === "pro" || t === "basic" || t === "enterprise" || t === "lifetime" || t === "subscription";
 }
