@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex,nofollow" />
-<title>Admin — DevAccTra</title>
+<title>Admin â€” DevAccTra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
@@ -148,7 +148,7 @@ tbody tr:hover{background:var(--surface-soft)}
   <div class="login-box">
     <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
     <h1>Admin Panel</h1>
-    <p>DevAccTra — License Management</p>
+    <p>DevAccTra â€” License Management</p>
     <div class="field">
       <label>Password</label>
       <input type="password" id="password" placeholder="Masukkan password admin" autofocus />
@@ -195,11 +195,11 @@ tbody tr:hover{background:var(--surface-soft)}
     <!-- View: Dashboard -->
     <div class="view" id="view-dashboard">
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Total License</div><div class="stat-value" id="stTotal">—</div></div>
-        <div class="stat-card"><div class="stat-label">License Aktif</div><div class="stat-value" id="stActive">—</div></div>
-        <div class="stat-card"><div class="stat-label">Total Trial</div><div class="stat-value" id="stTrial">—</div></div>
-        <div class="stat-card"><div class="stat-label">Trial Aktif</div><div class="stat-value" id="stTrialActive">—</div></div>
-        <div class="stat-card"><div class="stat-label">Total Download</div><div class="stat-value" id="stDl">—</div></div>
+        <div class="stat-card"><div class="stat-label">Total License</div><div class="stat-value" id="stTotal">â€”</div></div>
+        <div class="stat-card"><div class="stat-label">License Aktif</div><div class="stat-value" id="stActive">â€”</div></div>
+        <div class="stat-card"><div class="stat-label">Total Trial</div><div class="stat-value" id="stTrial">â€”</div></div>
+        <div class="stat-card"><div class="stat-label">Trial Aktif</div><div class="stat-value" id="stTrialActive">â€”</div></div>
+        <div class="stat-card"><div class="stat-label">Total Download</div><div class="stat-value" id="stDl">â€”</div></div>
       </div>
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="fa-solid fa-chart-simple"></i> Breakdown by Tier</div></div>
@@ -318,7 +318,7 @@ tbody tr:hover{background:var(--surface-soft)}
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-const API_URL = 'https://coretax-backend-production.up.railway.app';
+const API_URL = 'https://devacctra-api.up.railway.app';
 const KEY = 'devacctra_admin_token';
 
 const PRODUCTS = {
@@ -335,11 +335,11 @@ let licCache = [], trialCache = [];
 
 function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
 function fmtDate(iso) {
-  if (!iso) return '—';
+  if (!iso) return 'â€”';
   const d = new Date(iso);
-  return isNaN(d) ? '—' : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+  return isNaN(d) ? 'â€”' : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 }
-function shortMid(m) { return !m ? '—' : m.substring(0, 10) + '…' + m.substring(m.length - 4); }
+function shortMid(m) { return !m ? 'â€”' : m.substring(0, 10) + 'â€¦' + m.substring(m.length - 4); }
 function toast(msg, type = 'success') {
   const el = document.createElement('div');
   el.className = 'toast ' + type;
@@ -447,7 +447,7 @@ async function loadLicenses() {
       const expired = l.expires_at && new Date(l.expires_at) < new Date();
       const status = !l.is_active ? '<span class="badge red">Revoked</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
       return `<tr>
-        <td><div class="cell-strong">${escapeHtml(l.customer_name || '—')}</div><div class="cell-sub">${escapeHtml(l.customer_email || '—')}</div></td>
+        <td><div class="cell-strong">${escapeHtml(l.customer_name || 'â€”')}</div><div class="cell-sub">${escapeHtml(l.customer_email || 'â€”')}</div></td>
         <td><span class="badge blue">${escapeHtml((l.tier || 'pro').toUpperCase())}</span></td>
         <td><span class="mono" title="${escapeHtml(l.machine_id || '')}">${escapeHtml(shortMid(l.machine_id))}</span></td>
         <td style="font-size:.8rem;color:var(--muted)">${fmtDate(l.expires_at)}</td>
@@ -498,9 +498,9 @@ async function loadTrials() {
       const expired = t.expires_at && new Date(t.expires_at) < new Date();
       const status = expired ? '<span class="badge gray">Expired</span>' : '<span class="badge green">Aktif</span>';
       return `<tr>
-        <td><div class="cell-strong">${escapeHtml(t.email || '—')}</div></td>
-        <td>${escapeHtml(t.name || '—')}</td>
-        <td><span style="font-size:.8rem">${escapeHtml(PRODUCTS[t.tool] || t.tool || '—')}</span></td>
+        <td><div class="cell-strong">${escapeHtml(t.email || 'â€”')}</div></td>
+        <td>${escapeHtml(t.name || 'â€”')}</td>
+        <td><span style="font-size:.8rem">${escapeHtml(PRODUCTS[t.tool] || t.tool || 'â€”')}</span></td>
         <td><span class="mono" title="${escapeHtml(t.machine_id || '')}">${escapeHtml(shortMid(t.machine_id))}</span></td>
         <td style="font-size:.8rem;color:var(--muted)">${fmtDate(t.expires_at)}</td>
         <td>${status}</td>
