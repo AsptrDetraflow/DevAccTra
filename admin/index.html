@@ -22,16 +22,15 @@
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:0;background:none}
-input,select{font-family:inherit}
+input,select,textarea{font-family:inherit}
 ::selection{background:var(--sage);color:var(--dev-green)}
 
-/* ============ LOGIN ============ */
+/* LOGIN */
 .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,rgba(0,77,47,.08),transparent 40%),radial-gradient(circle at 80% 90%,rgba(50,168,82,.06),transparent 40%),var(--bg)}
 .login-box{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--shadow-lg)}
 .login-logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--dev-green),var(--acc-green));display:grid;place-items:center;color:#fff;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.6rem;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,77,47,.25)}
 .login-box h1{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;margin-bottom:6px;color:var(--ink)}
-.login-box h1 .acc{color:var(--acc-green)}
-.login-box h1 .tra{color:var(--tra-blue)}
+.login-box h1 .acc{color:var(--acc-green)}.login-box h1 .tra{color:var(--tra-blue)}
 .login-box > p{color:var(--muted);font-size:.86rem;margin-bottom:26px}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
@@ -43,15 +42,14 @@ input,select{font-family:inherit}
 .login-err{color:var(--danger);font-size:.82rem;margin-top:12px;padding:10px 12px;background:var(--danger-soft);border-radius:8px;display:none}
 .login-err.show{display:block}
 
-/* ============ APP ============ */
+/* APP */
 .app{display:none;min-height:100vh;grid-template-columns:230px 1fr}
 .app.active{display:grid}
 .sidebar{background:var(--dev-green);color:#fff;padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
 .sidebar-brand{padding:6px 8px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:16px}
 .sidebar-brand .logo{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.15);display:grid;place-items:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.15rem;font-weight:400;flex-shrink:0}
 .sidebar-brand .name{font-weight:800;font-size:.92rem;letter-spacing:-.02em;line-height:1.2}
-.sidebar-brand .name .acc{color:#86efac}
-.sidebar-brand .name .tra{color:#93c5fd}
+.sidebar-brand .name .acc{color:#86efac}.sidebar-brand .name .tra{color:#93c5fd}
 .sidebar-brand .sub{font-size:.58rem;opacity:.6;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-top:2px}
 .sidebar-title{font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.4;padding:14px 10px 6px}
 .sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;font-size:.84rem;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;transition:all .15s;width:100%;text-align:left;margin-bottom:2px}
@@ -61,31 +59,30 @@ input,select{font-family:inherit}
 .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.12)}
 .sidebar-footer button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:9px;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.15);transition:all .15s}
 .sidebar-footer button:hover{background:rgba(220,38,38,.2);border-color:rgba(220,38,38,.4);color:#fca5a5}
-
 .main{padding:28px 32px;min-width:0;overflow-x:hidden}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
 .topbar h1{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
-.topbar h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:var(--dev-green)}
 .topbar p{color:var(--muted);font-size:.84rem;margin-top:2px}
 .topbar-actions{display:flex;gap:8px;align-items:center}
 .icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);display:grid;place-items:center;font-size:13px;cursor:pointer;transition:all .15s}
 .icon-btn:hover{border-color:var(--dev-green);color:var(--dev-green)}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:var(--sage-soft);color:var(--dev-green);font-size:.68rem;font-weight:800;letter-spacing:.04em}
+.status-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc-green);box-shadow:0 0 0 3px rgba(50,168,82,.15)}
 
-/* ============ STATS ============ */
+/* STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:all .2s;position:relative;overflow:hidden}
 .stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tone,var(--dev-green));opacity:.85}
 .stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--sage)}
 .stat-label{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
 .stat-value{font-size:1.9rem;font-weight:800;letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
-.stat-value small{font-size:.7rem;font-weight:600;color:var(--muted);margin-left:4px;letter-spacing:0}
 
-/* ============ CARD ============ */
+/* CARD */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow-sm)}
 .card-header{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
 .card-title{font-size:1rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
 .card-title i{color:var(--dev-green);font-size:14px}
-.card-title .count{background:var(--sage-soft);color:var(--dev-green);font-size:.66rem;font-weight:800;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+.card-title .count{background:var(--sage-soft);color:var(--dev-green);font-size:.66rem;font-weight:800;padding:3px 10px;border-radius:999px}
 .card-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .search-wrap{position:relative;min-width:260px}
 .search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
@@ -94,9 +91,10 @@ input,select{font-family:inherit}
 .btn{padding:9px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all .15s}
 .btn:hover{border-color:var(--dev-green);color:var(--dev-green)}
 .btn.primary{background:var(--dev-green);color:#fff;border-color:var(--dev-green)}
-.btn.primary:hover{background:var(--dev-green-dark);border-color:var(--dev-green-dark)}
+.btn.primary:hover{background:var(--dev-green-dark);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
 
-/* ============ TABLE ============ */
+/* TABLE */
 table{width:100%;border-collapse:collapse;font-size:.84rem}
 thead{background:var(--surface-soft)}
 th{padding:12px 16px;text-align:left;font-weight:800;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
@@ -104,15 +102,14 @@ td{padding:14px 16px;border-top:1px solid var(--border);vertical-align:middle}
 tbody tr:hover{background:var(--surface-soft)}
 .cell-strong{font-weight:700;color:var(--ink);font-size:.86rem}
 .cell-sub{color:var(--muted);font-size:.74rem;margin-top:2px}
-.mono{font-family:'JetBrains Mono',monospace;font-size:.72rem;background:var(--surface-soft);padding:3px 8px;border-radius:6px;color:var(--text);display:inline-block;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;border:1px solid var(--border)}
-.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:.66rem;font-weight:800;letter-spacing:.02em;white-space:nowrap}
+.mono{font-family:'JetBrains Mono',monospace;font-size:.7rem;background:var(--surface-soft);padding:3px 8px;border-radius:6px;color:var(--text);display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;border:1px solid var(--border)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:.66rem;font-weight:800;white-space:nowrap}
 .badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
 .badge.green{background:rgba(50,168,82,.12);color:var(--acc-green)}
 .badge.red{background:var(--danger-soft);color:var(--danger)}
 .badge.yellow{background:var(--warning-soft);color:var(--warning)}
 .badge.blue{background:rgba(30,91,184,.1);color:var(--tra-blue)}
 .badge.gray{background:var(--border);color:var(--muted)}
-
 .row-actions{display:flex;gap:5px;justify-content:flex-end}
 .btn-mini{padding:6px 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
 .btn-mini:hover{border-color:var(--dev-green);color:var(--dev-green);background:var(--sage-soft)}
@@ -127,55 +124,60 @@ tbody tr:hover{background:var(--surface-soft)}
 .skeleton{display:inline-block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface-soft) 0%,var(--border) 50%,var(--surface-soft) 100%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite}
 @keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* ============ GENERATE FORM ============ */
-.generate-card{max-width:620px;margin:0 auto}
-.generate-body{padding:26px}
-.mode-toggle{display:inline-flex;background:var(--surface-soft);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:20px}
-.mode-btn{padding:7px 16px;border-radius:8px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;border:0;background:transparent}
-.mode-btn.active{background:var(--dev-green);color:#fff;box-shadow:var(--shadow-sm)}
+/* MID LIST */
+.mid-list{display:flex;flex-direction:column;gap:6px}
+.mid-item{display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text)}
+.mid-item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mid-item .btn-mini{padding:3px 8px;font-size:.62rem}
 
-.form-grid{display:grid;gap:16px}
-.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.field-hint{font-size:.68rem;color:var(--muted);margin-top:5px;line-height:1.4}
-.result-box{background:var(--sage-soft);border:1px solid var(--sage);border-radius:12px;padding:16px;margin-top:20px}
-.result-box .result-head{display:flex;align-items:center;gap:8px;font-size:.86rem;font-weight:800;color:var(--dev-green);margin-bottom:12px}
-.result-box .license-key{background:#fff;border:1px solid var(--border-strong);border-radius:10px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:.7rem;line-height:1.5;color:var(--text);word-break:break-all;max-height:120px;overflow-y:auto;user-select:all;margin-bottom:10px}
-.result-meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.78rem;color:var(--text);margin-top:8px}
-.result-meta b{color:var(--ink);font-weight:800}
-
-/* ============ MODAL ============ */
+/* MODAL */
 .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000;animation:fade .15s}
 .modal-backdrop.show{display:flex}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:460px;box-shadow:var(--shadow-lg);overflow:hidden;animation:up .25s var(--ease)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;animation:up .25s var(--ease)}
 @keyframes up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-head{padding:22px 24px;display:flex;gap:14px;align-items:center;border-bottom:1px solid var(--border)}
+.modal-head{padding:22px 24px;display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid var(--border);flex-shrink:0}
 .modal-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:16px;flex-shrink:0}
-.modal-icon.danger{background:var(--danger-soft);color:var(--danger)}
 .modal-icon.primary{background:var(--sage-soft);color:var(--dev-green)}
-.modal-icon.warn{background:var(--warning-soft);color:var(--warning)}
+.modal-icon.danger{background:var(--danger-soft);color:var(--danger)}
 .modal-head h3{font-size:1rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}
 .modal-head p{font-size:.78rem;color:var(--muted);margin-top:2px}
-.modal-body{padding:22px 24px;font-size:.86rem;color:var(--text);line-height:1.6}
-.modal-body input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;margin-top:12px;color:var(--ink);font-family:inherit}
-.modal-body input:focus{outline:none;border-color:var(--dev-green);box-shadow:0 0 0 4px rgba(0,77,47,.08)}
-.modal-footer{padding:14px 22px;background:var(--surface-soft);border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
-.modal-footer button{padding:10px 20px;border-radius:10px;font-weight:700;font-size:.84rem;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);transition:all .15s}
+.modal-body{padding:22px 24px;overflow-y:auto;flex:1}
+.modal-body .field{margin-bottom:14px}
+.modal-body textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-strong);font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--ink);resize:vertical;background:var(--surface)}
+.modal-body textarea:focus{outline:none;border-color:var(--dev-green);box-shadow:0 0 0 4px rgba(0,77,47,.06)}
+.modal-body .field label{font-size:.66rem}
+.modal-footer{padding:14px 22px;background:var(--surface-soft);border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap}
+.modal-footer button{padding:10px 18px;border-radius:10px;font-weight:700;font-size:.84rem;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);transition:all .15s}
 .modal-footer button:hover{background:var(--surface)}
 .modal-footer button.primary{background:var(--dev-green);color:#fff;border-color:var(--dev-green)}
 .modal-footer button.primary:hover{background:var(--dev-green-dark)}
 .modal-footer button.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
 .modal-footer button.danger:hover{opacity:.9}
+.modal-footer button:disabled{opacity:.55;cursor:not-allowed}
 
-/* ============ TOAST ============ */
-.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;pointer-events:none}
-.toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow-lg);animation:tin .3s var(--ease);pointer-events:auto;min-width:260px}
+/* LICENSE BOX dalam modal */
+.license-box{margin-top:14px;padding:14px;background:var(--sage-soft);border:1px solid var(--sage);border-radius:10px}
+.license-box h4{font-size:.72rem;font-weight:800;color:var(--dev-green);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
+.license-box pre{font-family:'JetBrains Mono',monospace;font-size:.64rem;line-height:1.5;color:var(--text);word-break:break-all;white-space:pre-wrap;background:var(--surface);padding:10px;border-radius:8px;border:1px solid var(--border);max-height:100px;overflow-y:auto}
+.license-box .meta{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;font-size:.72rem}
+.license-box .meta b{color:var(--ink);font-weight:800}
+.license-box .btn-row{margin-top:10px;display:flex;gap:6px}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:340px}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow-lg);animation:tin .3s var(--ease);pointer-events:auto;min-width:240px}
 @keyframes tin{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
-.toast i{font-size:14px}
-.toast.success{border-color:var(--acc-green)}
-.toast.success i{color:var(--acc-green)}
-.toast.error{border-color:var(--danger)}
-.toast.error i{color:var(--danger)}
+.toast i{font-size:14px;flex-shrink:0}
+.toast.success{border-color:var(--acc-green)}.toast.success i{color:var(--acc-green)}
+.toast.error{border-color:var(--danger)}.toast.error i{color:var(--danger)}
+
+/* ALERT */
+.alert{padding:10px 12px;border-radius:8px;font-size:.8rem;line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin-bottom:12px}
+.alert-error{background:var(--danger-soft);border:1px solid rgba(220,38,38,.2);color:#991B1B}
+.alert-info{background:var(--sage-soft);border:1px solid rgba(0,77,47,.15);color:var(--dev-green)}
+.alert-warn{background:var(--warning-soft);border:1px solid rgba(217,119,6,.2);color:#92400E}
+.alert-success{background:rgba(50,168,82,.1);border:1px solid rgba(50,168,82,.25);color:#065f46}
 
 @media(max-width:900px){
   .app.active{grid-template-columns:1fr}
@@ -183,15 +185,14 @@ tbody tr:hover{background:var(--surface-soft)}
   .sidebar.open{transform:translateX(0)}
   .menu-toggle{display:grid!important}
   .main{padding:20px}
-  .form-row-2{grid-template-columns:1fr}
 }
 .menu-toggle{display:none}
 </style>
 </head>
 <body>
 
-<!-- ============ LOGIN ============ -->
-<div class="login-screen" id="loginScreen">
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-box">
     <div class="login-logo">D</div>
     <h1>Dev<span class="acc">Acc</span><span class="tra">Tra</span></h1>
@@ -205,7 +206,7 @@ tbody tr:hover{background:var(--surface-soft)}
   </div>
 </div>
 
-<!-- ============ APP ============ -->
+<!-- APP -->
 <div class="app" id="app">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
@@ -217,10 +218,10 @@ tbody tr:hover{background:var(--surface-soft)}
     </div>
     <div class="sidebar-title">Manage</div>
     <button class="sidebar-item active" data-view="dashboard"><i class="fa-solid fa-chart-line"></i> Dashboard</button>
-    <button class="sidebar-item" data-view="licenses"><i class="fa-solid fa-key"></i> Licenses</button>
     <button class="sidebar-item" data-view="customers"><i class="fa-solid fa-users"></i> Customers</button>
+    <button class="sidebar-item" data-view="licenses"><i class="fa-solid fa-key"></i> Licenses</button>
     <button class="sidebar-item" data-view="trials"><i class="fa-solid fa-flask"></i> Trials</button>
-    <button class="sidebar-item" data-view="generate"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License</button>
+    <button class="sidebar-item" data-view="generate"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate</button>
     <div class="sidebar-footer">
       <button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
     </div>
@@ -236,18 +237,18 @@ tbody tr:hover{background:var(--surface-soft)}
         </div>
       </div>
       <div class="topbar-actions">
+        <span class="status-pill" id="connStatus">Connected</span>
         <button class="icon-btn" id="refreshBtn" title="Refresh"><i class="fa-solid fa-rotate"></i></button>
       </div>
     </div>
 
-    <!-- ============ VIEW: DASHBOARD ============ -->
+    <!-- DASHBOARD -->
     <div class="view" id="view-dashboard">
       <div class="stats-grid">
         <div class="stat-card" style="--tone:var(--dev-green)"><div class="stat-label">Total License</div><div class="stat-value" id="stTotal">—</div></div>
         <div class="stat-card" style="--tone:var(--acc-green)"><div class="stat-label">License Aktif</div><div class="stat-value" id="stActive">—</div></div>
-        <div class="stat-card" style="--tone:var(--tra-blue)"><div class="stat-label">Total Trial</div><div class="stat-value" id="stTrial">—</div></div>
-        <div class="stat-card" style="--tone:var(--warning)"><div class="stat-label">Trial Aktif</div><div class="stat-value" id="stTrialActive">—</div></div>
-        <div class="stat-card" style="--tone:var(--sage)"><div class="stat-label">Total Download</div><div class="stat-value" id="stDl">—</div></div>
+        <div class="stat-card" style="--tone:var(--tra-blue)"><div class="stat-label">Total Customer</div><div class="stat-value" id="stCust">—</div></div>
+        <div class="stat-card" style="--tone:var(--warning)"><div class="stat-label">Total Trial</div><div class="stat-value" id="stTrial">—</div></div>
       </div>
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="fa-solid fa-chart-simple"></i> Breakdown by Tier</div></div>
@@ -255,174 +256,226 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
 
-    <!-- ============ VIEW: LICENSES ============ -->
+    <!-- CUSTOMERS -->
+    <div class="view" id="view-customers" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="fa-solid fa-users"></i> Customers <span class="count" id="cCust">0</span></div>
+          <div class="card-actions">
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchCust" placeholder="Cari username, email..." /></div>
+            <button class="btn" id="refreshCust"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Customer</th><th>Machine IDs</th><th>License</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+            <tbody id="tbCust"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyCust" style="display:none">
+          <i class="fa-solid fa-users"></i>
+          <h3>Belum ada customer</h3>
+          <p>Customer muncul setelah mereka register di dashboard</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- LICENSES -->
     <div class="view" id="view-licenses" style="display:none">
       <div class="card">
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-key"></i> Licenses <span class="count" id="cLic">0</span></div>
           <div class="card-actions">
-            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchLic" placeholder="Cari email, nama, machine ID..." /></div>
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchLic" placeholder="Cari email, MID..." /></div>
             <button class="btn" id="refreshLic"><i class="fa-solid fa-rotate"></i> Refresh</button>
           </div>
         </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Customer</th><th>Product</th><th>Tier</th><th>Machine ID</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+            <thead><tr><th>Customer</th><th>Tier</th><th>Machine ID</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
             <tbody id="tbLic"></tbody>
           </table>
         </div>
         <div class="empty-state" id="emptyLic" style="display:none">
           <i class="fa-solid fa-inbox"></i>
           <h3>Belum ada license</h3>
-          <p>License akan muncul setelah customer membeli</p>
+          <p>License muncul setelah admin generate</p>
         </div>
       </div>
     </div>
 
-    <!-- ============ VIEW: TRIALS ============ -->
+    <!-- TRIALS -->
     <div class="view" id="view-trials" style="display:none">
       <div class="card">
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-flask"></i> Trials <span class="count" id="cTrial">0</span></div>
           <div class="card-actions">
-            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchTrial" placeholder="Cari email atau nama..." /></div>
             <button class="btn" id="refreshTrial"><i class="fa-solid fa-rotate"></i> Refresh</button>
           </div>
         </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Email</th><th>Nama</th><th>Product</th><th>Machine ID</th><th>Expired</th><th>Status</th></tr></thead>
+            <thead><tr><th>Email</th><th>Nama</th><th>Product</th><th>Machine ID</th><th>Expired</th></tr></thead>
             <tbody id="tbTrial"></tbody>
           </table>
         </div>
         <div class="empty-state" id="emptyTrial" style="display:none">
           <i class="fa-solid fa-inbox"></i>
           <h3>Belum ada trial</h3>
-          <p>Trial akan muncul setelah customer mencoba</p>
+          <p>Trial muncul setelah customer mencoba</p>
         </div>
       </div>
     </div>
 
-    <!-- ============ VIEW: CUSTOMERS ============ -->
-    <div class="view" id="view-customers" style="display:none">
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title"><i class="fa-solid fa-users"></i> Customers <span class="count" id="cCust">0</span></div>
-          <div class="card-actions">
-            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchCust" placeholder="Cari username, email, MID..." /></div>
-            <button class="btn" id="refreshCust"><i class="fa-solid fa-rotate"></i> Refresh</button>
-          </div>
-        </div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead><tr><th>Username</th><th>Email</th><th>Machine IDs</th><th>License</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
-            <tbody id="tbCust"></tbody>
-          </table>
-        </div>
-        <div class="empty-state" id="emptyCust" style="display:none">
-          <i class="fa-solid fa-inbox"></i>
-          <h3>Belum ada customer</h3>
-          <p>Customer akan muncul setelah mereka register di dashboard</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============ VIEW: GENERATE ============ -->
+    <!-- GENERATE -->
     <div class="view" id="view-generate" style="display:none">
-      <div class="card generate-card">
+      <div class="card" style="max-width:620px;margin:0 auto">
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License Manual</div>
         </div>
-        <div class="generate-body">
-
-          <!-- Mode Toggle -->
-          <div class="mode-toggle">
-            <button class="mode-btn active" data-mode="date">Sampai Tanggal</button>
-            <button class="mode-btn" data-mode="days">Berapa Hari</button>
+        <div style="padding:26px">
+          <div class="alert alert-info">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>Untuk customer yang sudah terdaftar, lebih mudah pakai tab <b>Customers</b> → klik <b>Generate License</b>. Form ini untuk generate manual tanpa customer.</div>
           </div>
 
-          <div class="form-grid">
-            <div class="form-row-2">
-              <div class="field">
-                <label>Nama Customer</label>
-                <input type="text" id="genName" placeholder="Nama lengkap" />
-              </div>
-              <div class="field">
-                <label>Email</label>
-                <input type="email" id="genEmail" placeholder="email@contoh.com" />
-              </div>
-            </div>
-
-            <div class="form-row-2">
-              <div class="field">
-                <label>Product</label>
-                <select id="genTool">
-                  <option value="coretax-toolkit">Coretax PDF Extension</option>
-                  <option value="rekap-faktur">Rekap Faktur</option>
-                  <option value="rekap-bupot-bppu">Rekap Bupot BPPU</option>
-                  <option value="rekap-bank-bca">Rekap Bank BCA</option>
-                </select>
-              </div>
-              <div class="field">
-                <label>Tier</label>
-                <select id="genTier">
-                  <option value="pro">Pro</option>
-                  <option value="basic">Basic</option>
-                  <option value="enterprise">Enterprise</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="field">
-              <label>Machine ID</label>
-              <input type="text" id="genMid" placeholder="Copy dari aplikasi customer" />
-              <div class="field-hint">Customer buka aplikasi → klik "Copy Machine ID" → kirim ke kamu.</div>
-            </div>
-
-            <!-- Mode: Date -->
-            <div class="field" id="modeDate">
-              <label>Berlaku Sampai</label>
-              <input type="date" id="genDate" />
-              <div class="field-hint" id="dateHint">Pilih tanggal expired license.</div>
-            </div>
-
-            <!-- Mode: Days -->
-            <div class="field" id="modeDays" style="display:none">
-              <label>Berapa Hari</label>
-              <input type="number" id="genDays" value="365" min="1" />
-              <div class="field-hint">Jumlah hari dari hari ini.</div>
-            </div>
-
-            <button class="btn primary" id="genBtn" style="width:100%;justify-content:center;padding:13px;margin-top:8px">
-              <i class="fa-solid fa-wand-magic-sparkles"></i> Generate License
-            </button>
+          <div class="field">
+            <label>Nama Customer</label>
+            <input type="text" id="genName" placeholder="Nama lengkap" />
           </div>
-
-          <!-- Result -->
-          <div class="result-box" id="genResult" style="display:none">
-            <div class="result-head"><i class="fa-solid fa-circle-check"></i> License berhasil dibuat</div>
-            <div class="license-key" id="genLicense"></div>
-            <button class="btn primary" id="genCopy" style="width:100%;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License</button>
-            <div class="result-meta" id="genMeta"></div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" id="genEmail" placeholder="email@contoh.com" />
           </div>
+          <div class="field">
+            <label>Machine ID</label>
+            <input type="text" id="genMid" placeholder="64 char hex" style="font-family:'JetBrains Mono',monospace;font-size:.75rem" />
+          </div>
+          <div class="field">
+            <label>Tier</label>
+            <select id="genTier">
+              <option value="pro">Pro</option>
+              <option value="basic">Basic</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Berlaku Sampai</label>
+            <input type="date" id="genDate" />
+            <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Kosongkan untuk default 365 hari.</div>
+          </div>
+          <button class="btn primary" id="genBtn" style="width:100%;justify-content:center;padding:13px;margin-top:8px">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate License
+          </button>
 
+          <div class="license-box" id="genResult" style="display:none">
+            <h4><i class="fa-solid fa-check"></i> License Berhasil Dibuat</h4>
+            <pre id="genLicense"></pre>
+            <div class="meta" id="genMeta"></div>
+            <div class="btn-row">
+              <button class="btn primary" id="genCopy" style="flex:1;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </main>
 </div>
 
-<!-- ============ MODAL ============ -->
-<div class="modal-backdrop" id="modalBackdrop">
+<!-- MODAL: EDIT CUSTOMER -->
+<div class="modal-backdrop" id="editCustModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-icon" id="mIcon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-      <div><h3 id="mTitle">Konfirmasi</h3><p id="mSub"></p></div>
+      <div class="modal-icon primary"><i class="fa-solid fa-user-pen"></i></div>
+      <div style="flex:1">
+        <h3 id="editCustName">Edit Customer</h3>
+        <p id="editCustSub"></p>
+      </div>
+      <button class="icon-btn" onclick="closeModal('editCustModal')" style="width:32px;height:32px"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="modal-body" id="mBody"></div>
+    <div class="modal-body">
+      <div id="editCustAlert"></div>
+
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="editUsername" readonly style="background:var(--surface-soft);color:var(--muted);cursor:not-allowed" />
+      </div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="editEmail" />
+      </div>
+
+      <div class="field">
+        <label>Machine IDs <span style="text-transform:none;font-weight:500;color:var(--muted)">(maks 3)</span></label>
+        <div class="mid-list" id="editMidList"></div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input type="text" id="newMidInput" placeholder="Tambah MID baru (64 hex)" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:8px 10px;border-radius:8px;border:1px solid var(--border-strong)" />
+          <button class="btn" id="addMidBtn" style="padding:8px 12px;font-size:.78rem"><i class="fa-solid fa-plus"></i> Tambah</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <select id="editActive">
+          <option value="1">Aktif</option>
+          <option value="0">Nonaktif</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Catatan Admin</label>
+        <textarea id="editNotes" rows="2" placeholder="Opsional"></textarea>
+      </div>
+
+      <!-- LICENSE BOX -->
+      <div class="license-box" id="editLicenseBox">
+        <h4><i class="fa-solid fa-key"></i> License</h4>
+        <div id="editLicenseContent"></div>
+      </div>
+    </div>
     <div class="modal-footer">
-      <button id="mCancel">Batal</button>
-      <button class="primary" id="mConfirm">Konfirmasi</button>
+      <button class="danger" id="deleteCustBtn"><i class="fa-solid fa-trash"></i> Hapus</button>
+      <div style="flex:1"></div>
+      <button onclick="closeModal('editCustModal')">Batal</button>
+      <button class="primary" id="saveCustBtn">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: GENERATE LICENSE FOR CUSTOMER -->
+<div class="modal-backdrop" id="genLicModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head">
+      <div class="modal-icon primary"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      <div style="flex:1">
+        <h3>Generate License</h3>
+        <p id="genLicSub"></p>
+      </div>
+      <button class="icon-btn" onclick="closeModal('genLicModal')" style="width:32px;height:32px"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="genLicAlert"></div>
+      <div class="field">
+        <label>Tier</label>
+        <select id="genLicTier">
+          <option value="pro">Pro</option>
+          <option value="basic">Basic</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Berlaku Sampai</label>
+        <input type="date" id="genLicDate" />
+      </div>
+      <div class="alert alert-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <div>License akan di-sign untuk semua MID yang terdaftar di customer ini.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeModal('genLicModal')">Batal</button>
+      <button class="primary" id="doGenLicBtn"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate</button>
     </div>
   </div>
 </div>
@@ -430,8 +483,12 @@ tbody tr:hover{background:var(--surface-soft)}
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
+// ============================================================
+// CONFIG
+// ============================================================
 const API_URL = 'https://devacctra-api.up.railway.app';
-const KEY = 'devacctra_admin_token';
+const TOKEN_KEY = 'devacctra_admin_token';
+const VIEW_KEY = 'devacctra_admin_view';
 
 const PRODUCTS = {
   'coretax-toolkit': 'Coretax PDF Downloader',
@@ -440,11 +497,22 @@ const PRODUCTS = {
   'rekap-bank-bca': 'Rekap Bank BCA',
 };
 
+// ============================================================
+// STATE
+// ============================================================
+let TOKEN = '';
+let CURRENT_VIEW = 'dashboard';
+let licCache = [];
+let custCache = [];
+let editingCustId = null;
+let editingMids = [];
+let generatingForCustId = null;
+
+// ============================================================
+// HELPERS
+// ============================================================
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-let TOKEN = localStorage.getItem(KEY) || '';
-let licCache = [], trialCache = [];
-let genMode = 'date';
 
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
@@ -454,18 +522,29 @@ function fmtDate(iso) {
   const d = new Date(iso);
   return isNaN(d) ? '—' : d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 }
+function daysLeft(iso) {
+  if (!iso) return 0;
+  const e = new Date(iso + 'T23:59:59').getTime();
+  return Math.max(0, Math.ceil((e - Date.now()) / 86400000));
+}
 function shortMid(m) {
   if (!m) return '—';
-  return m.length > 16 ? m.substring(0, 8) + '…' + m.substring(m.length - 4) : m;
+  return m.length > 18 ? m.substring(0, 10) + '…' + m.substring(m.length - 4) : m;
 }
 function toast(msg, type = 'success') {
   const el = document.createElement('div');
   el.className = 'toast ' + type;
-  el.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check'}"></i><span>${escapeHtml(msg)}</span>`;
+  el.innerHTML = '<i class="fa-solid ' + (type === 'error' ? 'fa-circle-xmark' : 'fa-circle-check') + '"></i><span>' + escapeHtml(msg) + '</span>';
   $('#toastWrap').appendChild(el);
-  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3000);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity .3s'; setTimeout(() => el.remove(), 300); }, 3200);
 }
+function openModal(id) { $('#' + id).classList.add('show'); }
+function closeModal(id) { $('#' + id).classList.remove('show'); }
+window.closeModal = closeModal;
 
+// ============================================================
+// API — FIX: 401 → show login, bukan reload
+// ============================================================
 async function api(path, opts = {}) {
   const headers = { ...(opts.headers || {}) };
   if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
@@ -473,300 +552,135 @@ async function api(path, opts = {}) {
     headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(opts.body);
   }
-  const res = await fetch(API_URL + path, { ...opts, headers });
-  if (res.status === 401) { localStorage.removeItem(KEY); location.reload(); return; }
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || 'Error');
+  let res;
+  try {
+    res = await fetch(API_URL + path, { ...opts, headers });
+  } catch (e) {
+    throw new Error('Network error: ' + e.message);
+  }
+
+  // 401 → clear token, show login (JANGAN reload)
+  if (res.status === 401) {
+    TOKEN = '';
+    localStorage.removeItem(TOKEN_KEY);
+    showLogin();
+    const err = new Error('Sesi habis. Login ulang.');
+    err.status = 401;
+    throw err;
+  }
+
+  let data;
+  try { data = await res.json(); } catch (e) { data = {}; }
+  if (!res.ok) {
+    throw new Error(data.detail || data.message || ('HTTP ' + res.status));
+  }
   return data;
 }
 
-// ============ LOGIN ============
-function showLogin() { $('#loginScreen').style.display = 'flex'; $('#app').classList.remove('active'); }
-function showApp() { $('#loginScreen').style.display = 'none'; $('#app').classList.add('active'); loadStats(); loadLicenses(); loadTrials(); }
+// ============================================================
+// LOGIN
+// ============================================================
+function showLogin() {
+  $('#loginScreen').style.display = 'flex';
+  $('#app').classList.remove('active');
+  $('#password').value = '';
+  setTimeout(() => $('#password').focus(), 100);
+}
+function showApp() {
+  $('#loginScreen').style.display = 'none';
+  $('#app').classList.add('active');
+}
 
-$('#loginBtn').addEventListener('click', doLogin);
-$('#password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 async function doLogin() {
   const pw = $('#password').value.trim();
   const err = $('#loginErr');
   err.classList.remove('show');
   if (!pw) { err.textContent = 'Password kosong'; err.classList.add('show'); return; }
+
   const btn = $('#loginBtn');
-  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...';
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...';
+
   try {
     const data = await api('/api/admin/login', { method: 'POST', body: { password: pw } });
     TOKEN = data.token;
-    localStorage.setItem(KEY, TOKEN);
-    $('#password').value = '';
+    localStorage.setItem(TOKEN_KEY, TOKEN);
     showApp();
     toast('Login berhasil');
-  } catch (e) { err.textContent = e.message; err.classList.add('show'); }
-  finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login'; }
+    switchView(localStorage.getItem(VIEW_KEY) || 'dashboard');
+  } catch (e) {
+    err.textContent = e.message;
+    err.classList.add('show');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login';
+  }
 }
 
-$('#logoutBtn').addEventListener('click', () => { localStorage.removeItem(KEY); TOKEN = ''; location.reload(); });
+function doLogout() {
+  if (!confirm('Logout dari admin panel?')) return;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(VIEW_KEY);
+  TOKEN = '';
+  showLogin();
+  toast('Logout berhasil');
+}
 
-// ============ NAV ============
-$$('.sidebar-item[data-view]').forEach(btn => btn.addEventListener('click', () => switchView(btn.dataset.view)));
+// ============================================================
+// NAV
+// ============================================================
 function switchView(view) {
+  CURRENT_VIEW = view;
+  localStorage.setItem(VIEW_KEY, view);
   $$('.sidebar-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   $$('.view').forEach(v => v.style.display = 'none');
   $('#view-' + view).style.display = 'block';
+
   const titles = {
     dashboard: ['Dashboard', 'Ringkasan aktivitas DevAccTra'],
-    licenses: ['Licenses', 'Kelola semua license customer'],
+    customers: ['Customers', 'Kelola customer & license'],
+    licenses: ['Licenses', 'Semua license yang pernah di-generate'],
     trials: ['Trials', 'Daftar user trial'],
-    customers: ['Customers', 'Kelola akun customer & multi-device'],
-    generate: ['Generate License', 'Bikin license manual untuk customer'],
+    generate: ['Generate Manual', 'Bikin license tanpa customer'],
   };
-  $('#pageTitle').innerHTML = titles[view][0];
+  $('#pageTitle').textContent = titles[view][0];
   $('#pageSub').textContent = titles[view][1];
+
   if (view === 'dashboard') loadStats();
+  if (view === 'customers') loadCustomers();
   if (view === 'licenses') loadLicenses();
   if (view === 'trials') loadTrials();
-  if (view === 'customers') loadCustomers();
   $('#sidebar').classList.remove('open');
 }
-$('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
-$('#refreshBtn').addEventListener('click', () => {
-  const active = $('.sidebar-item.active').dataset.view;
-  switchView(active);
-});
 
-// ============ STATS ============
+// ============================================================
+// DASHBOARD
+// ============================================================
 async function loadStats() {
   try {
     const s = await api('/api/admin/stats');
-    $('#stTotal').textContent = s.total_licenses;
-    $('#stActive').textContent = s.active_licenses;
-    $('#stTrial').textContent = s.total_trials;
-    $('#stTrialActive').textContent = s.active_trials;
-    $('#stDl').textContent = s.total_downloads;
+    $('#stTotal').textContent = s.total_licenses ?? 0;
+    $('#stActive').textContent = s.active_licenses ?? 0;
+    $('#stCust').textContent = s.total_customers ?? '—';
+    $('#stTrial').textContent = s.total_trials ?? 0;
+
     const tiers = s.by_tier || {};
     const total = Object.values(tiers).reduce((a, b) => a + b, 0) || 1;
-    const colors = { pro: 'var(--dev-green)', basic: 'var(--tra-blue)', enterprise: 'var(--acc-green)', trial: 'var(--warning)', unknown: 'var(--muted)' };
+    const colors = { pro: 'var(--dev-green)', basic: 'var(--tra-blue)', enterprise: 'var(--acc-green)', trial: 'var(--warning)' };
     $('#tierBreakdown').innerHTML = Object.entries(tiers).map(([tier, count]) => {
       const pct = Math.round((count / total) * 100);
-      return `<div style="margin-bottom:14px">
-        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:6px"><b style="text-transform:capitalize;color:var(--ink);font-weight:800">${escapeHtml(tier)}</b><span style="color:var(--muted)">${count} · ${pct}%</span></div>
-        <div style="height:8px;background:var(--surface-soft);border-radius:999px;overflow:hidden;border:1px solid var(--border)"><div style="height:100%;width:${pct}%;background:${colors[tier] || colors.unknown};border-radius:999px;transition:width .6s"></div></div>
-      </div>`;
+      return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:6px"><b style="text-transform:capitalize;color:var(--ink)">' + escapeHtml(tier) + '</b><span style="color:var(--muted)">' + count + ' · ' + pct + '%</span></div><div style="height:8px;background:var(--surface-soft);border-radius:999px;overflow:hidden;border:1px solid var(--border)"><div style="height:100%;width:' + pct + '%;background:' + (colors[tier] || 'var(--muted)') + ';border-radius:999px"></div></div></div>';
     }).join('') || '<div class="empty-state" style="padding:20px"><p>Belum ada data</p></div>';
   } catch (e) { toast(e.message, 'error'); }
 }
 
-// ============ LICENSES ============
-async function loadLicenses() {
-  const q = $('#searchLic').value.trim();
-  const tb = $('#tbLic');
-  tb.innerHTML = '<tr><td colspan="7"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
-  try {
-    const data = await api('/api/admin/licenses?search=' + encodeURIComponent(q) + '&limit=200');
-    licCache = data.licenses;
-    $('#cLic').textContent = data.total;
-    if (!data.licenses.length) { tb.innerHTML = ''; $('#emptyLic').style.display = 'block'; return; }
-    $('#emptyLic').style.display = 'none';
-    tb.innerHTML = data.licenses.map(l => {
-      const expired = l.expires_at && new Date(l.expires_at) < new Date();
-      const status = !l.is_active ? '<span class="badge red">Revoked</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
-      const tool = l.tool || l.notes || 'coretax-toolkit';
-      return `<tr>
-        <td><div class="cell-strong">${escapeHtml(l.customer_name || '—')}</div><div class="cell-sub">${escapeHtml(l.customer_email || '—')}</div></td>
-        <td><span style="font-size:.78rem">${escapeHtml(PRODUCTS[tool] || tool)}</span></td>
-        <td><span class="badge blue">${escapeHtml((l.tier || 'pro').toUpperCase())}</span></td>
-        <td><span class="mono" title="${escapeHtml(l.machine_id || '')}">${escapeHtml(shortMid(l.machine_id))}</span></td>
-        <td style="font-size:.8rem;color:var(--muted)">${fmtDate(l.expires_at)}</td>
-        <td>${status}</td>
-        <td><div class="row-actions">
-          ${l.is_active
-            ? `<button class="btn-mini danger" onclick="revokeLic(${l.id})" title="Revoke"><i class="fa-solid fa-ban"></i></button>`
-            : `<button class="btn-mini success" onclick="reactivateLic(${l.id})" title="Aktifkan"><i class="fa-solid fa-check"></i></button>`}
-          <button class="btn-mini" onclick="extendLic(${l.id})" title="Extend"><i class="fa-solid fa-calendar-plus"></i></button>
-          <button class="btn-mini" onclick="copyLicKey('${escapeHtml(l.full_key || '')}')" title="Copy License"><i class="fa-solid fa-copy"></i></button>
-          <button class="btn-mini danger" onclick="deleteLic(${l.id})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-        </div></td>
-      </tr>`;
-    }).join('');
-  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
-}
-
-window.copyLicKey = async (key) => {
-  if (!key) return;
-  try { await navigator.clipboard.writeText(key); toast('License di-copy'); }
-  catch { toast('Gagal copy', 'error'); }
-};
-
-window.revokeLic = async (id) => {
-  if (!await confirmModal('Revoke License?', 'Customer tidak bisa pakai sampai di-reactivate.', 'danger')) return;
-  try { await api('/api/admin/license/revoke', { method: 'POST', body: { license_id: id } }); toast('License di-revoke'); loadLicenses(); loadStats(); }
-  catch (e) { toast(e.message, 'error'); }
-};
-window.reactivateLic = async (id) => {
-  try { await api('/api/admin/license/reactivate', { method: 'POST', body: { license_id: id } }); toast('License aktif kembali'); loadLicenses(); loadStats(); }
-  catch (e) { toast(e.message, 'error'); }
-};
-window.extendLic = async (id) => {
-  const days = await inputModal('Extend License', 'Tambah berapa hari?', '30');
-  if (!days) return;
-  try { await api('/api/admin/license/extend', { method: 'POST', body: { license_id: id, days: parseInt(days) } }); toast('Extended ' + days + ' hari'); loadLicenses(); }
-  catch (e) { toast(e.message, 'error'); }
-};
-window.deleteLic = async (id) => {
-  if (!await confirmModal('Hapus License?', 'Tindakan ini permanen. Tidak bisa dibatalkan.', 'danger')) return;
-  try { await api('/api/admin/license/' + id, { method: 'DELETE' }); toast('License dihapus'); loadLicenses(); loadStats(); }
-  catch (e) { toast(e.message, 'error'); }
-};
-
-// ============ TRIALS ============
-async function loadTrials() {
-  const q = $('#searchTrial').value.trim();
-  const tb = $('#tbTrial');
-  tb.innerHTML = '<tr><td colspan="6"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
-  try {
-    const data = await api('/api/admin/trials?search=' + encodeURIComponent(q) + '&limit=200');
-    trialCache = data.trials;
-    $('#cTrial').textContent = data.total;
-    if (!data.trials.length) { tb.innerHTML = ''; $('#emptyTrial').style.display = 'block'; return; }
-    $('#emptyTrial').style.display = 'none';
-    tb.innerHTML = data.trials.map(t => {
-      const expired = t.expires_at && new Date(t.expires_at) < new Date();
-      const status = expired ? '<span class="badge gray">Expired</span>' : '<span class="badge green">Aktif</span>';
-      return `<tr>
-        <td><div class="cell-strong">${escapeHtml(t.email || '—')}</div></td>
-        <td>${escapeHtml(t.name || '—')}</td>
-        <td><span style="font-size:.78rem">${escapeHtml(PRODUCTS[t.tool] || t.tool || '—')}</span></td>
-        <td><span class="mono" title="${escapeHtml(t.machine_id || '')}">${escapeHtml(shortMid(t.machine_id))}</span></td>
-        <td style="font-size:.8rem;color:var(--muted)">${fmtDate(t.expires_at)}</td>
-        <td>${status}</td>
-      </tr>`;
-    }).join('');
-  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
-}
-
-// ============ GENERATE ============
-$$('.mode-btn').forEach(btn => btn.addEventListener('click', () => {
-  genMode = btn.dataset.mode;
-  $$('.mode-btn').forEach(b => b.classList.toggle('active', b === btn));
-  $('#modeDate').style.display = genMode === 'date' ? 'block' : 'none';
-  $('#modeDays').style.display = genMode === 'days' ? 'block' : 'none';
-}));
-
-// Default date: 1 tahun dari sekarang
-(function setDefaultDate() {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() + 1);
-  $('#genDate').value = d.toISOString().slice(0, 10);
-})();
-
-$('#genBtn').addEventListener('click', async () => {
-  const name = $('#genName').value.trim();
-  const email = $('#genEmail').value.trim();
-  const tool = $('#genTool').value;
-  const tier = $('#genTier').value;
-  const mid = $('#genMid').value.trim();
-  const date = $('#genDate').value;
-  const days = parseInt($('#genDays').value) || 365;
-
-  if (!email || !mid) { toast('Email & Machine ID wajib diisi', 'error'); return; }
-  if (genMode === 'date' && !date) { toast('Pilih tanggal expired', 'error'); return; }
-  if (genMode === 'days' && (days < 1)) { toast('Hari minimal 1', 'error'); return; }
-
-  const btn = $('#genBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
-
-  try {
-    const body = {
-      name: name,
-      email: email,
-      tool: tool,
-      machine_id: mid,
-      tier: tier,
-    };
-    if (genMode === 'date') body.expires_at = date;
-    else body.days = days;
-
-    const data = await api('/api/admin/generate', { method: 'POST', body: body });
-
-    $('#genLicense').textContent = data.license_key;
-    $('#genResult').style.display = 'block';
-    $('#genMeta').innerHTML =
-      `<div>Berlaku sampai: <b>${fmtDate(data.expires_at)}</b></div>` +
-      `<div>Tier: <b>${escapeHtml(data.tier.toUpperCase())}</b></div>` +
-      `<div>Product: <b>${escapeHtml(PRODUCTS[data.tool] || data.tool)}</b></div>` +
-      `<div>Durasi: <b>${data.days} hari</b></div>`;
-    toast('License berhasil dibuat');
-    loadLicenses();
-    loadStats();
-  } catch (e) { toast(e.message, 'error'); }
-  finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License'; }
-});
-
-$('#genCopy').addEventListener('click', () => {
-  const t = $('#genLicense').textContent;
-  if (!t) return;
-  navigator.clipboard.writeText(t).then(() => toast('License di-copy'));
-});
-
-// ============ MODALS ============
-let modalResolve = null;
-function closeModal(r) {
-  $('#modalBackdrop').classList.remove('show');
-  if (modalResolve) modalResolve(r);
-  modalResolve = null;
-}
-$('#mCancel').addEventListener('click', () => closeModal(null));
-$('#mConfirm').addEventListener('click', () => { const i = $('#mInput'); closeModal(i ? i.value : true); });
-$('#modalBackdrop').addEventListener('click', e => { if (e.target === $('#modalBackdrop')) closeModal(null); });
-
-function confirmModal(title, body, type = 'primary') {
-  return new Promise(resolve => {
-    modalResolve = resolve;
-    $('#mIcon').className = 'modal-icon ' + type;
-    $('#mIcon').innerHTML = `<i class="fa-solid ${type === 'danger' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i>`;
-    $('#mTitle').textContent = title;
-    $('#mSub').textContent = '';
-    $('#mBody').innerHTML = body;
-    $('#mConfirm').className = type === 'danger' ? 'danger' : 'primary';
-    $('#mConfirm').textContent = 'Ya, Lanjutkan';
-    $('#mCancel').textContent = 'Batal';
-    $('#modalBackdrop').classList.add('show');
-  });
-}
-function inputModal(title, label, def) {
-  return new Promise(resolve => {
-    modalResolve = resolve;
-    $('#mIcon').className = 'modal-icon primary';
-    $('#mIcon').innerHTML = '<i class="fa-solid fa-pen"></i>';
-    $('#mTitle').textContent = title;
-    $('#mSub').textContent = '';
-    $('#mBody').innerHTML = `<label style="font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">${escapeHtml(label)}</label><input type="number" id="mInput" value="${escapeHtml(def)}" min="1" />`;
-    $('#mConfirm').className = 'primary';
-    $('#mConfirm').textContent = 'OK';
-    $('#mCancel').textContent = 'Batal';
-    $('#modalBackdrop').classList.add('show');
-    setTimeout(() => { const i = $('#mInput'); if (i) { i.focus(); i.select(); i.addEventListener('keydown', e => { if (e.key === 'Enter') closeModal(i.value); }); } }, 100);
-  });
-}
-
-// ============ SEARCH ============
-let sT;
-$('#searchLic').addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(loadLicenses, 300); });
-$('#searchTrial').addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(loadTrials, 300); });
-$('#refreshLic').addEventListener('click', loadLicenses);
-$('#refreshTrial').addEventListener('click', loadTrials);
-
-// ============ CUSTOMERS ============
-let custCache = [];
-
-function escapeHtmlC(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-}
-
+// ============================================================
+// CUSTOMERS
+// ============================================================
 async function loadCustomers() {
   const q = $('#searchCust').value.trim();
   const tb = $('#tbCust');
-  tb.innerHTML = '<tr><td colspan="6"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  tb.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
   try {
     const data = await api('/api/admin/customers?search=' + encodeURIComponent(q) + '&limit=500');
     custCache = data.customers || [];
@@ -776,168 +690,391 @@ async function loadCustomers() {
     tb.innerHTML = custCache.map(c => {
       const mids = c.machine_ids || [];
       const midPreview = mids.length
-        ? '<div style="font-family:JetBrains Mono,monospace;font-size:.68rem;color:var(--text)">' +
-          mids.map(m => '<div title="' + escapeHtmlC(m) + '" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">' + escapeHtmlC(m.substring(0,16)) + '…</div>').join('') +
-          '</div>'
+        ? '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--text)">' + mids.map(m => '<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="' + escapeHtml(m) + '">' + escapeHtml(m.substring(0,20)) + '…</div>').join('') + '</div>'
         : '<span style="color:var(--muted);font-size:.78rem">—</span>';
       const midCount = '<div style="font-size:.68rem;color:var(--muted);margin-top:4px">' + mids.length + ' / 3 device</div>';
-      const licBadge = c.license_key
-        ? '<span class="badge green">Ada</span>'
+      const lic = c.license_key
+        ? '<span class="badge green">Aktif</span>'
         : '<span class="badge gray">Belum</span>';
-      const statusBadge = c.is_active
+      const status = c.is_active
         ? '<span class="badge green">Aktif</span>'
         : '<span class="badge red">Nonaktif</span>';
-      return `<tr>
-        <td><div class="cell-strong">${escapeHtmlC(c.username)}</div><div class="cell-sub">ID #${c.id}</div></td>
-        <td><div style="font-size:.82rem">${escapeHtmlC(c.email)}</div></td>
-        <td>${midPreview}${midCount}</td>
-        <td>${licBadge}</td>
-        <td>${statusBadge}</td>
-        <td><div class="row-actions">
-          <button class="btn-mini" onclick="editCust(${c.id})" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn-mini danger" onclick="deleteCust(${c.id})" title="Hapus"><i class="fa-solid fa-trash"></i></button>
-        </div></td>
-      </tr>`;
+      return '<tr>' +
+        '<td><div class="cell-strong">' + escapeHtml(c.username) + '</div><div class="cell-sub">' + escapeHtml(c.email) + '</div></td>' +
+        '<td>' + midPreview + midCount + '</td>' +
+        '<td>' + lic + '</td>' +
+        '<td>' + status + '</td>' +
+        '<td><div class="row-actions">' +
+          '<button class="btn-mini" onclick="editCustomer(' + c.id + ')" title="Kelola"><i class="fa-solid fa-pen"></i> Kelola</button>' +
+        '</div></td>' +
+        '</tr>';
     }).join('');
   } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
 }
 
-let editCustId = null;
-window.editCust = function(id) {
+window.editCustomer = function(id) {
   const c = custCache.find(x => x.id === id);
   if (!c) return;
-  editCustId = id;
-  $('#editCustUsername').value = c.username;
-  $('#editCustEmail').value = c.email;
-  $('#editCustMids').value = (c.machine_ids || []).join('\n');
-  $('#editCustLicense').value = c.license_key || '';
-  $('#editCustActive').value = c.is_active ? '1' : '0';
-  $('#editCustSub').textContent = c.username + ' · ID #' + c.id;
-  $('#editCustError').style.display = 'none';
-  $('#editCustModal').classList.add('show');
+  editingCustId = id;
+  editingMids = (c.machine_ids || []).slice();
+
+  $('#editCustName').textContent = c.username;
+  $('#editCustSub').textContent = 'ID #' + c.id + ' · Dibuat ' + fmtDate(c.created_at);
+  $('#editUsername').value = c.username;
+  $('#editEmail').value = c.email;
+  $('#editActive').value = c.is_active ? '1' : '0';
+  $('#editNotes').value = c.notes || '';
+  $('#editCustAlert').innerHTML = '';
+
+  renderMids();
+  renderEditLicense(c.license_key);
+  openModal('editCustModal');
 };
 
-$('#editCustCancel').addEventListener('click', () => { $('#editCustModal').classList.remove('show'); });
-$('#editCustModal').addEventListener('click', (e) => { if (e.target === $('#editCustModal')) $('#editCustModal').classList.remove('show'); });
-
-$('#editCustSave').addEventListener('click', async () => {
-  if (!editCustId) return;
-  const errEl = $('#editCustError');
-  errEl.style.display = 'none';
-
-  const email = $('#editCustEmail').value.trim();
-  const midsRaw = $('#editCustMids').value.trim();
-  const license = $('#editCustLicense').value.trim();
-  const isActive = $('#editCustActive').value === '1';
-
-  const mids = midsRaw.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-  if (mids.length > 3) {
-    errEl.textContent = 'Maksimal 3 MID. Hapus beberapa baris dulu.';
-    errEl.style.display = 'flex';
+function renderMids() {
+  const box = $('#editMidList');
+  if (!editingMids.length) {
+    box.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:8px">Belum ada MID</div>';
     return;
   }
-  for (const m of mids) {
-    if (!/^[a-f0-9]{64}$/.test(m)) {
-      errEl.textContent = 'MID harus 64 karakter hex: ' + m.substring(0, 16) + '...';
-      errEl.style.display = 'flex';
-      return;
+  box.innerHTML = editingMids.map((m, i) =>
+    '<div class="mid-item"><span title="' + escapeHtml(m) + '">' + escapeHtml(m) + '</span><button class="btn-mini danger" onclick="removeMid(' + i + ')" title="Hapus"><i class="fa-solid fa-xmark"></i></button></div>'
+  ).join('');
+}
+
+window.removeMid = function(i) {
+  editingMids.splice(i, 1);
+  renderMids();
+};
+
+function renderEditLicense(licenseKey) {
+  const box = $('#editLicenseContent');
+  if (!licenseKey) {
+    box.innerHTML =
+      '<div class="alert alert-warn" style="margin:0 0 10px"><i class="fa-solid fa-circle-info"></i><div>Belum ada license. Klik tombol di bawah untuk generate.</div></div>' +
+      '<div class="btn-row"><button class="btn primary" onclick="openGenLic(' + editingCustId + ')" style="flex:1;justify-content:center"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License</button></div>';
+    return;
+  }
+
+  // Parse payload dari license key
+  let payload = null;
+  try {
+    const parts = licenseKey.split('.');
+    if (parts.length === 2) {
+      let b64 = parts[0].replace(/-/g, '+').replace(/_/g, '/');
+      while (b64.length % 4) b64 += '=';
+      payload = JSON.parse(atob(b64));
     }
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    errEl.textContent = 'Format email tidak valid.';
-    errEl.style.display = 'flex';
-    return;
-  }
+  } catch (e) {}
 
-  const btn = $('#editCustSave');
+  const tier = (payload && payload.t) || '?';
+  const exp = (payload && payload.e) || null;
+  const days = daysLeft(exp);
+
+  box.innerHTML =
+    '<div class="meta" style="margin:0 0 10px">' +
+      '<div>Tier: <b>' + escapeHtml(tier.toUpperCase()) + '</b></div>' +
+      '<div>Expired: <b>' + fmtDate(exp) + '</b> (' + days + ' hari)</div>' +
+    '</div>' +
+    '<pre>' + escapeHtml(licenseKey) + '</pre>' +
+    '<div class="btn-row">' +
+      '<button class="btn" onclick="copyText(\'' + escapeHtml(licenseKey).replace(/'/g, "\\'") + '\')" style="flex:1;justify-content:center"><i class="fa-solid fa-copy"></i> Copy</button>' +
+      '<button class="btn" onclick="openGenLic(' + editingCustId + ')" style="flex:1;justify-content:center"><i class="fa-solid fa-rotate"></i> Generate Baru</button>' +
+      '<button class="btn" onclick="removeLicense(' + editingCustId + ')" style="color:var(--danger);border-color:var(--danger-soft)"><i class="fa-solid fa-trash"></i></button>' +
+    '</div>';
+}
+
+window.copyText = async function(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('Copied!');
+  } catch (e) { toast('Gagal copy', 'error'); }
+};
+
+// ============================================================
+// EDIT CUSTOMER — SAVE
+// ============================================================
+async function saveCustomer() {
+  if (!editingCustId) return;
+  const btn = $('#saveCustBtn');
   btn.disabled = true;
-  btn.textContent = 'Menyimpan...';
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
 
   try {
-    await api('/api/admin/customer/' + editCustId, {
+    await api('/api/admin/customer/' + editingCustId, {
       method: 'PATCH',
       body: {
-        email: email,
-        machine_ids: mids,
-        license_key: license || null,
-        is_active: isActive,
+        email: $('#editEmail').value.trim(),
+        machine_ids: editingMids,
+        is_active: $('#editActive').value === '1',
+        notes: $('#editNotes').value.trim(),
       },
     });
-    $('#editCustModal').classList.remove('show');
     toast('Customer diupdate');
+    closeModal('editCustModal');
     loadCustomers();
   } catch (e) {
-    errEl.textContent = e.message;
-    errEl.style.display = 'flex';
+    $('#editCustAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>' + escapeHtml(e.message) + '</div></div>';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Simpan';
+    btn.textContent = 'Simpan Perubahan';
   }
-});
+}
 
-window.deleteCust = async function(id) {
-  const c = custCache.find(x => x.id === id);
-  if (!c) return;
-  if (!await confirmModal('Hapus Customer?', 'Customer ' + c.username + ' akan dihapus permanen. Tidak bisa dibatalkan.', 'danger')) return;
+// ============================================================
+// DELETE CUSTOMER
+// ============================================================
+async function deleteCustomer() {
+  if (!editingCustId) return;
+  const c = custCache.find(x => x.id === editingCustId);
+  if (!confirm('Hapus customer "' + c.username + '"? Tidak bisa dibatalkan.')) return;
   try {
-    await api('/api/admin/customer/' + id, { method: 'DELETE' });
+    await api('/api/admin/customer/' + editingCustId, { method: 'DELETE' });
     toast('Customer dihapus');
+    closeModal('editCustModal');
     loadCustomers();
+    loadStats();
+  } catch (e) { toast(e.message, 'error'); }
+}
+
+// ============================================================
+// ADD MID
+// ============================================================
+function addMid() {
+  const input = $('#newMidInput');
+  const mid = input.value.trim();
+  if (!/^[a-f0-9]{64}$/.test(mid)) {
+    toast('MID harus 64 karakter hex (a-f, 0-9)', 'error');
+    return;
+  }
+  if (editingMids.includes(mid)) {
+    toast('MID sudah ada', 'error');
+    return;
+  }
+  if (editingMids.length >= 3) {
+    toast('Maksimal 3 MID. Hapus salah satu dulu.', 'error');
+    return;
+  }
+  editingMids.push(mid);
+  input.value = '';
+  renderMids();
+}
+
+// ============================================================
+// GENERATE LICENSE FOR CUSTOMER
+// ============================================================
+window.openGenLic = function(custId) {
+  generatingForCustId = custId;
+  const c = custCache.find(x => x.id === custId);
+  $('#genLicSub').textContent = c ? c.username + ' · ' + (c.machine_ids || []).length + ' MID' : '';
+  $('#genLicAlert').innerHTML = '';
+  // Default date: 1 tahun
+  const d = new Date();
+  d.setFullYear(d.getFullYear() + 1);
+  $('#genLicDate').value = d.toISOString().slice(0, 10);
+  openModal('genLicModal');
+};
+
+async function doGenerateLicenseForCust() {
+  if (!generatingForCustId) return;
+  const btn = $('#doGenLicBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+
+  try {
+    const body = {
+      tier: $('#genLicTier').value,
+      expires_at: $('#genLicDate').value || null,
+    };
+    const data = await api('/api/admin/customer/' + generatingForCustId + '/generate-license', {
+      method: 'POST',
+      body: body,
+    });
+    toast('License berhasil dibuat untuk ' + data.machine_ids.length + ' MID');
+
+    // Refresh cache + edit modal
+    const c = custCache.find(x => x.id === generatingForCustId);
+    if (c) c.license_key = data.license_key;
+
+    closeModal('genLicModal');
+    if (editingCustId === generatingForCustId) {
+      renderEditLicense(data.license_key);
+    }
+    loadCustomers();
+  } catch (e) {
+    $('#genLicAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>' + escapeHtml(e.message) + '</div></div>';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate';
+  }
+}
+
+// ============================================================
+// REMOVE LICENSE FROM CUSTOMER
+// ============================================================
+window.removeLicense = async function(custId) {
+  if (!confirm('Hapus license dari customer ini?')) return;
+  try {
+    await api('/api/admin/customer/' + custId, { method: 'PATCH', body: { license_key: '' } });
+    const c = custCache.find(x => x.id === custId);
+    if (c) c.license_key = null;
+    renderEditLicense(null);
+    loadCustomers();
+    toast('License dihapus');
   } catch (e) { toast(e.message, 'error'); }
 };
 
-let sCT;
-$('#searchCust').addEventListener('input', () => { clearTimeout(sCT); sCT = setTimeout(loadCustomers, 300); });
-$('#refreshCust').addEventListener('click', loadCustomers);
-// ============ INIT ============
-if (TOKEN) {
-  (async () => {
-    try { await api('/api/admin/stats'); showApp(); }
-    catch { /* api() will reload */ }
-  })();
-} else showLogin();
-</script>
+// ============================================================
+// LICENSES
+// ============================================================
+async function loadLicenses() {
+  const q = $('#searchLic').value.trim();
+  const tb = $('#tbLic');
+  tb.innerHTML = '<tr><td colspan="6"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  try {
+    const data = await api('/api/admin/licenses?search=' + encodeURIComponent(q) + '&limit=500');
+    licCache = data.licenses || [];
+    $('#cLic').textContent = data.total;
+    if (!licCache.length) { tb.innerHTML = ''; $('#emptyLic').style.display = 'block'; return; }
+    $('#emptyLic').style.display = 'none';
+    tb.innerHTML = licCache.map(l => {
+      const expired = l.expires_at && new Date(l.expires_at) < new Date();
+      const status = !l.is_active ? '<span class="badge red">Revoked</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
+      return '<tr>' +
+        '<td><div class="cell-strong">' + escapeHtml(l.customer_name || '—') + '</div><div class="cell-sub">' + escapeHtml(l.customer_email || '—') + '</div></td>' +
+        '<td><span class="badge blue">' + escapeHtml((l.tier || 'pro').toUpperCase()) + '</span></td>' +
+        '<td><span class="mono" title="' + escapeHtml(l.machine_id || '') + '">' + escapeHtml(shortMid(l.machine_id)) + '</span></td>' +
+        '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(l.expires_at) + '</td>' +
+        '<td>' + status + '</td>' +
+        '<td><div class="row-actions">' +
+          '<button class="btn-mini" onclick="copyText(\'' + escapeHtml(l.full_key || '').replace(/'/g, "\\'") + '\')" title="Copy"><i class="fa-solid fa-copy"></i></button>' +
+        '</div></td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
+}
 
-<!-- MODAL: EDIT CUSTOMER -->
-<div class="modal-backdrop" id="editCustModal">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-icon primary"><i class="fa-solid fa-user-pen"></i></div>
-      <div><h3>Edit Customer</h3><p id="editCustSub"></p></div>
-    </div>
-    <div class="modal-body">
-      <div class="field" style="margin-bottom:14px">
-        <label>Username</label>
-        <input type="text" id="editCustUsername" readonly style="background:var(--surface-soft);color:var(--muted)">
-      </div>
-      <div class="field" style="margin-bottom:14px">
-        <label>Email</label>
-        <input type="email" id="editCustEmail" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:inherit;font-size:.9rem">
-      </div>
-      <div class="field" style="margin-bottom:14px">
-        <label>Machine IDs (1 per baris, maks 3)</label>
-        <textarea id="editCustMids" rows="3" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:Consolas,monospace;font-size:.72rem;resize:vertical"></textarea>
-        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Satu MID per baris. Kalau > 3, yang paling lama akan dihapus otomatis saat disimpan.</div>
-      </div>
-      <div class="field" style="margin-bottom:14px">
-        <label>License Key</label>
-        <textarea id="editCustLicense" rows="2" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:Consolas,monospace;font-size:.68rem;resize:vertical"></textarea>
-        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Kosongkan kalau tidak ada license.</div>
-      </div>
-      <div class="field" style="margin-bottom:0">
-        <label>Status</label>
-        <select id="editCustActive" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:inherit;font-size:.9rem">
-          <option value="1">Aktif</option>
-          <option value="0">Nonaktif</option>
-        </select>
-      </div>
-      <div id="editCustError" class="alert alert-error" style="display:none;margin-top:14px"></div>
-    </div>
-    <div class="modal-footer">
-      <button id="editCustCancel">Batal</button>
-      <button class="primary" id="editCustSave">Simpan</button>
-    </div>
-  </div>
-</div>
+// ============================================================
+// TRIALS
+// ============================================================
+async function loadTrials() {
+  const tb = $('#tbTrial');
+  tb.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  try {
+    const data = await api('/api/admin/trials?limit=500');
+    $('#cTrial').textContent = data.total;
+    if (!data.trials.length) { tb.innerHTML = ''; $('#emptyTrial').style.display = 'block'; return; }
+    $('#emptyTrial').style.display = 'none';
+    tb.innerHTML = data.trials.map(t =>
+      '<tr>' +
+        '<td><div class="cell-strong">' + escapeHtml(t.email || '—') + '</div></td>' +
+        '<td>' + escapeHtml(t.name || '—') + '</td>' +
+        '<td><span style="font-size:.78rem">' + escapeHtml(PRODUCTS[t.tool] || t.tool || '—') + '</span></td>' +
+        '<td><span class="mono">' + escapeHtml(shortMid(t.machine_id)) + '</span></td>' +
+        '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(t.expires_at) + '</td>' +
+        '</tr>'
+    ).join('');
+  } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
+}
+
+// ============================================================
+// GENERATE MANUAL (existing)
+// ============================================================
+async function genManual() {
+  const name = $('#genName').value.trim();
+  const email = $('#genEmail').value.trim();
+  const mid = $('#genMid').value.trim();
+  const tier = $('#genTier').value;
+  const date = $('#genDate').value;
+
+  if (!email || !mid) { toast('Email & MID wajib', 'error'); return; }
+  if (!/^[a-f0-9]{64}$/.test(mid)) { toast('MID harus 64 hex', 'error'); return; }
+
+  const btn = $('#genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+
+  try {
+    const body = { name, email, tool: 'coretax-toolkit', machine_id: mid, tier };
+    if (date) body.expires_at = date;
+    else body.days = 365;
+
+    const data = await api('/api/admin/generate', { method: 'POST', body });
+    $('#genResult').style.display = 'block';
+    $('#genLicense').textContent = data.license_key;
+    $('#genMeta').innerHTML =
+      '<div>Tier: <b>' + escapeHtml(data.tier.toUpperCase()) + '</b></div>' +
+      '<div>Expired: <b>' + fmtDate(data.expires_at) + '</b></div>' +
+      '<div>Durasi: <b>' + data.days + ' hari</b></div>';
+    toast('License berhasil dibuat');
+    loadLicenses();
+  } catch (e) { toast(e.message, 'error'); }
+  finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License'; }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function init() {
+  // Login
+  $('#loginBtn').addEventListener('click', doLogin);
+  $('#password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  $('#logoutBtn').addEventListener('click', doLogout);
+
+  // Nav
+  $$('.sidebar-item[data-view]').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
+  $('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+  $('#refreshBtn').addEventListener('click', () => switchView(CURRENT_VIEW));
+
+  // Customers
+  let sT;
+  $('#searchCust').addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(loadCustomers, 300); });
+  $('#refreshCust').addEventListener('click', loadCustomers);
+
+  // Edit customer modal
+  $('#saveCustBtn').addEventListener('click', saveCustomer);
+  $('#deleteCustBtn').addEventListener('click', deleteCustomer);
+  $('#addMidBtn').addEventListener('click', addMid);
+  $('#newMidInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addMid(); } });
+
+  // Generate license modal
+  $('#doGenLicBtn').addEventListener('click', doGenerateLicenseForCust);
+
+  // Licenses
+  let sL;
+  $('#searchLic').addEventListener('input', () => { clearTimeout(sL); sL = setTimeout(loadLicenses, 300); });
+  $('#refreshLic').addEventListener('click', loadLicenses);
+
+  // Trials
+  $('#refreshTrial').addEventListener('click', loadTrials);
+
+  // Generate manual
+  $('#genBtn').addEventListener('click', genManual);
+  $('#genCopy').addEventListener('click', () => copyText($('#genLicense').textContent));
+
+  // Auto-restore session
+  const saved = localStorage.getItem(TOKEN_KEY);
+  if (saved) {
+    TOKEN = saved;
+    // Verify token masih valid
+    (async () => {
+      try {
+        await api('/api/admin/stats');
+        showApp();
+        switchView(localStorage.getItem(VIEW_KEY) || 'dashboard');
+      } catch (e) {
+        // 401 → showLogin udah dipanggil di api()
+        // Error lain → tetap showLogin
+        if (e.status !== 401) showLogin();
+      }
+    })();
+  } else {
+    showLogin();
+  }
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+</script>
 </body>
 </html>
