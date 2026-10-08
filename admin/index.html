@@ -487,7 +487,7 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
     <div class="modal-footer">
-      <button class="danger" id="deleteCustBtn"><i class="fa-solid fa-trash"></i> Hapus</button>
+      <button class="danger" id="deleteCustBtn" title="Hapus customer permanen"><i class="fa-solid fa-trash"></i> Hapus Customer</button>
       <div style="flex:1"></div>
       <button onclick="closeModal('editCustModal')">Batal</button>
       <button class="primary" id="saveCustBtn"><i class="fa-solid fa-check"></i> Simpan</button>
@@ -1204,7 +1204,7 @@ async function doGenerateLicenseForCust() {
 }
 
 window.removeLicense = async function(custId) {
-  if (!confirm('Hapus license dari customer ini?')) return;
+  if (!confirm('⚠️ HAPUS LICENSE?\n\nCustomer TIDAK akan terhapus. Hanya license yang dihapus.\n\nLanjutkan?')) return;
   try {
     await api('/api/admin/customer/' + custId, { method: 'PATCH', body: { license_key: '' } });
     const c = custCache.find(x => x.id === custId);
