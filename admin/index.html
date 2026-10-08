@@ -351,31 +351,53 @@ tbody tr:hover{background:var(--surface-soft)}
     </div>
 
     <!-- GENERATE MANUAL -->
+    <!-- ============ VIEW: GENERATE ============ -->
     <div class="view" id="view-generate" style="display:none">
-      <div class="card" style="max-width:680px;margin:0 auto">
+      <div class="card" style="max-width:720px;margin:0 auto">
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License Manual</div>
         </div>
         <div style="padding:28px">
+
           <div class="alert alert-info">
             <i class="fa-solid fa-circle-info"></i>
-            <div>Untuk customer terdaftar, lebih mudah pakai tab <b>Customers</b> → <b>Kelola</b> → <b>Generate License</b>. Form ini untuk generate cepat tanpa customer.</div>
+            <div>Ada 2 cara: <b>Pilih Customer</b> (recommended) atau <b>Buat Customer Baru</b> langsung dari sini. Sumber data tunggal: <b>Customers</b>.</div>
+          </div>
+
+          <div class="mode-toggle" style="display:inline-flex;background:var(--surface-soft);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:22px">
+            <button type="button" class="mode-btn active" data-genmode="existing">Pilih Customer</button>
+            <button type="button" class="mode-btn" data-genmode="new">Buat Customer Baru</button>
+          </div>
+
+          <div id="genModeExisting">
+            <div class="field">
+              <label>Pilih Customer</label>
+              <select id="genCustomerSelect" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-size:.9rem;background:var(--surface)">
+                <option value="">— Memuat customer... —</option>
+              </select>
+              <div id="genCustomerInfo" style="font-size:.75rem;color:var(--muted);margin-top:8px"></div>
+            </div>
+          </div>
+
+          <div id="genModeNew" style="display:none">
+            <div class="field">
+              <label>Username</label>
+              <input type="text" id="genUsername" placeholder="contoh: pt_maju_jaya" />
+              <div style="font-size:.72rem;color:var(--muted);margin-top:5px">3-20 karakter (a-z, A-Z, 0-9, _)</div>
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" id="genEmailNew" placeholder="email@contoh.com" />
+            </div>
+            <div class="field">
+              <label>Machine ID</label>
+              <input type="text" id="genMidNew" placeholder="64 karakter hex" style="font-family:Consolas,monospace;font-size:.75rem" />
+              <div style="font-size:.72rem;color:var(--muted);margin-top:5px">Kalau customer baru, otomatis dibuat akun</div>
+            </div>
           </div>
 
           <div class="field">
-            <label>Nama Customer</label>
-            <input type="text" id="genName" placeholder="Nama lengkap" />
-          </div>
-          <div class="field">
-            <label>Email</label>
-            <input type="email" id="genEmail" placeholder="email@contoh.com" />
-          </div>
-          <div class="field">
-            <label>Machine ID</label>
-            <input type="text" id="genMid" placeholder="64 karakter hex" style="font-family:'JetBrains Mono',monospace;font-size:.75rem" />
-          </div>
-          <div class="field">
-            <label>Produk <span style="text-transform:none;font-weight:500;color:var(--muted)">— pilih 1 atau lebih, atau kosong untuk universal</span></label>
+            <label>Produk <span style="text-transform:none;font-weight:500;color:var(--muted)">— kosong = universal</span></label>
             <div class="product-chips" id="genManualProducts"></div>
             <div id="genManualProductsHint" style="font-size:.76rem;color:var(--muted);margin-top:12px;padding:10px 12px;background:var(--surface-soft);border-radius:8px;line-height:1.55;border:1px solid var(--border)">
               <b style="color:#32A852">Universal aktif</b> — License berlaku untuk SEMUA produk DevAccTra.
@@ -390,16 +412,18 @@ tbody tr:hover{background:var(--surface-soft)}
               <option value="enterprise">Enterprise</option>
             </select>
           </div>
+
           <div class="field">
             <label>Berlaku Sampai</label>
             <input type="date" id="genDate" />
             <div style="font-size:.72rem;color:var(--muted);margin-top:6px">Kosongkan untuk default 365 hari.</div>
           </div>
-          <button class="btn primary" id="genBtn" style="width:100%;justify-content:center;padding:13px;margin-top:8px">
+
+          <button class="btn primary" id="genBtn" style="width:100%;justify-content:center;padding:14px;margin-top:10px">
             <i class="fa-solid fa-wand-magic-sparkles"></i> Generate License
           </button>
 
-          <div class="license-box" id="genResult" style="display:none">
+          <div class="license-box" id="genResult" style="display:none;margin-top:20px">
             <h4><i class="fa-solid fa-check"></i> License Berhasil Dibuat</h4>
             <pre id="genLicense"></pre>
             <div class="meta" id="genMeta"></div>
@@ -407,9 +431,11 @@ tbody tr:hover{background:var(--surface-soft)}
               <button class="btn primary" id="genCopy" style="flex:1;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License</button>
             </div>
           </div>
+
         </div>
       </div>
     </div>
+
   </main>
 </div>
 
