@@ -226,3 +226,126 @@ button{font-family:inherit;cursor:pointer;border:0;background:none}
 .footer-links a:hover{color:#004D2F}
 .footer-links span{color:rgba(23,34,29,.2);font-size:.7rem}
 .footer-copy{font-size:.74rem;color:#94a3b8;letter-spacing:.02em}
+
+/* ============================================================
+   AKUN SAYA — redesigned (fix layout broken)
+   ============================================================ */
+.acct-card {
+  background: var(--surface, #fff);
+  border: 1px solid var(--border, rgba(23,34,29,.08));
+  border-radius: 20px;
+  padding: 28px 30px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,77,47,.05);
+}
+.acct-header { margin-bottom: 22px; }
+.acct-header h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink, #17221D);
+  margin: 0 0 6px 0;
+}
+.acct-header p {
+  font-size: 0.84rem;
+  color: var(--muted, #69756D);
+  margin: 0;
+  line-height: 1.6;
+}
+.acct-actions {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+}
+.acct-action {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 16px !important;
+  padding: 16px 20px !important;
+  background: var(--surface, #fff) !important;
+  border: 1px solid var(--border-strong, rgba(23,34,29,.14)) !important;
+  border-radius: 14px !important;
+  cursor: pointer !important;
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  text-align: left !important;
+  font-family: inherit !important;
+  width: 100% !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+}
+.acct-action:hover {
+  border-color: #32A852 !important;
+  background: #EEF3EA !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(0,77,47,.08) !important;
+}
+.acct-action:hover .acct-action-arrow {
+  color: #32A852 !important;
+  transform: translateX(4px) !important;
+}
+.acct-action.acct-action-danger:hover {
+  border-color: #DC2626 !important;
+  background: #FEE2E2 !important;
+}
+.acct-action.acct-action-danger:hover .acct-action-arrow {
+  color: #DC2626 !important;
+}
+.acct-action-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 12px !important;
+  display: grid !important;
+  place-items: center !important;
+  flex-shrink: 0 !important;
+  color: #fff !important;
+}
+.acct-icon-blue {
+  background: linear-gradient(135deg, #1E5BB8, #2563eb) !important;
+  box-shadow: 0 4px 12px rgba(30, 91, 184, 0.2) !important;
+}
+.acct-icon-red {
+  background: linear-gradient(135deg, #DC2626, #b91c1c) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+}
+.acct-action-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  fill: #fff !important;
+  display: block !important;
+}
+.acct-action-text {
+  flex: 1 !important;
+  min-width: 0 !important;
+  display: block !important;
+}
+.acct-action-text b {
+  display: block !important;
+  font-size: 0.92rem !important;
+  font-weight: 800 !important;
+  color: var(--ink, #17221D) !important;
+  letter-spacing: -0.015em !important;
+  margin-bottom: 3px !important;
+  line-height: 1.3 !important;
+}
+.acct-action-text small {
+  display: block !important;
+  font-size: 0.76rem !important;
+  color: var(--muted, #69756D) !important;
+  line-height: 1.45 !important;
+  font-weight: 500 !important;
+}
+.acct-action-arrow {
+  color: var(--muted, #69756D) !important;
+  font-size: 18px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
+  font-weight: 700 !important;
+}
+
+@media (max-width: 600px) {
+  .acct-card { padding: 22px 20px !important; }
+  .acct-action { padding: 14px 16px !important; gap: 14px !important; }
+  .acct-action-icon { width: 40px !important; height: 40px !important; }
+  .acct-action-text b { font-size: 0.88rem !important; }
+}

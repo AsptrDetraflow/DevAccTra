@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Dashboard Customer - DevAccTra</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261008e">
+<link rel="stylesheet" href="style.css?v=20261008g">
 <style>
 .mid-input-row{display:flex !important;gap:8px !important;align-items:stretch !important;width:100% !important}
 .mid-input-row input{flex:1 1 auto !important;min-width:0 !important;width:auto !important}
@@ -204,29 +204,31 @@
       <div id="deviceList" style="margin-top:12px"></div>
     </div>
     <!-- SECTION 3: AKUN SAYA -->
-    <div class="card" style="margin-bottom:24px">
-      <h2 class="card-title">Akun Saya</h2>
-      <p class="card-sub">Simpan backup credential Anda agar tidak lupa. Download file JSON.</p>
-      <div class="action-list">
-        <button type="button" class="action-item" id="downloadJsonBtn">
-          <div class="ico">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg>
+    <div class="acct-card">
+      <div class="acct-header">
+        <h2>Akun Saya</h2>
+        <p>Simpan backup credential Anda. Bisa digunakan untuk restore saat pindah device.</p>
+      </div>
+      <div class="acct-actions">
+        <button type="button" class="acct-action" id="downloadJsonBtn">
+          <div class="acct-action-icon acct-icon-blue">
+            <svg viewBox="0 0 24 24"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg>
           </div>
-          <div class="txt">
+          <div class="acct-action-text">
             <b>Download Backup (JSON)</b>
-            <small>Simpan credential: username, email, Machine ID</small>
+            <small>Username, email, MID, dan info license</small>
           </div>
-          <span class="arrow">&#8594;</span>
+          <span class="acct-action-arrow">&#8594;</span>
         </button>
-        <button type="button" class="action-item" id="logoutBtn2">
-          <div class="ico danger">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8v2h8v14h-8v2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+        <button type="button" class="acct-action acct-action-danger" id="logoutBtn2">
+          <div class="acct-action-icon acct-icon-red">
+            <svg viewBox="0 0 24 24"><path d="M16 13v-2H7V8l-5 4 5 4v-3zM20 3h-8v2h8v14h-8v2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
           </div>
-          <div class="txt">
+          <div class="acct-action-text">
             <b>Logout</b>
             <small>Keluar dari dashboard</small>
           </div>
-          <span class="arrow">&#8594;</span>
+          <span class="acct-action-arrow">&#8594;</span>
         </button>
       </div>
     </div>
@@ -283,7 +285,7 @@
   </div>
 </div>
 
-<script src="app.js?v=20261008e"></script>
+<script src="app.js?v=20261008g"></script>
 
 <!-- MODAL: REBIND DEVICE -->
 <div class="modal-bg" id="rebindModal">
