@@ -1321,5 +1321,101 @@ function init() {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
 </script>
+
+// ============================================================
+// FIX_COPY_DELEGATION_V2 — override tombol copy
+// Pakai capture phase + stopImmediatePropagation biar handler
+// lama gak jalan.
+// ============================================================
+(function() {
+    function forceCopy(text) {
+        if (!text) return Promise.resolve(false);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).then(function() { return true; }).catch(function() {
+                return fallbackCopy(text);
+            });
+        }
+        return Promise.resolve(fallbackCopy(text));
+    }
+    function fallbackCopy(text) {
+        try {
+            var ta = document.createElement("textarea");
+            ta.value = text;
+            ta.style.position = "fixed";
+            ta.style.left = "-9999px";
+            ta.setAttribute("readonly", "");
+            document.body.appendChild(ta);
+            ta.select();
+            ta.setSelectionRange(0, 99999);
+            var ok = document.execCommand("copy");
+            document.body.removeChild(ta);
+            return ok;
+        } catch (e) { return false; }
+    }
+    function handleCopyClick(e) {
+        var btn = e.target.closest ? e.target.closest("#genCopy") : null;
+        if (!btn) return;
+
+        // Intercept SEBELUM handler lama
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        e.stopPropagation();
+
+        var box = document.getElementById("genLicense");
+        var text = box ? (box.textContent || box.innerText || "") : "";
+        if (!text || !text.trim()) {
+            // Toast gagal
+            try { if (typeof toast === "function") toast("License belum digenerate", "error"); } catch(_) {}
+            return false;
+        }
+
+        forceCopy(text.trim()).then(function(ok) {
+            if (ok) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '✅ Tersalin!';
+                btn.disabled = true;
+                try { if (typeof toast === "function") toast("License ter-copy ke clipboard"); } catch(_) {}
+                setTimeout(function() {
+                    btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copy License';
+                    btn.disabled = false;
+                }, 1500);
+            } else {
+                try { if (typeof toast === "function") toast("Gagal copy. Copy manual dari box.", "error"); } catch(_) {}
+            }
+        });
+        return false;
+    }
+
+    // Attach dengan capture=true biar jalan DULUAN sebelum handler lain
+    document.addEventListener("click", handleCopyClick, true);
+
+    // Fallback — kalau event delegation gagal (kasus langka), patch onclick
+    window.addEventListener("load", function() {
+        setTimeout(function() {
+            var btn = document.getElementById("genCopy");
+            if (btn) {
+                btn.onclick = function(e) {
+                    if (e) { e.stopImmediatePropagation(); e.preventDefault(); }
+                    var box = document.getElementById("genLicense");
+                    var text = box ? (box.textContent || box.innerText || "") : "";
+                    if (!text || !text.trim()) return false;
+                    forceCopy(text.trim()).then(function(ok) {
+                        if (ok) {
+                            btn.innerHTML = '✅ Tersalin!';
+                            btn.disabled = true;
+                            setTimeout(function() {
+                                btn.innerHTML = '<i class="fa-solid fa-copy"></i> Copy License';
+                                btn.disabled = false;
+                            }, 1500);
+                        }
+                    });
+                    return false;
+                };
+            }
+        }, 500);
+    });
+})();
+// END_FIX_COPY_DELEGATION_V2
+
 </body>
 </html>
