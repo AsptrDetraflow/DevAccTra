@@ -352,6 +352,11 @@
                 if (syncResult.dropped && syncResult.dropped.length) {
                     toast("Device lama terhapus otomatis (" + syncResult.dropped.length + ")", "success");
                 }
+                if (syncResult.license_resigned) {
+                    setTimeout(function () {
+                        toast("License diperbarui otomatis. Copy license terbaru ke extension.", "success");
+                    }, 800);
+                }
                 return { success: true, action: "sync" };
             } catch (e) {
                 // User cancel — tetap di halaman auth
@@ -620,9 +625,17 @@
             CURRENT_CUSTOMER = result.customer;
             await loadLicensePayload();
             toast("Device berhasil disinkronkan");
+
             if (result.dropped && result.dropped.length) {
                 toast(result.dropped.length + " device lama terhapus", "success");
             }
+
+            if (result.license_resigned) {
+                setTimeout(function () {
+                    toast("License diperbarui untuk device baru. Copy license terbaru ke extension.", "success");
+                }, 800);
+            }
+
             renderDashboard();
         } catch (e) {
             // Cancelled
@@ -904,6 +917,17 @@
         if (logout2) logout2.addEventListener("click", doLogout);
 
         (async function boot() {
+            // Handle ?mid=xxx dari extension — set cache & prefill
+            try {
+                const urlMid = new URLSearchParams(location.search).get("mid");
+                if (urlMid && urlMid.length >= 40) {
+                    try { localStorage.setItem(MID_CACHE_KEY, urlMid); } catch (e) {}
+                    console.log("[Boot] MID from URL:", urlMid.substring(0, 16) + "...");
+                    // Clean URL
+                    history.replaceState(null, "", location.pathname);
+                }
+            } catch (e) {}
+
             const s = getSession();
             if (s && s.username) {
                 const ok = await refreshCustomer();
