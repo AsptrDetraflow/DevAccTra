@@ -168,3 +168,28 @@ button{font-family:inherit;cursor:pointer;border:0;background:none}
   .license-status-actions{width:100%}
   .license-status-actions .btn{flex:1}
 }
+
+/* ============================================================
+   MID INPUT ROW + GENERATE BUTTON
+   ============================================================ */
+.mid-input-row{display:flex;gap:6px;align-items:stretch}
+.mid-input-row input{flex:1;min-width:0}
+.btn-generate{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:10px;background:var(--dev-green);color:#fff;font-weight:800;font-size:.75rem;cursor:pointer;border:1px solid var(--dev-green);transition:all .18s var(--ease);white-space:nowrap;font-family:inherit}
+.btn-generate:hover{background:var(--dev-green-dark);transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,77,47,.22)}
+.btn-generate svg{width:14px;height:14px;flex-shrink:0}
+
+/* Modal MID detail box */
+.mid-detail-box{background:var(--surface-soft);border:1px solid var(--border-strong);border-radius:12px;padding:14px 16px;display:flex;gap:10px;align-items:center}
+.mid-detail-box code{flex:1;font-family:Consolas,monospace;font-size:.72rem;line-height:1.5;color:var(--ink);word-break:break-all;user-select:all;background:transparent;padding:0}
+.mid-detail-box .btn-copy-mid{padding:8px 12px;border-radius:8px;background:var(--acc-green);color:#fff;font-weight:800;font-size:.72rem;cursor:pointer;border:0;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.mid-detail-box .btn-copy-mid:hover{background:#268843}
+.mid-detail-box .btn-copy-mid.ok{background:var(--dev-green)}
+
+/* Spinner dot untuk modal loading */
+.spinner-dot{display:inline-block;width:12px;height:12px;border:2px solid rgba(0,77,47,.2);border-top-color:var(--dev-green);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle;margin-right:6px}
+
+/* Alert dalam modal */
+.modal .alert{margin-bottom:14px}
+
+/* Fallback: teks panjang di modal */
+.modal code{word-break:break-all}

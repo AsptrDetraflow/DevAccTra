@@ -34,7 +34,7 @@
         <svg viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5zm0 2c-4 0-8 2-8 6v2h16v-2c0-4-4-6-8-6z"/></svg>
       </div>
       <h1 class="login-title">Login Customer</h1>
-      <p class="login-sub">Isi email Anda. Machine ID terdeteksi otomatis dari browser ini (bisa diedit manual jika perlu).</p>
+      <p class="login-sub">Isi email dan Machine ID Anda. Machine ID bisa digenerate otomatis dari browser ini.</p>
 
       <div id="loginError" class="alert alert-error hidden"></div>
 
@@ -45,9 +45,15 @@
         </div>
 
         <div class="field">
-          <label>Machine ID <span id="midBadge" style="font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0">(mendeteksi...)</span></label>
-          <input type="text" id="midInput" placeholder="Mendeteksi dari browser..." style="font-family:Consolas,monospace;font-size:.75rem">
-          <div class="hint" id="midHint">Mendeteksi Machine ID dari browser...</div>
+          <label>Machine ID</label>
+          <div class="mid-input-row">
+            <input type="text" id="midInput" placeholder="Klik tombol Generate di samping" style="font-family:Consolas,monospace;font-size:.75rem">
+            <button type="button" class="btn-generate" id="generateMidBtn">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm7 10l.8 2.4L22 15l-2.2.6L19 18l-.8-2.4L16 15l2.2-.6L19 12zM5 12l.8 2.4L8 15l-2.2.6L5 18l-.8-2.4L2 15l2.2-.6L5 12z"/></svg>
+              Generate
+            </button>
+          </div>
+          <div class="hint" id="midHint">Klik <b>Generate</b> untuk deteksi Machine ID otomatis, atau copy manual dari extension.</div>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Login ke Dashboard</button>
@@ -116,6 +122,26 @@
   </div>
 </div>
 
+<!-- ============ MODAL: GENERATE MID ============ -->
+<div class="modal-bg" id="midModal">
+  <div class="modal">
+    <h2>Machine ID Anda</h2>
+    <p class="modal-sub">Machine ID unik untuk browser & device ini. Copy dan simpan. License yang dibeli akan terikat ke ID ini.</p>
+
+    <div id="midModalContent" style="margin-bottom:16px">
+      <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:.85rem">
+        <span class="spinner-dot"></span> Mendeteksi...
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" class="cancel" id="midModalClose">Tutup</button>
+      <button type="button" class="confirm" id="midModalUse">Pakai ID Ini</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: LICENSE ============ -->
 <div class="modal-bg" id="licenseModal">
   <div class="modal">
     <h2>Masukkan License Key</h2>

@@ -8,40 +8,18 @@ const WA_URL = `https://wa.me/${WA_NUMBER}?text=${WA_MSG}`;
 const DIST = "https://asptrdetraflow.github.io/DevAccTra/dist";
 
 const PRODUCTS = [
-    {
-        id: "coretax-toolkit",
-        name: "Coretax PDF Downloader",
-        type: "Chrome Extension",
-        accent: "dev",
-        desc: "Download PDF Faktur Pajak Keluaran, Masukan, dan Bukti Potong dari Coretax secara massal.",
-        trial: "CoretaxPDFDownloader-Trial.zip",
-        pro: "CoretaxPDFDownloader-Pro.zip",
-        available: true,
-    },
-    {
-        id: "rekap-faktur",
-        name: "Rekap Faktur",
-        type: "Software Desktop",
-        accent: "tra",
-        desc: "Rekap faktur pajak dari PDF ke Excel siap pelaporan SPT secara otomatis.",
-        trial: null, pro: null, available: false,
-    },
-    {
-        id: "rekap-bupot-bppu",
-        name: "Rekap Bupot BPPU",
-        type: "Software Desktop",
-        accent: "acc",
-        desc: "Rekap Bukti Potong BPPU dari folder PDF ke Excel otomatis dengan deteksi duplikat.",
-        trial: null, pro: null, available: false,
-    },
-    {
-        id: "rekap-bank-bca",
-        name: "Rekap Bank BCA",
-        type: "Software Desktop",
-        accent: "sage",
-        desc: "Ekstrak mutasi bank BCA dari PDF atau CSV ke Excel siap rekonsiliasi.",
-        trial: null, pro: null, available: false,
-    },
+    { id: "coretax-toolkit", name: "Coretax PDF Downloader", type: "Chrome Extension", accent: "dev",
+      desc: "Download PDF Faktur Pajak Keluaran, Masukan, dan Bukti Potong dari Coretax secara massal.",
+      trial: "CoretaxPDFDownloader-Trial.zip", pro: "CoretaxPDFDownloader-Pro.zip", available: true },
+    { id: "rekap-faktur", name: "Rekap Faktur", type: "Software Desktop", accent: "tra",
+      desc: "Rekap faktur pajak dari PDF ke Excel siap pelaporan SPT secara otomatis.",
+      trial: null, pro: null, available: false },
+    { id: "rekap-bupot-bppu", name: "Rekap Bupot BPPU", type: "Software Desktop", accent: "acc",
+      desc: "Rekap Bukti Potong BPPU dari folder PDF ke Excel otomatis dengan deteksi duplikat.",
+      trial: null, pro: null, available: false },
+    { id: "rekap-bank-bca", name: "Rekap Bank BCA", type: "Software Desktop", accent: "sage",
+      desc: "Ekstrak mutasi bank BCA dari PDF atau CSV ke Excel siap rekonsiliasi.",
+      trial: null, pro: null, available: false },
 ];
 
 const ICONS = {
@@ -68,32 +46,78 @@ function showDashboard() {
 }
 
 // ============================================================
-// AUTO-LOAD MID (editable)
+// MID — Generate Button + Modal
 // ============================================================
-let _autoMid = null;
+let _generatedMid = null;
+
+async function generateMid() {
+    const box = $("#midModalContent");
+    box.innerHTML = '<div style="text-align:center;padding:24px 0;color:var(--muted);font-size:.85rem"><span class="spinner-dot"></span> Mendeteksi Machine ID...</div>';
+
+    try {
+        const mid = await getMachineId();
+        _generatedMid = mid;
+        box.innerHTML =
+            '<div class="mid-detail-box">' +
+                '<code id="midDetail">' + mid + '</code>' +
+                '<button type="button" class="btn-copy-mid" id="copyMidDetail">Copy</button>' +
+            '</div>' +
+            '<div class="alert alert-info" style="margin:14px 0 0"><i>&#8505;</i><div>Simpan ID ini. License yang dibeli akan terikat ke Machine ID ini.</div></div>';
+
+        const cb = $("#copyMidDetail");
+        cb.addEventListener("click", () => {
+            navigator.clipboard.writeText(mid).then(() => {
+                const orig = cb.textContent;
+                cb.textContent = "OK!";
+                cb.classList.add("ok");
+                setTimeout(() => { cb.textContent = orig; cb.classList.remove("ok"); }, 1500);
+            }).catch(() => alert("Copy manual: " + mid));
+        });
+    } catch (e) {
+        box.innerHTML =
+            '<div class="alert alert-error" style="margin:0"><i>&#10007;</i><div><b>Gagal generate MID.</b><br>' + (e.message || "Browser tidak mendukung.") + '<br><br>Solusi:<br>1. Buka di Chrome/Edge terbaru<br>2. Copy manual dari extension popup</div></div>';
+    }
+}
+
+function openMidModal() {
+    $("#midModal").classList.add("show");
+    generateMid();
+}
+function closeMidModal() {
+    $("#midModal").classList.remove("show");
+}
+
+$("#generateMidBtn").addEventListener("click", openMidModal);
+$("#midModalClose").addEventListener("click", closeMidModal);
+$("#midModal").addEventListener("click", (e) => {
+    if (e.target === $("#midModal")) closeMidModal();
+});
+$("#midModalUse").addEventListener("click", () => {
+    if (_generatedMid) {
+        $("#midInput").value = _generatedMid;
+        $("#midHint").innerHTML = "Machine ID sudah diisi otomatis. Siap login.";
+        $("#midHint").style.color = "var(--acc-green)";
+    }
+    closeMidModal();
+});
+
+// ============================================================
+// AUTO-LOAD MID (silent, no error if fail)
+// ============================================================
 (async function autoLoadMid() {
     const midInput = $("#midInput");
     const midHint = $("#midHint");
-    const midBadge = $("#midBadge");
-    if (!midInput || !midHint || !midBadge) {
-        console.warn("[MID] Element tidak ketemu, skip auto-load");
-        return;
-    }
+    if (!midInput) return;
     try {
         const mid = await getMachineId();
-        _autoMid = mid;
-        if (!midInput.value) midInput.value = mid;
-        midHint.textContent = "Machine ID terdeteksi otomatis. Bisa diedit kalau perlu.";
-        midHint.style.color = "var(--acc-green)";
-        midBadge.textContent = "(otomatis - bisa diedit)";
-        midBadge.style.color = "var(--acc-green)";
-        console.log("[MID] Auto-loaded:", mid.substring(0, 16) + "...");
+        if (!midInput.value) {
+            midInput.value = mid;
+            midHint.innerHTML = "Machine ID sudah terisi otomatis. Bisa diedit manual.";
+            midHint.style.color = "var(--acc-green)";
+        }
     } catch (e) {
-        console.error("[MID] Gagal:", e);
-        midHint.textContent = "Gagal deteksi otomatis. Isi manual dari extension.";
-        midHint.style.color = "var(--danger)";
-        midBadge.textContent = "(isi manual)";
-        midBadge.style.color = "var(--warning)";
+        // Silent — user tetap bisa klik tombol Generate
+        console.log("[MID] Auto-load skip:", e.message);
     }
 })();
 
@@ -101,7 +125,7 @@ let _autoMid = null;
 $("#loginForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const email = $("#emailInput").value.trim();
-    const mid = ($("#midInput").value || _autoMid || "").trim();
+    const mid = ($("#midInput").value || "").trim();
     const err = $("#loginError");
     hide(err);
 
@@ -111,7 +135,7 @@ $("#loginForm").addEventListener("submit", (e) => {
         show(err); return;
     }
     if (!mid || mid.length < 20) {
-        err.textContent = "Machine ID belum terdeteksi. Refresh halaman atau isi manual.";
+        err.textContent = "Machine ID kosong. Klik tombol Generate atau copy dari extension.";
         show(err); return;
     }
 
@@ -135,11 +159,7 @@ function renderLicenseStatus(session) {
     const removeBtn = $("#removeLicenseBtn");
 
     if (!session.licenseKey) {
-        box.innerHTML = `
-            <div class="alert alert-warn" style="margin:0">
-                <i>&#9888;</i>
-                <div><b>Belum ada License PRO.</b><br>Anda hanya bisa download versi <b>Trial</b>. Untuk versi PRO, masukkan License Key dari Admin atau hubungi kami.</div>
-            </div>`;
+        box.innerHTML = '<div class="alert alert-warn" style="margin:0"><i>&#9888;</i><div><b>Belum ada License PRO.</b><br>Anda hanya bisa download versi <b>Trial</b>. Untuk versi PRO, masukkan License Key dari Admin atau hubungi kami.</div></div>';
         show(pasteBtn); show(payBtn); hide(removeBtn);
         return;
     }
@@ -150,14 +170,13 @@ function renderLicenseStatus(session) {
     const exp = p.e || "-";
     const days = daysRemaining(exp);
 
-    box.innerHTML = `
-        <div class="info-row"><span class="label">Tier</span><span class="value"><span class="badge badge-${tier || "pro"}">${tier || "pro"}</span></span></div>
-        <div class="info-row"><span class="label">Produk</span><span class="value">${escapeHtml(p.tool || "coretax-toolkit")}</span></div>
-        <div class="info-row"><span class="label">Berlaku sampai</span><span class="value">${fmtDate(exp)} <small style="color:var(--muted)">(${days} hari)</small></span></div>
-        ${isPro
-            ? `<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk bisa di-download versi PRO.</div></div>`
-            : `<div class="alert alert-info" style="margin:12px 0 0"><i>&#8505;</i><div>License tier <b>${tier}</b> tidak membuka akses PRO. Masukkan License PRO dari Admin.</div></div>`}
-    `;
+    box.innerHTML =
+        '<div class="info-row"><span class="label">Tier</span><span class="value"><span class="badge badge-' + (tier || "pro") + '">' + (tier || "pro") + '</span></span></div>' +
+        '<div class="info-row"><span class="label">Produk</span><span class="value">' + escapeHtml(p.tool || "coretax-toolkit") + '</span></div>' +
+        '<div class="info-row"><span class="label">Berlaku sampai</span><span class="value">' + fmtDate(exp) + ' <small style="color:var(--muted)">(' + days + ' hari)</small></span></div>' +
+        (isPro
+            ? '<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk bisa di-download versi PRO.</div></div>'
+            : '<div class="alert alert-info" style="margin:12px 0 0"><i>&#8505;</i><div>License tier <b>' + tier + '</b> tidak membuka akses PRO. Masukkan License PRO dari Admin.</div></div>');
     show(removeBtn);
     if (isPro) hide(pasteBtn); else show(pasteBtn);
     show(payBtn);
@@ -171,30 +190,27 @@ function renderProducts(session) {
     grid.innerHTML = PRODUCTS.map(p => {
         const icon = ICONS[p.id] || "";
         const isAvail = p.available;
-
         const trialBtn = isAvail
-            ? `<a class="product-btn product-btn-trial" href="${DIST}/${p.trial}" download><svg viewBox="0 0 24 24"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg> Download Trial</a>`
-            : `<button class="product-btn product-btn-trial" disabled><svg viewBox="0 0 24 24"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg> Trial</button>`;
-
+            ? '<a class="product-btn product-btn-trial" href="' + DIST + "/" + p.trial + '" download><svg viewBox="0 0 24 24"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg> Download Trial</a>'
+            : '<button class="product-btn product-btn-trial" disabled><svg viewBox="0 0 24 24"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg> Trial</button>';
         const proBtn = !isAvail
-            ? `<button class="product-btn product-btn-pro" disabled><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Coming Soon</button>`
+            ? '<button class="product-btn product-btn-pro" disabled><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Coming Soon</button>'
             : (hasPro
-                ? `<a class="product-btn product-btn-pro" href="${DIST}/${p.pro}" download><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Download PRO</a>`
-                : `<button class="product-btn product-btn-pro" disabled onclick="openLicenseModal()"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Butuh License</button>`);
+                ? '<a class="product-btn product-btn-pro" href="' + DIST + "/" + p.pro + '" download><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Download PRO</a>'
+                : '<button class="product-btn product-btn-pro" disabled onclick="openLicenseModal()"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Butuh License</button>');
 
-        return `
-            <div class="product-card">
-                ${!isAvail ? '<span class="product-badge">Coming Soon</span>' : ""}
-                <div class="product-head">
-                    <div class="product-ico ${p.accent}"><svg viewBox="0 0 24 24">${icon}</svg></div>
-                    <div class="product-head-text">
-                        <div class="product-name">${escapeHtml(p.name)}</div>
-                        <div class="product-type">${escapeHtml(p.type)}</div>
-                    </div>
-                </div>
-                <p class="product-desc">${escapeHtml(p.desc)}</p>
-                <div class="product-actions">${trialBtn}${proBtn}</div>
-            </div>`;
+        return '<div class="product-card">' +
+            (!isAvail ? '<span class="product-badge">Coming Soon</span>' : "") +
+            '<div class="product-head">' +
+                '<div class="product-ico ' + p.accent + '"><svg viewBox="0 0 24 24">' + icon + '</svg></div>' +
+                '<div class="product-head-text">' +
+                    '<div class="product-name">' + escapeHtml(p.name) + '</div>' +
+                    '<div class="product-type">' + escapeHtml(p.type) + '</div>' +
+                '</div>' +
+            '</div>' +
+            '<p class="product-desc">' + escapeHtml(p.desc) + '</p>' +
+            '<div class="product-actions">' + trialBtn + proBtn + '</div>' +
+        '</div>';
     }).join("");
 }
 
@@ -242,7 +258,6 @@ $("#modalConfirm").addEventListener("click", async () => {
     const err = $("#modalError");
     const btn = $("#modalConfirm");
     hide(err);
-
     if (!key) { err.textContent = "License Key kosong."; show(err); return; }
 
     btn.disabled = true;
