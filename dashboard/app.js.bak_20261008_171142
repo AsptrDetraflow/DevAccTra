@@ -13,8 +13,6 @@
     const WA_MSG        = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
     const WA_URL        = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
     const DIST          = "https://asptrdetraflow.github.io/DevAccTra/dist";
-    const API_URL       = "https://devacctra-api.up.railway.app";
-    const MAX_DEVICES   = 3;
 
     const RX_USERNAME = /^[a-zA-Z0-9_]{3,20}$/;
     const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -482,7 +480,6 @@
         $("#heroMid").textContent = shortMid(account.machineId);
         renderProducts(s);
         renderLicenseStatus(s);
-        setTimeout(function () { refreshDeviceList(); checkDeviceMismatch(); }, 100);
 
         const cb = $("#copyMidHero");
         cb.onclick = function () {
@@ -542,173 +539,6 @@
     }
 
     // ============================================================
-// ============================================================
-// DEVICE MANAGEMENT (rebind + list)
-// ============================================================
-async function fetchDevices(licenseKey) {
-        try {
-            const res = await fetch(API_URL + "/api/license/devices", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ license_key: licenseKey }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || "Gagal fetch devices");
-            return data;
-        } catch (e) {
-            console.warn("[Devices] Error:", e.message);
-            return null;
-        }
-    }
-
-    function renderDeviceList(account, devices) {
-        const box = $("#deviceList");
-        const maxEl = $("#deviceMax");
-        if (maxEl) maxEl.textContent = MAX_DEVICES;
-        if (!box) return;
-
-        if (!account.licenseKey) {
-            box.innerHTML = '<div class="hint" style="color:#69756D">Masukkan License Key dulu untuk melihat daftar device.</div>';
-            return;
-        }
-        if (!devices || !devices.machine_ids) {
-            box.innerHTML = '<div class="hint" style="color:#69756D">Memuat daftar device...</div>';
-            return;
-        }
-
-        const current = account.machineId;
-        const mids = devices.machine_ids;
-
-        if (!mids.length) {
-            box.innerHTML = '<div class="hint" style="color:#69756D">Belum ada device terdaftar.</div>';
-            return;
-        }
-
-        box.innerHTML = mids.map(function (m, i) {
-            const isCurrent = m === current;
-            const isOldest = i === 0 && mids.length >= MAX_DEVICES;
-            return '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid ' + (isCurrent ? '#32A852' : 'var(--border)') + ';border-radius:10px;margin-bottom:8px;background:' + (isCurrent ? 'rgba(50,168,82,.05)' : 'var(--surface)') + '">' +
-                '<div style="flex:1;min-width:0">' +
-                    '<div style="font-family:Consolas,monospace;font-size:.72rem;word-break:break-all;color:#17221D">' + m + '</div>' +
-                    '<div style="font-size:.68rem;color:#69756D;margin-top:2px">' +
-                        (isCurrent ? '<b style="color:#32A852">Device ini</b>' : 'Device lain') +
-                        (isOldest ? ' &middot; <span style="color:#D97706">Paling lama (akan terhapus jika tambah baru)</span>' : '') +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-        }).join("") +
-        '<div style="font-size:.72rem;color:#69756D;margin-top:8px">' + mids.length + ' / ' + MAX_DEVICES + ' device aktif</div>';
-    }
-
-    async function refreshDeviceList() {
-        const s = getSession();
-        if (!s) return;
-        const account = getAccounts()[s.username];
-        if (!account || !account.licenseKey) { renderDeviceList(account, null); return; }
-        const devices = await fetchDevices(account.licenseKey);
-        renderDeviceList(account, devices);
-    }
-
-    function openRebindModal() {
-        $("#rebindOldMid").value = "";
-        hide($("#rebindError"));
-        hide($("#rebindInfo"));
-        const maxEl = $("#rebindMax");
-        if (maxEl) maxEl.textContent = MAX_DEVICES;
-        $("#rebindModal").classList.add("show");
-        setTimeout(() => $("#rebindOldMid").focus(), 100);
-    }
-    function closeRebindModal() { $("#rebindModal").classList.remove("show"); }
-
-    async function handleRebind() {
-        const err = $("#rebindError");
-        const info = $("#rebindInfo");
-        const btn = $("#rebindConfirm");
-        hide(err); hide(info);
-
-        const oldMid = $("#rebindOldMid").value.trim();
-        const s = getSession();
-        if (!s) return;
-        const accounts = getAccounts();
-        const account = accounts[s.username];
-        if (!account) return;
-
-        if (!account.licenseKey) { err.textContent = "Belum ada License Key."; show(err); return; }
-        if (!oldMid) { err.textContent = "Machine ID lama wajib diisi."; show(err); return; }
-        if (oldMid === account.machineId) { err.textContent = "MID lama sama dengan device ini. Tidak perlu rebind."; show(err); return; }
-
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
-
-        try {
-            const res = await fetch(API_URL + "/api/license/rebind", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    license_key: account.licenseKey,
-                    old_machine_id: oldMid,
-                    new_machine_id: account.machineId,
-                }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || "Gagal rebind");
-
-            // Simpan license baru
-            account.licenseKey = data.license_key;
-            // Update payload from new license (parse ulang)
-            try {
-                const newPayload = await verifyLicense(data.license_key);
-                account.payload = newPayload;
-            } catch (e) {
-                console.warn("Verify new license failed:", e);
-            }
-            saveAccounts(accounts);
-
-            // Success
-            closeRebindModal();
-            renderDashboard();
-            refreshDeviceList();
-
-            alert("Berhasil! License sekarang aktif di " + data.machine_ids.length + " device." +
-                  (data.dropped && data.dropped.length ? " Device lama terhapus: " + data.dropped.length : ""));
-        } catch (e) {
-            err.textContent = e.message;
-            show(err);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Pindah ke Device Ini";
-        }
-    }
-
-    // Cek MID mismatch: kalau license ada, tapi current MID tidak di daftar
-    async function checkDeviceMismatch() {
-        const s = getSession();
-        if (!s) return;
-        const account = getAccounts()[s.username];
-        if (!account || !account.licenseKey || !account.payload) return;
-
-        // Ambil daftar MID dari license payload
-        const cur = account.payload.m;
-        let mids = [];
-        if (Array.isArray(cur)) mids = cur;
-        else if (typeof cur === "string") mids = [cur];
-        else return;
-
-        // Kalau MID sekarang tidak ada di daftar → mismatch
-        if (!mids.includes("*") && !mids.includes(account.machineId)) {
-            // Tampilkan tombol rebind
-            const paste = $("#pasteLicenseBtn");
-            if (paste) {
-                paste.textContent = "Pindah Device";
-                paste.classList.remove("hidden");
-            }
-            // Auto buka modal
-            openRebindModal();
-            const info = $("#rebindInfo");
-            info.innerHTML = '<b>License aktif di device lain.</b><br>MID device ini: <code style="font-family:Consolas;font-size:.7rem">' + account.machineId.substring(0,16) + '...</code><br>MID terdaftar: <b>' + mids.length + '</b> device.<br>Masukkan salah satu MID lama untuk pindah.';
-            show(info);
-        }
-    }
     // AUTO-LOAD MID
     // ============================================================
     async function autoLoadMid(inputId, hintId) {
@@ -804,17 +634,8 @@ async function fetchDevices(licenseKey) {
         const logout2 = $("#logoutBtn2");
         if (logout2) logout2.addEventListener("click", doLogout);
 
-// Rebind modal
-        const rebindCancel = $("#rebindCancel");
-        if (rebindCancel) rebindCancel.addEventListener("click", closeRebindModal);
-        const rebindBg = $("#rebindModal");
-        if (rebindBg) rebindBg.addEventListener("click", function (e) { if (e.target === rebindBg) closeRebindModal(); });
-        const rebindConfirm = $("#rebindConfirm");
-        if (rebindConfirm) rebindConfirm.addEventListener("click", handleRebind);
-
-        // ============================================================
-        // AUTO-LOAD MID
-        // ============================================================        const s = getSession();
+        // Start
+        const s = getSession();
         if (s && s.username && getAccounts()[s.username]) {
             showDashboard();
         } else {

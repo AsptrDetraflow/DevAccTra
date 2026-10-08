@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Dashboard Customer - DevAccTra</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261008c">
+<link rel="stylesheet" href="style.css?v=20261008b">
 <style>
 .mid-input-row{display:flex !important;gap:8px !important;align-items:stretch !important;width:100% !important}
 .mid-input-row input{flex:1 1 auto !important;min-width:0 !important;width:auto !important}
@@ -176,13 +176,6 @@
       </div>
     </div>
 
-    
-    <!-- SECTION: DEVICE AKTIF -->
-    <div class="card" style="margin-bottom:24px" id="deviceSection">
-      <h2 class="card-title">Device Aktif</h2>
-      <p class="card-sub">License Anda bisa aktif di maksimal <b id="deviceMax">3</b> device. Kalau penuh, device paling lama otomatis terhapus saat tambah baru.</p>
-      <div id="deviceList" style="margin-top:12px"></div>
-    </div>
     <!-- SECTION 3: AKUN SAYA -->
     <div class="card" style="margin-bottom:24px">
       <h2 class="card-title">Akun Saya</h2>
@@ -253,25 +246,6 @@
   </div>
 </div>
 
-<script src="app.js?v=20261008c"></script>
-
-<!-- MODAL: REBIND DEVICE -->
-<div class="modal-bg" id="rebindModal">
-  <div class="modal">
-    <h2>Pindah License ke Device Ini</h2>
-    <p class="modal-sub">License Anda terikat ke Machine ID lain. Masukkan Machine ID lama untuk pindah ke device ini. MID lama &amp; baru akan sama-sama aktif (maks <b id="rebindMax">3</b> device).</p>
-    <div id="rebindError" class="alert alert-error hidden"></div>
-    <div id="rebindInfo" class="alert alert-info hidden"></div>
-    <div class="field" style="margin-bottom:14px">
-      <label style="font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px">Machine ID LAMA</label>
-      <input type="text" id="rebindOldMid" placeholder="Paste Machine ID lama dari device sebelumnya" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);font-family:Consolas,monospace;font-size:.75rem">
-      <div class="hint" style="font-size:.72rem;color:var(--muted);margin-top:6px;line-height:1.5">Machine ID lama Anda bisa dilihat di extension popup di device lama, atau dari file JSON backup.</div>
-    </div>
-    <div class="modal-actions">
-      <button type="button" class="cancel" id="rebindCancel">Batal</button>
-      <button type="button" class="confirm" id="rebindConfirm">Pindah ke Device Ini</button>
-    </div>
-  </div>
-</div>
+<script src="app.js?v=20261008b"></script>
 </body>
 </html>
