@@ -1,0 +1,19 @@
+
+
+# Backup files
+*.bak_*
+*.bak
+_backups/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dist source (jangan di-push)
+dist/source/
+
+# Build artifacts
+*.log
+*.tmp
