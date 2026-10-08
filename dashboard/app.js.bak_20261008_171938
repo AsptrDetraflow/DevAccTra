@@ -1,6 +1,6 @@
 // ============================================================
-// DevAccTra Dashboard — Multi-MID Account
-// Register + Login + Sync Account + Universal License + Rebind
+// DevAccTra Dashboard — Self-contained
+// Register + Login + Universal License + JSON Backup
 // ============================================================
 (function () {
     "use strict";
@@ -14,7 +14,7 @@
     const WA_URL        = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
     const DIST          = "https://asptrdetraflow.github.io/DevAccTra/dist";
     const API_URL       = "https://devacctra-api.up.railway.app";
-    const MAX_MIDS      = 3;
+    const MAX_DEVICES   = 3;
 
     const RX_USERNAME = /^[a-zA-Z0-9_]{3,20}$/;
     const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -48,30 +48,11 @@
     const hide = el => el && el.classList.add("hidden");
 
     // ============================================================
-    // STORAGE + MIGRATION
+    // STORAGE
     // ============================================================
-    function getAccountMids(account) {
-        if (!account) return [];
-        if (Array.isArray(account.machineIds)) return account.machineIds.slice();
-        if (typeof account.machineId === "string") return [account.machineId];
-        return [];
-    }
-
-    function migrateAccount(account) {
-        if (!account) return account;
-        if (!Array.isArray(account.machineIds)) {
-            account.machineIds = account.machineId ? [account.machineId] : [];
-        }
-        delete account.machineId;
-        return account;
-    }
-
     function getAccounts() {
-        try {
-            const raw = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || "{}");
-            for (const k in raw) migrateAccount(raw[k]);
-            return raw;
-        } catch (e) { return {}; }
+        try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || "{}"); }
+        catch (e) { return {}; }
     }
     function saveAccounts(a) {
         try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(a)); } catch (e) {}
@@ -100,13 +81,16 @@
                 return urlMid;
             }
         } catch (e) {}
+
         try {
             const cached = localStorage.getItem(MID_CACHE_KEY);
             if (cached && cached.length >= 20) return cached;
         } catch (e) {}
+
         if (!window.crypto || !window.crypto.subtle || !window.crypto.subtle.digest) {
             throw new Error("Browser tidak support crypto.subtle. Pakai Chrome/Edge/Firefox terbaru.");
         }
+
         const parts = [
             navigator.platform || "",
             navigator.hardwareConcurrency || 0,
@@ -125,7 +109,7 @@
     }
 
     // ============================================================
-    // LICENSE VERIFY
+    // LICENSE VERIFY (universal — tidak cek tool)
     // ============================================================
     function b64ToBytes(b64) {
         const bin = atob(b64);
@@ -185,15 +169,6 @@
             return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c];
         });
     }
-    function findAccount(accounts, identifier) {
-        const lower = identifier.toLowerCase();
-        for (const k in accounts) {
-            if (k.toLowerCase() === lower || (accounts[k].email || "").toLowerCase() === lower) {
-                return { key: k, account: accounts[k] };
-            }
-        }
-        return null;
-    }
 
     // ============================================================
     // VIEWS
@@ -246,7 +221,7 @@
                 }).catch(function () { alert("Copy manual: " + mid); });
             });
         } catch (e) {
-            box.innerHTML = '<div class="alert alert-error" style="margin:0"><i>&#10007;</i><div><b>Gagal generate MID.</b><br>' + escapeHtml(e.message) + '</div></div>';
+            box.innerHTML = '<div class="alert alert-error" style="margin:0"><i>&#10007;</i><div><b>Gagal generate MID.</b><br>' + escapeHtml(e.message) + '<br><br>Buka di Chrome/Edge terbaru atau copy manual dari extension.</div></div>';
         }
     }
     function openMidModal(targetId) {
@@ -257,87 +232,39 @@
     function closeMidModal() { $("#midModal").classList.remove("show"); }
 
     // ============================================================
-    // SYNC MODAL (akun existing, MID beda)
-    // ============================================================
-    let _syncResolver = null; // { accountKey, account, newMid, resolve, reject }
-    function openSyncModal(accountKey, account, newMid) {
-        return new Promise(function (resolve, reject) {
-            _syncResolver = { accountKey: accountKey, account: account, newMid: newMid, resolve: resolve, reject: reject };
-            $("#syncOldMid").value = "";
-            hide($("#syncError"));
-            const maxEl = $("#syncMax");
-            if (maxEl) maxEl.textContent = MAX_MIDS;
-            const info = $("#syncInfo");
-            const existing = getAccountMids(account);
-            info.innerHTML = '<b>Akun ditemukan: ' + escapeHtml(account.username) + '</b><br>Terdaftar dengan <b>' + existing.length + '</b> Machine ID. MID device ini: <code style="font-family:Consolas;font-size:.7rem">' + shortMid(newMid) + '</code>';
-            show(info);
-            $("#syncModal").classList.add("show");
-            setTimeout(() => $("#syncOldMid").focus(), 100);
-        });
-    }
-    function closeSyncModal(cancel) {
-        $("#syncModal").classList.remove("show");
-        if (_syncResolver && cancel) {
-            _syncResolver.reject(new Error("Dibatalkan"));
-            _syncResolver = null;
-        }
-    }
-    async function handleSyncConfirm() {
-        if (!_syncResolver) return;
-        const err = $("#syncError");
-        const btn = $("#syncConfirm");
-        const oldMid = $("#syncOldMid").value.trim();
-        hide(err);
-        if (!oldMid) { err.textContent = "Machine ID lama wajib diisi."; show(err); return; }
-
-        const { accountKey, account, newMid, resolve, reject } = _syncResolver;
-        const existing = getAccountMids(account);
-
-        if (!existing.includes(oldMid)) {
-            err.textContent = "Machine ID lama tidak cocok dengan akun ini. Periksa kembali.";
-            show(err);
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
-
-        try {
-            // Tambah MID baru
-            let mids = existing.slice();
-            if (!mids.includes(newMid)) mids.push(newMid);
-            let dropped = [];
-            if (mids.length > MAX_MIDS) {
-                dropped = mids.slice(0, mids.length - MAX_MIDS);
-                mids = mids.slice(mids.length - MAX_MIDS);
-            }
-
-            const accounts = getAccounts();
-            accounts[accountKey] = Object.assign({}, account, { machineIds: mids, updatedAt: Date.now() });
-            saveAccounts(accounts);
-
-            closeSyncModal(false);
-            _syncResolver = null;
-            resolve({ accountKey: accountKey, mids: mids, dropped: dropped });
-        } catch (e) {
-            err.textContent = e.message;
-            show(err);
-        } finally {
-            btn.disabled = false;
-            btn.textContent = "Sinkronkan";
-        }
-    }
-
-    // ============================================================
     // VALIDASI
     // ============================================================
-    function showFieldError(el, msg) { if (el) { el.textContent = msg; el.classList.add("show"); } }
-    function hideFieldError(el) { if (el) el.classList.remove("show"); }
+    function showFieldError(el, msg) {
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add("show");
+    }
+    function hideFieldError(el) {
+        if (el) el.classList.remove("show");
+    }
+    function validateUsername(u, accounts) {
+        if (!RX_USERNAME.test(u)) return "Username: 3-20 karakter, huruf/angka/underscore";
+        if (accounts[u]) return "Username sudah dipakai";
+        return null;
+    }
+    function validateEmail(e, accounts, exceptUsername) {
+        if (!RX_EMAIL.test(e)) return "Format email tidak valid";
+        const lower = e.toLowerCase();
+        for (const k in accounts) {
+            if (k === exceptUsername) continue;
+            if ((accounts[k].email || "").toLowerCase() === lower) return "Email sudah dipakai";
+        }
+        return null;
+    }
+    function validateMid(m) {
+        if (!RX_MID.test(m)) return "Machine ID harus 64 karakter hex (a-f, 0-9)";
+        return null;
+    }
 
     // ============================================================
     // REGISTER
     // ============================================================
-    async function handleRegister(e) {
+    function handleRegister(e) {
         e.preventDefault();
         const username = $("#regUsername").value.trim();
         const email = $("#regEmail").value.trim();
@@ -349,72 +276,57 @@
         hideFieldError($("#errMid"));
         $$("#registerForm input").forEach(i => i.classList.remove("error"));
 
-        let hasErr = false;
-        if (!RX_USERNAME.test(username)) { showFieldError($("#errUsername"), "Username: 3-20 karakter, huruf/angka/underscore"); $("#regUsername").classList.add("error"); hasErr = true; }
-        if (!RX_EMAIL.test(email)) { showFieldError($("#errEmail"), "Format email tidak valid"); $("#regEmail").classList.add("error"); hasErr = true; }
-        if (!RX_MID.test(mid)) { showFieldError($("#errMid"), "Machine ID harus 64 karakter hex (a-f, 0-9)"); $("#regMid").classList.add("error"); hasErr = true; }
-        if (username.toLowerCase() === mid.toLowerCase()) { showFieldError($("#errUsername"), "Username tidak boleh sama dengan MID"); hasErr = true; }
-        if (email.toLowerCase() === mid.toLowerCase()) { showFieldError($("#errEmail"), "Email tidak boleh sama dengan MID"); hasErr = true; }
-
-        if (hasErr) { err.textContent = "Periksa kembali data yang diisi."; show(err); return; }
-
         const accounts = getAccounts();
+        let hasErr = false;
 
-        // Cek username exact
-        const byUsername = accounts[username];
-        // Cek email match
-        let byEmail = null;
-        const lowerEmail = email.toLowerCase();
-        for (const k in accounts) {
-            if ((accounts[k].email || "").toLowerCase() === lowerEmail) { byEmail = { key: k, account: accounts[k] }; break; }
+        const uErr = validateUsername(username, accounts);
+        if (uErr) { showFieldError($("#errUsername"), uErr); $("#regUsername").classList.add("error"); hasErr = true; }
+
+        const eErr = validateEmail(email, accounts);
+        if (eErr) { showFieldError($("#errEmail"), eErr); $("#regEmail").classList.add("error"); hasErr = true; }
+
+        const mErr = validateMid(mid);
+        if (mErr) { showFieldError($("#errMid"), mErr); $("#regMid").classList.add("error"); hasErr = true; }
+
+        // Cross-check: username/email tidak boleh = MID
+        if (username.toLowerCase() === mid.toLowerCase()) {
+            showFieldError($("#errUsername"), "Username tidak boleh sama dengan Machine ID");
+            hasErr = true;
+        }
+        if (email.toLowerCase() === mid.toLowerCase()) {
+            showFieldError($("#errEmail"), "Email tidak boleh sama dengan Machine ID");
+            hasErr = true;
         }
 
-        const existing = byUsername ? { key: username, account: byUsername } : byEmail;
-
-        // ==== Kalau username/email SUDAH ADA ====
-        if (existing) {
-            const mids = getAccountMids(existing.account);
-            // Cek apakah MID baru sudah terdaftar
-            if (mids.includes(mid)) {
-                // Ini = login (welcome back)
-                saveSession({ username: existing.key, loggedInAt: Date.now() });
-                showDashboard();
-                return;
-            }
-            // MID beda → tanya MID lama
-            try {
-                const result = await openSyncModal(existing.key, existing.account, mid);
-                // Sync sukses → login
-                if (result.dropped.length) {
-                    console.log("[Sync] Dropped MIDs:", result.dropped);
-                }
-                saveSession({ username: result.accountKey, loggedInAt: Date.now() });
-                showDashboard();
-            } catch (e) {
-                // User cancel
-            }
+        if (hasErr) {
+            err.textContent = "Periksa kembali data yang diisi.";
+            show(err);
             return;
         }
 
-        // ==== Akun BARU ====
+        // Save account
         accounts[username] = {
             username: username,
             email: email,
-            machineIds: [mid],
+            machineId: mid,
             createdAt: Date.now(),
             licenseKey: null,
             payload: null,
         };
         saveAccounts(accounts);
+
+        // Auto-login
         saveSession({ username: username, loggedInAt: Date.now() });
         showDashboard();
+
+        // Download JSON backup
         downloadBackup(accounts[username]);
     }
 
     // ============================================================
     // LOGIN
     // ============================================================
-    async function handleLogin(e) {
+    function handleLogin(e) {
         e.preventDefault();
         const identifier = $("#loginIdentifier").value.trim();
         const mid = ($("#loginMid").value || "").trim();
@@ -425,27 +337,21 @@
         if (!mid) { err.textContent = "Machine ID wajib diisi."; show(err); return; }
 
         const accounts = getAccounts();
-        const found = findAccount(accounts, identifier);
+        let found = null;
+        const lower = identifier.toLowerCase();
 
-        if (!found) { err.textContent = "Akun tidak ditemukan. Daftar dulu di tab Daftar."; show(err); return; }
-
-        const mids = getAccountMids(found.account);
-
-        // Cek MID
-        if (mids.includes(mid)) {
-            saveSession({ username: found.key, loggedInAt: Date.now() });
-            showDashboard();
-            return;
+        for (const k in accounts) {
+            if (k.toLowerCase() === lower || (accounts[k].email || "").toLowerCase() === lower) {
+                found = accounts[k];
+                break;
+            }
         }
 
-        // MID beda → tanya MID lama
-        try {
-            const result = await openSyncModal(found.key, found.account, mid);
-            saveSession({ username: result.accountKey, loggedInAt: Date.now() });
-            showDashboard();
-        } catch (e) {
-            // User cancel
-        }
+        if (!found) { err.textContent = "Akun tidak ditemukan. Periksa username/email atau daftar dulu."; show(err); return; }
+        if (found.machineId !== mid) { err.textContent = "Machine ID tidak cocok dengan akun ini."; show(err); return; }
+
+        saveSession({ username: found.username, loggedInAt: Date.now() });
+        showDashboard();
     }
 
     function doLogout() {
@@ -455,7 +361,7 @@
     }
 
     // ============================================================
-    // BACKUP JSON
+    // DOWNLOAD JSON BACKUP
     // ============================================================
     function downloadBackup(account) {
         if (!account) {
@@ -472,7 +378,7 @@
             account: {
                 username: account.username,
                 email: account.email,
-                machineIds: getAccountMids(account),
+                machineId: account.machineId,
                 createdAt: account.createdAt,
                 licenseKey: account.licenseKey || null,
                 license: account.payload ? {
@@ -481,7 +387,7 @@
                     expires: account.payload.e,
                 } : null,
             },
-            note: "Simpan file ini. Bisa dipakai untuk sync akun kalau pindah device.",
+            note: "Simpan file ini. Bisa dipakai untuk restore akun kalau lupa credential.",
         };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
@@ -492,73 +398,6 @@
         a.click();
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-    }
-
-    // ============================================================
-    // DEVICE MANAGEMENT (fetch list dari license)
-    // ============================================================
-    async function fetchDevices(licenseKey) {
-        try {
-            const res = await fetch(API_URL + "/api/license/devices", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ license_key: licenseKey }),
-            });
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.detail || "Gagal fetch");
-            return data;
-        } catch (e) {
-            console.warn("[Devices]", e.message);
-            return null;
-        }
-    }
-
-    function renderDeviceList(account, devices) {
-        const box = $("#deviceList");
-        const maxEl = $("#deviceMax");
-        if (maxEl) maxEl.textContent = MAX_MIDS;
-        if (!box) return;
-
-        if (!account.licenseKey) {
-            box.innerHTML = '<div class="hint" style="color:#69756D">Masukkan License Key dulu untuk melihat daftar device.</div>';
-            return;
-        }
-        if (!devices || !devices.machine_ids) {
-            box.innerHTML = '<div class="hint" style="color:#69756D">Memuat daftar device...</div>';
-            return;
-        }
-
-        const current = getAccountMids(account);
-        const mids = devices.machine_ids;
-
-        if (!mids.length) {
-            box.innerHTML = '<div class="hint" style="color:#69756D">Belum ada device terdaftar.</div>';
-            return;
-        }
-
-        box.innerHTML = mids.map(function (m, i) {
-            const isCurrent = current.includes(m);
-            const isOldest = i === 0 && mids.length >= MAX_MIDS;
-            return '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid ' + (isCurrent ? '#32A852' : 'rgba(23,34,29,.08)') + ';border-radius:10px;margin-bottom:8px;background:' + (isCurrent ? 'rgba(50,168,82,.05)' : '#fff') + '">' +
-                '<div style="flex:1;min-width:0">' +
-                    '<div style="font-family:Consolas,monospace;font-size:.72rem;word-break:break-all;color:#17221D">' + m + '</div>' +
-                    '<div style="font-size:.68rem;color:#69756D;margin-top:2px">' +
-                        (isCurrent ? '<b style="color:#32A852">Device ini</b>' : 'Device lain') +
-                        (isOldest ? ' &middot; <span style="color:#D97706">Paling lama</span>' : '') +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-        }).join("") +
-        '<div style="font-size:.72rem;color:#69756D;margin-top:8px">' + mids.length + ' / ' + MAX_MIDS + ' device aktif</div>';
-    }
-
-    async function refreshDeviceList() {
-        const s = getSession();
-        if (!s) return;
-        const account = getAccounts()[s.username];
-        if (!account || !account.licenseKey) { renderDeviceList(account, null); return; }
-        const devices = await fetchDevices(account.licenseKey);
-        renderDeviceList(account, devices);
     }
 
     // ============================================================
@@ -587,7 +426,7 @@
             '<div class="info-row"><span class="label">Tier</span><span class="value"><span class="badge badge-' + (tier || "pro") + '">' + (tier || "pro") + '</span></span></div>' +
             '<div class="info-row"><span class="label">Berlaku sampai</span><span class="value">' + fmtDate(exp) + ' <small style="color:#69756D">(' + days + ' hari)</small></span></div>' +
             (isPro
-                ? '<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk bisa di-download versi PRO.</div></div>'
+                ? '<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk di atas bisa di-download versi PRO.</div></div>'
                 : '<div class="alert alert-info" style="margin:12px 0 0"><i>&#8505;</i><div>License tier <b>' + tier + '</b> tidak membuka akses PRO.</div></div>');
         show(removeBtn);
         if (isPro) hide(pasteBtn); else show(pasteBtn);
@@ -595,7 +434,7 @@
     }
 
     // ============================================================
-    // PRODUCTS
+    // PRODUCTS RENDER
     // ============================================================
     function renderProducts(session) {
         const grid = $("#productsGrid");
@@ -640,29 +479,19 @@
 
         $("#heroUsername").textContent = account.username;
         $("#heroEmail").textContent = account.email;
-
-        // MID: tampil MID saat ini (yang ada di daftar) atau MID utama
-        const mids = getAccountMids(account);
-        let curMid = mids[0] || "-";
-        try {
-            const cached = localStorage.getItem(MID_CACHE_KEY);
-            if (cached && mids.includes(cached)) curMid = cached;
-        } catch (e) {}
-        $("#heroMid").textContent = shortMid(curMid);
-
+        $("#heroMid").textContent = shortMid(account.machineId);
         renderProducts(s);
         renderLicenseStatus(s);
+        setTimeout(function () { refreshDeviceList(); checkDeviceMismatch(); }, 100);
 
         const cb = $("#copyMidHero");
         cb.onclick = function () {
-            navigator.clipboard.writeText(curMid).then(function () {
+            navigator.clipboard.writeText(account.machineId).then(function () {
                 cb.textContent = "OK!";
                 cb.classList.add("ok");
                 setTimeout(function () { cb.textContent = "Copy"; cb.classList.remove("ok"); }, 1500);
             });
         };
-
-        setTimeout(function () { refreshDeviceList(); }, 100);
     }
 
     // ============================================================
@@ -694,15 +523,8 @@
             const account = accounts[s.username];
             if (!account) throw new Error("Akun tidak ditemukan.");
 
-            // Cek MID license (array atau string)
-            const allowedMids = Array.isArray(payload.m) ? payload.m : [payload.m];
-            const myMids = getAccountMids(account);
-            const isWildcard = allowedMids.includes("*");
-            const hasMatch = isWildcard || myMids.some(m => allowedMids.includes(m));
-
-            if (!hasMatch) {
-                // Tampilkan info — user bisa pilih pindah device via API rebind
-                throw new Error("License ini tidak cocok dengan MID device ini. MID terdaftar license: " + allowedMids.length + ". Klik 'Beli PRO via WhatsApp' untuk rebind.");
+            if (payload.m && payload.m !== "*" && payload.m !== account.machineId) {
+                throw new Error("License ini untuk Machine ID lain. Machine ID Anda: " + shortMid(account.machineId));
             }
 
             account.licenseKey = key;
@@ -720,6 +542,173 @@
     }
 
     // ============================================================
+// ============================================================
+// DEVICE MANAGEMENT (rebind + list)
+// ============================================================
+async function fetchDevices(licenseKey) {
+        try {
+            const res = await fetch(API_URL + "/api/license/devices", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ license_key: licenseKey }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Gagal fetch devices");
+            return data;
+        } catch (e) {
+            console.warn("[Devices] Error:", e.message);
+            return null;
+        }
+    }
+
+    function renderDeviceList(account, devices) {
+        const box = $("#deviceList");
+        const maxEl = $("#deviceMax");
+        if (maxEl) maxEl.textContent = MAX_DEVICES;
+        if (!box) return;
+
+        if (!account.licenseKey) {
+            box.innerHTML = '<div class="hint" style="color:#69756D">Masukkan License Key dulu untuk melihat daftar device.</div>';
+            return;
+        }
+        if (!devices || !devices.machine_ids) {
+            box.innerHTML = '<div class="hint" style="color:#69756D">Memuat daftar device...</div>';
+            return;
+        }
+
+        const current = account.machineId;
+        const mids = devices.machine_ids;
+
+        if (!mids.length) {
+            box.innerHTML = '<div class="hint" style="color:#69756D">Belum ada device terdaftar.</div>';
+            return;
+        }
+
+        box.innerHTML = mids.map(function (m, i) {
+            const isCurrent = m === current;
+            const isOldest = i === 0 && mids.length >= MAX_DEVICES;
+            return '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid ' + (isCurrent ? '#32A852' : 'var(--border)') + ';border-radius:10px;margin-bottom:8px;background:' + (isCurrent ? 'rgba(50,168,82,.05)' : 'var(--surface)') + '">' +
+                '<div style="flex:1;min-width:0">' +
+                    '<div style="font-family:Consolas,monospace;font-size:.72rem;word-break:break-all;color:#17221D">' + m + '</div>' +
+                    '<div style="font-size:.68rem;color:#69756D;margin-top:2px">' +
+                        (isCurrent ? '<b style="color:#32A852">Device ini</b>' : 'Device lain') +
+                        (isOldest ? ' &middot; <span style="color:#D97706">Paling lama (akan terhapus jika tambah baru)</span>' : '') +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }).join("") +
+        '<div style="font-size:.72rem;color:#69756D;margin-top:8px">' + mids.length + ' / ' + MAX_DEVICES + ' device aktif</div>';
+    }
+
+    async function refreshDeviceList() {
+        const s = getSession();
+        if (!s) return;
+        const account = getAccounts()[s.username];
+        if (!account || !account.licenseKey) { renderDeviceList(account, null); return; }
+        const devices = await fetchDevices(account.licenseKey);
+        renderDeviceList(account, devices);
+    }
+
+    function openRebindModal() {
+        $("#rebindOldMid").value = "";
+        hide($("#rebindError"));
+        hide($("#rebindInfo"));
+        const maxEl = $("#rebindMax");
+        if (maxEl) maxEl.textContent = MAX_DEVICES;
+        $("#rebindModal").classList.add("show");
+        setTimeout(() => $("#rebindOldMid").focus(), 100);
+    }
+    function closeRebindModal() { $("#rebindModal").classList.remove("show"); }
+
+    async function handleRebind() {
+        const err = $("#rebindError");
+        const info = $("#rebindInfo");
+        const btn = $("#rebindConfirm");
+        hide(err); hide(info);
+
+        const oldMid = $("#rebindOldMid").value.trim();
+        const s = getSession();
+        if (!s) return;
+        const accounts = getAccounts();
+        const account = accounts[s.username];
+        if (!account) return;
+
+        if (!account.licenseKey) { err.textContent = "Belum ada License Key."; show(err); return; }
+        if (!oldMid) { err.textContent = "Machine ID lama wajib diisi."; show(err); return; }
+        if (oldMid === account.machineId) { err.textContent = "MID lama sama dengan device ini. Tidak perlu rebind."; show(err); return; }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
+
+        try {
+            const res = await fetch(API_URL + "/api/license/rebind", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    license_key: account.licenseKey,
+                    old_machine_id: oldMid,
+                    new_machine_id: account.machineId,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || "Gagal rebind");
+
+            // Simpan license baru
+            account.licenseKey = data.license_key;
+            // Update payload from new license (parse ulang)
+            try {
+                const newPayload = await verifyLicense(data.license_key);
+                account.payload = newPayload;
+            } catch (e) {
+                console.warn("Verify new license failed:", e);
+            }
+            saveAccounts(accounts);
+
+            // Success
+            closeRebindModal();
+            renderDashboard();
+            refreshDeviceList();
+
+            alert("Berhasil! License sekarang aktif di " + data.machine_ids.length + " device." +
+                  (data.dropped && data.dropped.length ? " Device lama terhapus: " + data.dropped.length : ""));
+        } catch (e) {
+            err.textContent = e.message;
+            show(err);
+        } finally {
+            btn.disabled = false;
+            btn.textContent = "Pindah ke Device Ini";
+        }
+    }
+
+    // Cek MID mismatch: kalau license ada, tapi current MID tidak di daftar
+    async function checkDeviceMismatch() {
+        const s = getSession();
+        if (!s) return;
+        const account = getAccounts()[s.username];
+        if (!account || !account.licenseKey || !account.payload) return;
+
+        // Ambil daftar MID dari license payload
+        const cur = account.payload.m;
+        let mids = [];
+        if (Array.isArray(cur)) mids = cur;
+        else if (typeof cur === "string") mids = [cur];
+        else return;
+
+        // Kalau MID sekarang tidak ada di daftar → mismatch
+        if (!mids.includes("*") && !mids.includes(account.machineId)) {
+            // Tampilkan tombol rebind
+            const paste = $("#pasteLicenseBtn");
+            if (paste) {
+                paste.textContent = "Pindah Device";
+                paste.classList.remove("hidden");
+            }
+            // Auto buka modal
+            openRebindModal();
+            const info = $("#rebindInfo");
+            info.innerHTML = '<b>License aktif di device lain.</b><br>MID device ini: <code style="font-family:Consolas;font-size:.7rem">' + account.machineId.substring(0,16) + '...</code><br>MID terdaftar: <b>' + mids.length + '</b> device.<br>Masukkan salah satu MID lama untuk pindah.';
+            show(info);
+        }
+    }
     // AUTO-LOAD MID
     // ============================================================
     async function autoLoadMid(inputId, hintId) {
@@ -732,22 +721,27 @@
                 input.value = mid;
                 if (hint) { hint.innerHTML = "Machine ID terisi otomatis. Bisa diedit manual."; hint.style.color = "#32A852"; }
             }
-        } catch (e) { console.log("[MID]", e.message); }
+        } catch (e) {
+            console.log("[MID] Auto-load skip:", e.message);
+        }
     }
 
     // ============================================================
     // INIT
     // ============================================================
     function init() {
+        // Tabs
         $$(".tab-btn").forEach(function (btn) {
             btn.addEventListener("click", function () { switchTab(btn.dataset.tab); });
         });
 
+        // Forms
         const rForm = $("#registerForm");
         if (rForm) rForm.addEventListener("submit", handleRegister);
         const lForm = $("#loginForm");
         if (lForm) lForm.addEventListener("submit", handleLogin);
 
+        // MID generate buttons
         $$("[data-mid-target]").forEach(function (btn) {
             btn.addEventListener("click", function () { openMidModal(btn.dataset.midTarget); });
         });
@@ -766,14 +760,6 @@
             closeMidModal();
         });
 
-        // Sync modal
-        const syncCancel = $("#syncCancel");
-        if (syncCancel) syncCancel.addEventListener("click", function () { closeSyncModal(true); });
-        const syncBg = $("#syncModal");
-        if (syncBg) syncBg.addEventListener("click", function (e) { if (e.target === syncBg) closeSyncModal(true); });
-        const syncConfirm = $("#syncConfirm");
-        if (syncConfirm) syncConfirm.addEventListener("click", handleSyncConfirm);
-
         // License modal
         const pasteBtn = $("#pasteLicenseBtn");
         if (pasteBtn) pasteBtn.addEventListener("click", openLicenseModal);
@@ -787,7 +773,7 @@
         // Remove license
         const removeBtn = $("#removeLicenseBtn");
         if (removeBtn) removeBtn.addEventListener("click", function () {
-            if (!confirm("Hapus License dari akun?")) return;
+            if (!confirm("Hapus License dari akun? Bisa masukkan lagi kapan saja.")) return;
             const s = getSession();
             if (!s) return;
             const accounts = getAccounts();
@@ -818,8 +804,17 @@
         const logout2 = $("#logoutBtn2");
         if (logout2) logout2.addEventListener("click", doLogout);
 
-        // Start
-        const s = getSession();
+// Rebind modal
+        const rebindCancel = $("#rebindCancel");
+        if (rebindCancel) rebindCancel.addEventListener("click", closeRebindModal);
+        const rebindBg = $("#rebindModal");
+        if (rebindBg) rebindBg.addEventListener("click", function (e) { if (e.target === rebindBg) closeRebindModal(); });
+        const rebindConfirm = $("#rebindConfirm");
+        if (rebindConfirm) rebindConfirm.addEventListener("click", handleRebind);
+
+        // ============================================================
+        // AUTO-LOAD MID
+        // ============================================================        const s = getSession();
         if (s && s.username && getAccounts()[s.username]) {
             showDashboard();
         } else {

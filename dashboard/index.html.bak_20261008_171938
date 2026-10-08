@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Dashboard Customer - DevAccTra</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261008d">
+<link rel="stylesheet" href="style.css?v=20261008c">
 <style>
 .mid-input-row{display:flex !important;gap:8px !important;align-items:stretch !important;width:100% !important}
 .mid-input-row input{flex:1 1 auto !important;min-width:0 !important;width:auto !important}
@@ -253,7 +253,7 @@
   </div>
 </div>
 
-<script src="app.js?v=20261008d"></script>
+<script src="app.js?v=20261008c"></script>
 
 <!-- MODAL: REBIND DEVICE -->
 <div class="modal-bg" id="rebindModal">
@@ -270,25 +270,6 @@
     <div class="modal-actions">
       <button type="button" class="cancel" id="rebindCancel">Batal</button>
       <button type="button" class="confirm" id="rebindConfirm">Pindah ke Device Ini</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: SYNC ACCOUNT (MID baru + MID lama) -->
-<div class="modal-bg" id="syncModal">
-  <div class="modal">
-    <h2>Akun Sudah Terdaftar</h2>
-    <p class="modal-sub">Username/email ini sudah pernah dipakai di device lain. Untuk sinkronisasi, masukkan salah satu Machine ID lama Anda. MID lama &amp; baru akan sama-sama aktif (maks <b id="syncMax">3</b> device).</p>
-    <div id="syncError" class="alert alert-error hidden"></div>
-    <div id="syncInfo" class="alert alert-info hidden"></div>
-    <div class="field" style="margin-bottom:14px">
-      <label style="font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#69756D;display:block;margin-bottom:8px">Machine ID LAMA</label>
-      <input type="text" id="syncOldMid" placeholder="Paste Machine ID dari device sebelumnya" style="width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(23,34,29,.14);font-family:Consolas,monospace;font-size:.75rem">
-      <div class="hint" style="font-size:.72rem;color:#69756D;margin-top:6px;line-height:1.5">MID lama bisa dilihat di extension popup di device lama, atau dari file JSON backup yang pernah Anda download.</div>
-    </div>
-    <div class="modal-actions">
-      <button type="button" class="cancel" id="syncCancel">Batal</button>
-      <button type="button" class="confirm" id="syncConfirm">Sinkronkan</button>
     </div>
   </div>
 </div>
