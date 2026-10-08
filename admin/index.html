@@ -315,7 +315,7 @@ tbody tr:hover{background:var(--surface-soft)}
         </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Customer</th><th>Tier</th><th>Machine ID</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+            <thead><tr><th>Customer</th><th>Source</th><th>Produk</th><th>Tier</th><th>Machine ID</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
             <tbody id="tbLic"></tbody>
           </table>
         </div>
@@ -374,6 +374,14 @@ tbody tr:hover{background:var(--surface-soft)}
             <label>Machine ID</label>
             <input type="text" id="genMid" placeholder="64 karakter hex" style="font-family:'JetBrains Mono',monospace;font-size:.75rem" />
           </div>
+          <div class="field">
+            <label>Produk <span style="text-transform:none;font-weight:500;color:var(--muted)">— pilih 1 atau lebih, atau kosong untuk universal</span></label>
+            <div class="product-chips" id="genManualProducts"></div>
+            <div id="genManualProductsHint" style="font-size:.76rem;color:var(--muted);margin-top:12px;padding:10px 12px;background:var(--surface-soft);border-radius:8px;line-height:1.55;border:1px solid var(--border)">
+              <b style="color:#32A852">Universal aktif</b> — License berlaku untuk SEMUA produk DevAccTra.
+            </div>
+          </div>
+
           <div class="field">
             <label>Tier</label>
             <select id="genTier">
@@ -543,8 +551,10 @@ let editingCustId = null;
 let editingMids = [];
 let editingMaxDevices = 2;
 let generatingForCustId = null;
-let selectedProducts = []; // array of product IDs (multi-select)
-    let universalMode = true;  // true = universal (semua produk)
+let selectedProducts = []; // array of product IDs (multi-select) untuk customer modal
+    let universalMode = true;  // true = universal (semua produk) untuk customer modal
+    let manualSelectedProducts = []; // untuk Generate Manual
+    let manualUniversalMode = true;  // universal untuk manual
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -988,9 +998,9 @@ window.removeLicense = async function(custId) {
 async function loadLicenses() {
   const q = $('#searchLic').value.trim();
   const tb = $('#tbLic');
-  tb.innerHTML = '<tr><td colspan="6"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
+  tb.innerHTML = '<tr><td colspan="8"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
   try {
-    const data = await api('/api/admin/licenses?search=' + encodeURIComponent(q) + '&limit=500');
+    const data = await api('/api/admin/licenses-list?search=' + encodeURIComponent(q) + '&limit=500', null, 'GET');
     licCache = data.licenses || [];
     $('#cLic').textContent = data.total;
     if (!licCache.length) { tb.innerHTML = ''; $('#emptyLic').style.display = 'block'; return; }
@@ -998,14 +1008,34 @@ async function loadLicenses() {
     tb.innerHTML = licCache.map(l => {
       const expired = l.expires_at && new Date(l.expires_at) < new Date();
       const status = !l.is_active ? '<span class="badge red">Revoked</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
+
+      // Source badge
+      const sourceBadge = l.source === 'manual'
+        ? '<span class="badge blue" title="Dari Generate Manual"><i class="fa-solid fa-wand-magic-sparkles"></i> Manual</span>'
+        : '<span class="badge" style="background:rgba(50,168,82,.12);color:#32A852" title="Dari Customer"><i class="fa-solid fa-user"></i> Customer</span>';
+
+      // Product scope
+      let prodLabel = '—';
+      if (l.tools && Array.isArray(l.tools) && l.tools.length) {
+        prodLabel = l.tools.map(t => PRODUCTS[t]?.name || t).join(', ');
+      } else if (l.tool) {
+        prodLabel = PRODUCTS[l.tool]?.name || l.tool;
+      } else {
+        prodLabel = '<span style="color:#32A852;font-weight:700">Universal</span>';
+      }
+
+      const keyEscaped = escapeHtml(l.license_key || '').replace(/'/g, "\\'");
+
       return '<tr>' +
         '<td><div class="cell-strong">' + escapeHtml(l.customer_name || '—') + '</div><div class="cell-sub">' + escapeHtml(l.customer_email || '—') + '</div></td>' +
+        '<td>' + sourceBadge + '</td>' +
+        '<td style="font-size:.78rem">' + escapeHtml(prodLabel) + '</td>' +
         '<td><span class="badge blue">' + escapeHtml((l.tier || 'pro').toUpperCase()) + '</span></td>' +
         '<td><span class="mono" title="' + escapeHtml(l.machine_id || '') + '">' + escapeHtml(shortMid(l.machine_id)) + '</span></td>' +
         '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(l.expires_at) + '</td>' +
         '<td>' + status + '</td>' +
         '<td><div class="row-actions">' +
-          '<button class="btn-mini" onclick="copyText(\'' + escapeHtml(l.full_key || '').replace(/'/g, "\\'") + '\')" title="Copy"><i class="fa-solid fa-copy"></i></button>' +
+          '<button class="btn-mini" onclick="copyText(\'' + keyEscaped + '\')" title="Copy"><i class="fa-solid fa-copy"></i></button>' +
         '</div></td>' +
         '</tr>';
     }).join('');
@@ -1032,6 +1062,60 @@ async function loadTrials() {
   } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
 }
 
+function renderManualProductChips() {
+  const box = $('#genManualProducts');
+  if (!box) return;
+  const entries = [['', 'Universal', 'fa-globe', 'Semua produk']].concat(
+    Object.entries(PRODUCTS).map(([id, p]) => [id, p.name, p.icon, ''])
+  );
+  box.innerHTML = entries.map(([id, name, icon, hint]) => {
+    let isSelected = false;
+    if (id === '') {
+      isSelected = manualUniversalMode;
+    } else {
+      isSelected = !manualUniversalMode && manualSelectedProducts.includes(id);
+    }
+    return '<button class="product-chip' + (isSelected ? ' selected' : '') + '" data-product="' + id + '">' +
+      '<i class="fa-solid ' + icon + '"></i>' +
+      '<span>' + escapeHtml(name) + (hint ? '<small>' + escapeHtml(hint) + '</small>' : '') + '</span>' +
+    '</button>';
+  }).join('');
+
+  box.querySelectorAll('[data-product]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.product;
+      if (id === '') {
+        manualUniversalMode = true;
+        manualSelectedProducts = [];
+      } else {
+        manualUniversalMode = false;
+        const idx = manualSelectedProducts.indexOf(id);
+        if (idx >= 0) {
+          manualSelectedProducts.splice(idx, 1);
+          if (manualSelectedProducts.length === 0) manualUniversalMode = true;
+        } else {
+          manualSelectedProducts.push(id);
+        }
+      }
+      renderManualProductChips();
+      updateManualProductsHint();
+    });
+  });
+
+  updateManualProductsHint();
+}
+
+function updateManualProductsHint() {
+  const hintEl = $('#genManualProductsHint');
+  if (!hintEl) return;
+  if (manualUniversalMode) {
+    hintEl.innerHTML = '<b style="color:#32A852">Universal aktif</b> — License berlaku untuk SEMUA produk DevAccTra.';
+  } else {
+    hintEl.innerHTML = '<b style="color:#1E5BB8">' + manualSelectedProducts.length + ' produk dipilih</b> — ' +
+      manualSelectedProducts.map(id => PRODUCTS[id]?.name || id).join(', ');
+  }
+}
+
 async function genManual() {
   const name = $('#genName').value.trim();
   const email = $('#genEmail').value.trim();
@@ -1044,13 +1128,23 @@ async function genManual() {
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
   try {
-    const body = { name, email, tool: 'coretax-toolkit', machine_id: mid, tier };
+    const body = {
+      name: name,
+      email: email,
+      machine_id: mid,
+      tier: tier,
+      products: manualUniversalMode ? [] : manualSelectedProducts.slice(),
+    };
     if (date) body.expires_at = date;
     else body.days = 365;
-    const data = await api('/api/admin/generate', { method: 'POST', body });
+    const data = await api('/api/admin/generate-manual', { method: 'POST', body });
     $('#genResult').style.display = 'block';
     $('#genLicense').textContent = data.license_key;
+    const prodLabel = (data.products && data.products.length)
+      ? data.products.map(p => PRODUCTS[p]?.name || p).join(', ')
+      : 'Universal (semua produk)';
     $('#genMeta').innerHTML =
+      '<div>Produk: <b>' + escapeHtml(prodLabel) + '</b></div>' +
       '<div>Tier: <b>' + escapeHtml(data.tier.toUpperCase()) + '</b></div>' +
       '<div>Expired: <b>' + fmtDate(data.expires_at) + '</b></div>' +
       '<div>Durasi: <b>' + data.days + ' hari</b></div>';
@@ -1080,6 +1174,7 @@ function init() {
   $('#refreshLic').addEventListener('click', loadLicenses);
   $('#refreshTrial').addEventListener('click', loadTrials);
   $('#genBtn').addEventListener('click', genManual);
+  renderManualProductChips();
   $('#genCopy').addEventListener('click', () => copyText($('#genLicense').textContent));
 
   const saved = localStorage.getItem(TOKEN_KEY);
