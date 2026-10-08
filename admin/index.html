@@ -4,187 +4,209 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex,nofollow" />
-<title>Admin — DevAccTra</title>
+<title>Admin Console — DevAccTra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
 <style>
 :root{
   --bg:#FAFBF8;--surface:#FFFFFF;--surface-soft:#F4F6F1;--sage:#A8B99A;--sage-soft:#EEF3EA;
-  --dev-green:#004D2F;--dev-green-dark:#003521;--acc-green:#32A852;--tra-blue:#1E5BB8;
+  --dev-green:#004D2F;--dev-green-dark:#003521;--acc-green:#32A852;--tra-blue:#1E5BB8;--tra-blue-dark:#184a94;--tra-blue-soft:#E8EFFB;
   --warning:#D97706;--warning-soft:#FEF3C7;--danger:#DC2626;--danger-soft:#FEE2E2;
   --ink:#17221D;--text:#29352E;--muted:#69756D;
   --border:rgba(23,34,29,.08);--border-strong:rgba(23,34,29,.14);
-  --shadow-sm:0 2px 8px rgba(0,77,47,.05);--shadow:0 8px 24px rgba(0,77,47,.07);
-  --shadow-lg:0 20px 50px rgba(0,77,47,.10);--ease:cubic-bezier(.22,1,.36,1);
+  --shadow-sm:0 2px 8px rgba(30,91,184,.05);--shadow:0 8px 24px rgba(30,91,184,.07);
+  --shadow-lg:0 20px 50px rgba(30,91,184,.10);--ease:cubic-bezier(.22,1,.36,1);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:0;background:none}
 input,select,textarea{font-family:inherit}
-::selection{background:var(--sage);color:var(--dev-green)}
+::selection{background:var(--tra-blue);color:#fff}
 
-/* LOGIN */
-.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,rgba(0,77,47,.08),transparent 40%),radial-gradient(circle at 80% 90%,rgba(50,168,82,.06),transparent 40%),var(--bg)}
-.login-box{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--shadow-lg)}
-.login-logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--dev-green),var(--acc-green));display:grid;place-items:center;color:#fff;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.6rem;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,77,47,.25)}
+/* ============ LOGIN ============ */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 10%,rgba(30,91,184,.10),transparent 40%),radial-gradient(circle at 80% 90%,rgba(50,168,82,.05),transparent 40%),var(--bg)}
+.login-box{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px 32px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.login-box::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--tra-blue),var(--acc-green))}
+.login-logo{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--tra-blue),var(--dev-green));display:grid;place-items:center;color:#fff;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.6rem;margin-bottom:20px;box-shadow:0 8px 24px rgba(30,91,184,.25)}
 .login-box h1{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;margin-bottom:6px;color:var(--ink)}
 .login-box h1 .acc{color:var(--acc-green)}.login-box h1 .tra{color:var(--tra-blue)}
+.login-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--tra-blue-soft);color:var(--tra-blue);font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px;border:1px solid rgba(30,91,184,.15)}
 .login-box > p{color:var(--muted);font-size:.86rem;margin-bottom:26px}
 .field{margin-bottom:16px}
 .field label{display:block;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .field input,.field select{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.9rem;color:var(--ink);transition:all .15s}
-.field input:focus,.field select:focus{outline:none;border-color:var(--dev-green);box-shadow:0 0 0 4px rgba(0,77,47,.08)}
-.login-btn{width:100%;padding:13px;border-radius:10px;background:var(--dev-green);color:#fff;font-weight:800;font-size:.9rem;transition:all .2s;cursor:pointer}
-.login-btn:hover:not(:disabled){background:var(--dev-green-dark);transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,77,47,.25)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--tra-blue);box-shadow:0 0 0 4px rgba(30,91,184,.08)}
+.login-btn{width:100%;padding:13px;border-radius:10px;background:var(--tra-blue);color:#fff;font-weight:800;font-size:.9rem;transition:all .2s;cursor:pointer}
+.login-btn:hover:not(:disabled){background:var(--tra-blue-dark);transform:translateY(-1px);box-shadow:0 8px 20px rgba(30,91,184,.25)}
 .login-btn:disabled{opacity:.6;cursor:not-allowed}
 .login-err{color:var(--danger);font-size:.82rem;margin-top:12px;padding:10px 12px;background:var(--danger-soft);border-radius:8px;display:none}
 .login-err.show{display:block}
 
-/* APP */
-.app{display:none;min-height:100vh;grid-template-columns:230px 1fr}
+/* ============ APP ============ */
+.app{display:none;min-height:100vh;grid-template-columns:240px 1fr}
 .app.active{display:grid}
-.sidebar{background:var(--dev-green);color:#fff;padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar{background:linear-gradient(180deg,var(--tra-blue),var(--tra-blue-dark));color:#fff;padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column}
 .sidebar-brand{padding:6px 8px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.12);margin-bottom:16px}
 .sidebar-brand .logo{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.15);display:grid;place-items:center;font-family:'Instrument Serif',serif;font-style:italic;font-size:1.15rem;font-weight:400;flex-shrink:0}
 .sidebar-brand .name{font-weight:800;font-size:.92rem;letter-spacing:-.02em;line-height:1.2}
-.sidebar-brand .name .acc{color:#86efac}.sidebar-brand .name .tra{color:#93c5fd}
+.sidebar-brand .name .acc{color:#86efac}.sidebar-brand .name .tra{color:#bfdbfe}
 .sidebar-brand .sub{font-size:.58rem;opacity:.6;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-top:2px}
-.sidebar-title{font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.4;padding:14px 10px 6px}
+.sidebar-title{font-size:.6rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;opacity:.5;padding:14px 10px 6px}
 .sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;font-size:.84rem;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;transition:all .15s;width:100%;text-align:left;margin-bottom:2px}
-.sidebar-item:hover{background:rgba(255,255,255,.08);color:#fff}
-.sidebar-item.active{background:rgba(255,255,255,.16);color:#fff}
+.sidebar-item:hover{background:rgba(255,255,255,.10);color:#fff}
+.sidebar-item.active{background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 3px 0 0 #fff}
 .sidebar-item i{font-size:13px;width:16px;text-align:center}
 .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid rgba(255,255,255,.12)}
-.sidebar-footer button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:9px;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.7);cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.15);transition:all .15s}
+.sidebar-footer button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border-radius:9px;font-size:.82rem;font-weight:600;color:rgba(255,255,255,.75);cursor:pointer;background:transparent;border:1px solid rgba(255,255,255,.15);transition:all .15s}
 .sidebar-footer button:hover{background:rgba(220,38,38,.2);border-color:rgba(220,38,38,.4);color:#fca5a5}
-.main{padding:28px 32px;min-width:0;overflow-x:hidden}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
-.topbar h1{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
-.topbar p{color:var(--muted);font-size:.84rem;margin-top:2px}
+
+.main{padding:32px 36px;min-width:0;overflow-x:hidden;background:var(--bg)}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:32px;gap:20px;flex-wrap:wrap}
+.topbar h1{font-size:1.75rem;font-weight:800;letter-spacing:-.035em;color:var(--ink);line-height:1.15}
+.topbar h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:var(--tra-blue)}
+.topbar p{color:var(--muted);font-size:.86rem;margin-top:6px}
 .topbar-actions{display:flex;gap:8px;align-items:center}
 .icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--text);display:grid;place-items:center;font-size:13px;cursor:pointer;transition:all .15s}
-.icon-btn:hover{border-color:var(--dev-green);color:var(--dev-green)}
-.status-pill{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:var(--sage-soft);color:var(--dev-green);font-size:.68rem;font-weight:800;letter-spacing:.04em}
-.status-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc-green);box-shadow:0 0 0 3px rgba(50,168,82,.15)}
+.icon-btn:hover{border-color:var(--tra-blue);color:var(--tra-blue)}
+.status-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:rgba(50,168,82,.1);color:var(--acc-green);font-size:.68rem;font-weight:800;letter-spacing:.04em;border:1px solid rgba(50,168,82,.2)}
+.status-pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--acc-green);box-shadow:0 0 0 3px rgba(50,168,82,.15);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
 
-/* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:all .2s;position:relative;overflow:hidden}
-.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tone,var(--dev-green));opacity:.85}
-.stat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--sage)}
-.stat-label{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
-.stat-value{font-size:1.9rem;font-weight:800;letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+/* ============ STATS ============ */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px;transition:all .25s var(--ease);position:relative;overflow:hidden}
+.stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--tone,var(--tra-blue));opacity:.9}
+.stat-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--sage)}
+.stat-label{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.stat-value{font-size:2rem;font-weight:800;letter-spacing:-.045em;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1}
+.stat-value small{font-size:.7rem;font-weight:600;color:var(--muted);margin-left:6px;letter-spacing:0}
 
-/* CARD */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px;box-shadow:var(--shadow-sm)}
-.card-header{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
-.card-title{font-size:1rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:10px;letter-spacing:-.01em}
-.card-title i{color:var(--dev-green);font-size:14px}
-.card-title .count{background:var(--sage-soft);color:var(--dev-green);font-size:.66rem;font-weight:800;padding:3px 10px;border-radius:999px}
+/* ============ CARD ============ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:22px;box-shadow:var(--shadow-sm)}
+.card-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.card-title{font-size:1.02rem;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:10px;letter-spacing:-.015em}
+.card-title i{color:var(--tra-blue);font-size:14px}
+.card-title .count{background:var(--tra-blue-soft);color:var(--tra-blue);font-size:.66rem;font-weight:800;padding:4px 10px;border-radius:999px;letter-spacing:.02em}
 .card-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .search-wrap{position:relative;min-width:260px}
 .search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
-.search-wrap input{width:100%;padding:9px 12px 9px 34px;border-radius:10px;border:1px solid var(--border);background:var(--surface-soft);font-size:.84rem;color:var(--ink);transition:all .15s}
-.search-wrap input:focus{outline:none;border-color:var(--dev-green);background:var(--surface);box-shadow:0 0 0 4px rgba(0,77,47,.06)}
-.btn{padding:9px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all .15s}
-.btn:hover{border-color:var(--dev-green);color:var(--dev-green)}
-.btn.primary{background:var(--dev-green);color:#fff;border-color:var(--dev-green)}
-.btn.primary:hover{background:var(--dev-green-dark);color:#fff}
+.search-wrap input{width:100%;padding:10px 14px 10px 36px;border-radius:10px;border:1px solid var(--border);background:var(--surface-soft);font-size:.84rem;color:var(--ink);transition:all .15s}
+.search-wrap input:focus{outline:none;border-color:var(--tra-blue);background:var(--surface);box-shadow:0 0 0 4px rgba(30,91,184,.06)}
+.btn{padding:10px 16px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);font-size:.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;cursor:pointer;transition:all .15s}
+.btn:hover{border-color:var(--tra-blue);color:var(--tra-blue);background:var(--tra-blue-soft)}
+.btn.primary{background:var(--tra-blue);color:#fff;border-color:var(--tra-blue)}
+.btn.primary:hover{background:var(--tra-blue-dark);border-color:var(--tra-blue-dark);color:#fff}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 
-/* TABLE */
+/* ============ TABLE ============ */
 table{width:100%;border-collapse:collapse;font-size:.84rem}
 thead{background:var(--surface-soft)}
-th{padding:12px 16px;text-align:left;font-weight:800;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-td{padding:14px 16px;border-top:1px solid var(--border);vertical-align:middle}
+th{padding:14px 18px;text-align:left;font-weight:800;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+td{padding:16px 18px;border-top:1px solid var(--border);vertical-align:middle}
+tbody tr{transition:background .12s}
 tbody tr:hover{background:var(--surface-soft)}
 .cell-strong{font-weight:700;color:var(--ink);font-size:.86rem}
-.cell-sub{color:var(--muted);font-size:.74rem;margin-top:2px}
+.cell-sub{color:var(--muted);font-size:.74rem;margin-top:3px}
 .mono{font-family:'JetBrains Mono',monospace;font-size:.7rem;background:var(--surface-soft);padding:3px 8px;border-radius:6px;color:var(--text);display:inline-block;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;border:1px solid var(--border)}
 .badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:.66rem;font-weight:800;white-space:nowrap}
 .badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
 .badge.green{background:rgba(50,168,82,.12);color:var(--acc-green)}
 .badge.red{background:var(--danger-soft);color:var(--danger)}
 .badge.yellow{background:var(--warning-soft);color:var(--warning)}
-.badge.blue{background:rgba(30,91,184,.1);color:var(--tra-blue)}
+.badge.blue{background:var(--tra-blue-soft);color:var(--tra-blue)}
 .badge.gray{background:var(--border);color:var(--muted)}
-.row-actions{display:flex;gap:5px;justify-content:flex-end}
-.btn-mini{padding:6px 10px;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
-.btn-mini:hover{border-color:var(--dev-green);color:var(--dev-green);background:var(--sage-soft)}
+.badge.universal{background:linear-gradient(135deg,rgba(30,91,184,.15),rgba(50,168,82,.15));color:var(--tra-blue);border:1px solid rgba(30,91,184,.2)}
+.row-actions{display:flex;gap:6px;justify-content:flex-end}
+.btn-mini{padding:7px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.74rem;font-weight:700;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn-mini:hover{border-color:var(--tra-blue);color:var(--tra-blue);background:var(--tra-blue-soft)}
 .btn-mini.danger:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-soft)}
 .btn-mini.success:hover{border-color:var(--acc-green);color:var(--acc-green);background:rgba(50,168,82,.08)}
 
-.empty-state{padding:52px 24px;text-align:center}
-.empty-state i{font-size:38px;color:var(--muted);opacity:.35;margin-bottom:14px}
-.empty-state h3{font-size:.94rem;font-weight:700;margin-bottom:4px;color:var(--ink)}
+.empty-state{padding:60px 24px;text-align:center}
+.empty-state i{font-size:42px;color:var(--muted);opacity:.3;margin-bottom:16px}
+.empty-state h3{font-size:.94rem;font-weight:700;margin-bottom:6px;color:var(--ink)}
 .empty-state p{color:var(--muted);font-size:.82rem}
 
-.skeleton{display:inline-block;height:12px;border-radius:6px;background:linear-gradient(90deg,var(--surface-soft) 0%,var(--border) 50%,var(--surface-soft) 100%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite}
+.skeleton{display:inline-block;height:14px;border-radius:8px;background:linear-gradient(90deg,var(--surface-soft) 0%,var(--border) 50%,var(--surface-soft) 100%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite}
 @keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
 /* MID LIST */
 .mid-list{display:flex;flex-direction:column;gap:6px}
-.mid-item{display:flex;gap:8px;align-items:center;padding:8px 12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text)}
+.mid-item{display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--surface-soft);border:1px solid var(--border);border-radius:9px;font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text)}
 .mid-item span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mid-item .btn-mini{padding:3px 8px;font-size:.62rem}
+
+/* PRODUCT CHIPS */
+.product-chips{display:flex;flex-wrap:wrap;gap:8px}
+.product-chip{padding:8px 14px;border-radius:10px;border:1.5px solid var(--border-strong);background:var(--surface);color:var(--text);font-size:.78rem;font-weight:700;cursor:pointer;transition:all .18s var(--ease);display:inline-flex;align-items:center;gap:8px}
+.product-chip:hover{border-color:var(--tra-blue);color:var(--tra-blue);background:var(--tra-blue-soft)}
+.product-chip.selected{border-color:var(--tra-blue);background:var(--tra-blue);color:#fff;box-shadow:0 6px 16px rgba(30,91,184,.22)}
+.product-chip.selected:hover{background:var(--tra-blue-dark)}
+.product-chip i{font-size:12px}
+.product-chip small{font-size:.62rem;font-weight:600;opacity:.7;display:block;margin-top:1px}
+.product-chip.selected small{color:rgba(255,255,255,.8);opacity:1}
 
 /* MODAL */
 .modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.55);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;z-index:1000;animation:fade .15s}
 .modal-backdrop.show{display:flex}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:90vh;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;animation:up .25s var(--ease)}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;width:100%;max-width:560px;max-height:92vh;overflow:hidden;box-shadow:var(--shadow-lg);display:flex;flex-direction:column;animation:up .25s var(--ease)}
 @keyframes up{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-head{padding:22px 24px;display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-head{padding:22px 26px;display:flex;gap:14px;align-items:flex-start;border-bottom:1px solid var(--border);flex-shrink:0;position:relative}
+.modal-head::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--tra-blue),var(--acc-green))}
 .modal-icon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:16px;flex-shrink:0}
-.modal-icon.primary{background:var(--sage-soft);color:var(--dev-green)}
+.modal-icon.primary{background:var(--tra-blue-soft);color:var(--tra-blue)}
 .modal-icon.danger{background:var(--danger-soft);color:var(--danger)}
-.modal-head h3{font-size:1rem;font-weight:800;color:var(--ink);letter-spacing:-.01em}
-.modal-head p{font-size:.78rem;color:var(--muted);margin-top:2px}
-.modal-body{padding:22px 24px;overflow-y:auto;flex:1}
-.modal-body .field{margin-bottom:14px}
+.modal-icon.green{background:rgba(50,168,82,.12);color:var(--acc-green)}
+.modal-head h3{font-size:1.05rem;font-weight:800;color:var(--ink);letter-spacing:-.015em}
+.modal-head p{font-size:.78rem;color:var(--muted);margin-top:3px}
+.modal-body{padding:24px 26px;overflow-y:auto;flex:1}
+.modal-body .field{margin-bottom:16px}
 .modal-body textarea{width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--border-strong);font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--ink);resize:vertical;background:var(--surface)}
-.modal-body textarea:focus{outline:none;border-color:var(--dev-green);box-shadow:0 0 0 4px rgba(0,77,47,.06)}
-.modal-body .field label{font-size:.66rem}
-.modal-footer{padding:14px 22px;background:var(--surface-soft);border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap}
-.modal-footer button{padding:10px 18px;border-radius:10px;font-weight:700;font-size:.84rem;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);transition:all .15s}
+.modal-body textarea:focus{outline:none;border-color:var(--tra-blue);box-shadow:0 0 0 4px rgba(30,91,184,.06)}
+.modal-body .field label{font-size:.66rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:block}
+.modal-body input, .modal-body select {width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--border-strong);background:var(--surface);font-size:.88rem;color:var(--ink);transition:all .15s}
+.modal-body input:focus, .modal-body select:focus {outline:none;border-color:var(--tra-blue);box-shadow:0 0 0 4px rgba(30,91,184,.06)}
+.modal-footer{padding:16px 24px;background:var(--surface-soft);border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0;flex-wrap:wrap}
+.modal-footer button{padding:11px 20px;border-radius:10px;font-weight:700;font-size:.84rem;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--ink);transition:all .15s}
 .modal-footer button:hover{background:var(--surface)}
-.modal-footer button.primary{background:var(--dev-green);color:#fff;border-color:var(--dev-green)}
-.modal-footer button.primary:hover{background:var(--dev-green-dark)}
+.modal-footer button.primary{background:var(--tra-blue);color:#fff;border-color:var(--tra-blue)}
+.modal-footer button.primary:hover{background:var(--tra-blue-dark)}
 .modal-footer button.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
 .modal-footer button.danger:hover{opacity:.9}
 .modal-footer button:disabled{opacity:.55;cursor:not-allowed}
 
-/* LICENSE BOX dalam modal */
-.license-box{margin-top:14px;padding:14px;background:var(--sage-soft);border:1px solid var(--sage);border-radius:10px}
-.license-box h4{font-size:.72rem;font-weight:800;color:var(--dev-green);letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
-.license-box pre{font-family:'JetBrains Mono',monospace;font-size:.64rem;line-height:1.5;color:var(--text);word-break:break-all;white-space:pre-wrap;background:var(--surface);padding:10px;border-radius:8px;border:1px solid var(--border);max-height:100px;overflow-y:auto}
-.license-box .meta{margin-top:10px;display:flex;flex-wrap:wrap;gap:10px;font-size:.72rem}
+/* LICENSE BOX */
+.license-box{margin-top:16px;padding:16px;background:linear-gradient(135deg,rgba(30,91,184,.04),rgba(50,168,82,.04));border:1px solid rgba(30,91,184,.15);border-radius:14px}
+.license-box h4{font-size:.72rem;font-weight:800;color:var(--tra-blue);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.license-box pre{font-family:'JetBrains Mono',monospace;font-size:.66rem;line-height:1.55;color:var(--text);word-break:break-all;white-space:pre-wrap;background:var(--surface);padding:12px;border-radius:10px;border:1px solid var(--border);max-height:110px;overflow-y:auto}
+.license-box .meta{margin-top:12px;display:flex;flex-wrap:wrap;gap:14px;font-size:.74rem}
 .license-box .meta b{color:var(--ink);font-weight:800}
-.license-box .btn-row{margin-top:10px;display:flex;gap:6px}
+.license-box .btn-row{margin-top:12px;display:flex;gap:8px}
 
 /* TOAST */
-.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:340px}
-.toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow-lg);animation:tin .3s var(--ease);pointer-events:auto;min-width:240px}
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:10px;pointer-events:none;max-width:360px}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow-lg);animation:tin .3s var(--ease);pointer-events:auto;min-width:260px}
 @keyframes tin{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
 .toast i{font-size:14px;flex-shrink:0}
 .toast.success{border-color:var(--acc-green)}.toast.success i{color:var(--acc-green)}
 .toast.error{border-color:var(--danger)}.toast.error i{color:var(--danger)}
 
 /* ALERT */
-.alert{padding:10px 12px;border-radius:8px;font-size:.8rem;line-height:1.5;display:flex;gap:8px;align-items:flex-start;margin-bottom:12px}
+.alert{padding:12px 14px;border-radius:10px;font-size:.8rem;line-height:1.55;display:flex;gap:10px;align-items:flex-start;margin-bottom:14px}
 .alert-error{background:var(--danger-soft);border:1px solid rgba(220,38,38,.2);color:#991B1B}
-.alert-info{background:var(--sage-soft);border:1px solid rgba(0,77,47,.15);color:var(--dev-green)}
+.alert-info{background:var(--tra-blue-soft);border:1px solid rgba(30,91,184,.15);color:var(--tra-blue)}
 .alert-warn{background:var(--warning-soft);border:1px solid rgba(217,119,6,.2);color:#92400E}
 .alert-success{background:rgba(50,168,82,.1);border:1px solid rgba(50,168,82,.25);color:#065f46}
 
 @media(max-width:900px){
   .app.active{grid-template-columns:1fr}
-  .sidebar{position:fixed;top:0;left:0;width:230px;z-index:100;transform:translateX(-100%);transition:transform .25s}
+  .sidebar{position:fixed;top:0;left:0;width:240px;z-index:100;transform:translateX(-100%);transition:transform .25s}
   .sidebar.open{transform:translateX(0)}
   .menu-toggle{display:grid!important}
-  .main{padding:20px}
+  .main{padding:22px}
 }
 .menu-toggle{display:none}
 </style>
@@ -195,13 +217,14 @@ tbody tr:hover{background:var(--surface-soft)}
 <div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-box">
     <div class="login-logo">D</div>
+    <span class="login-badge"><i class="fa-solid fa-shield-halved"></i> Admin Console</span>
     <h1>Dev<span class="acc">Acc</span><span class="tra">Tra</span></h1>
-    <p>Admin Panel · License Management</p>
+    <p>Panel admin untuk kelola customer, license, dan akses produk.</p>
     <div class="field">
-      <label>Password</label>
+      <label>Password Admin</label>
       <input type="password" id="password" placeholder="Masukkan password admin" autofocus />
     </div>
-    <button class="login-btn" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+    <button class="login-btn" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> Masuk</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
@@ -213,7 +236,7 @@ tbody tr:hover{background:var(--surface-soft)}
       <div class="logo">D</div>
       <div>
         <div class="name">Dev<span class="acc">Acc</span><span class="tra">Tra</span></div>
-        <div class="sub">Admin Panel</div>
+        <div class="sub">Admin Console</div>
       </div>
     </div>
     <div class="sidebar-title">Manage</div>
@@ -229,7 +252,7 @@ tbody tr:hover{background:var(--surface-soft)}
 
   <main class="main">
     <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
+      <div style="display:flex;align-items:center;gap:14px">
         <button class="icon-btn menu-toggle" id="menuToggle"><i class="fa-solid fa-bars"></i></button>
         <div>
           <h1 id="pageTitle">Dashboard</h1>
@@ -245,14 +268,14 @@ tbody tr:hover{background:var(--surface-soft)}
     <!-- DASHBOARD -->
     <div class="view" id="view-dashboard">
       <div class="stats-grid">
-        <div class="stat-card" style="--tone:var(--dev-green)"><div class="stat-label">Total License</div><div class="stat-value" id="stTotal">—</div></div>
+        <div class="stat-card" style="--tone:var(--tra-blue)"><div class="stat-label">Total License</div><div class="stat-value" id="stTotal">—</div></div>
         <div class="stat-card" style="--tone:var(--acc-green)"><div class="stat-label">License Aktif</div><div class="stat-value" id="stActive">—</div></div>
-        <div class="stat-card" style="--tone:var(--tra-blue)"><div class="stat-label">Total Customer</div><div class="stat-value" id="stCust">—</div></div>
+        <div class="stat-card" style="--tone:var(--dev-green)"><div class="stat-label">Total Customer</div><div class="stat-value" id="stCust">—</div></div>
         <div class="stat-card" style="--tone:var(--warning)"><div class="stat-label">Total Trial</div><div class="stat-value" id="stTrial">—</div></div>
       </div>
       <div class="card">
         <div class="card-header"><div class="card-title"><i class="fa-solid fa-chart-simple"></i> Breakdown by Tier</div></div>
-        <div style="padding:22px" id="tierBreakdown"></div>
+        <div style="padding:24px" id="tierBreakdown"></div>
       </div>
     </div>
 
@@ -262,7 +285,7 @@ tbody tr:hover{background:var(--surface-soft)}
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-users"></i> Customers <span class="count" id="cCust">0</span></div>
           <div class="card-actions">
-            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchCust" placeholder="Cari username, email..." /></div>
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchCust" placeholder="Cari username atau email..." /></div>
             <button class="btn" id="refreshCust"><i class="fa-solid fa-rotate"></i> Refresh</button>
           </div>
         </div>
@@ -275,7 +298,7 @@ tbody tr:hover{background:var(--surface-soft)}
         <div class="empty-state" id="emptyCust" style="display:none">
           <i class="fa-solid fa-users"></i>
           <h3>Belum ada customer</h3>
-          <p>Customer muncul setelah mereka register di dashboard</p>
+          <p>Customer muncul setelah register di dashboard</p>
         </div>
       </div>
     </div>
@@ -286,7 +309,7 @@ tbody tr:hover{background:var(--surface-soft)}
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-key"></i> Licenses <span class="count" id="cLic">0</span></div>
           <div class="card-actions">
-            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchLic" placeholder="Cari email, MID..." /></div>
+            <div class="search-wrap"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchLic" placeholder="Cari email atau MID..." /></div>
             <button class="btn" id="refreshLic"><i class="fa-solid fa-rotate"></i> Refresh</button>
           </div>
         </div>
@@ -327,16 +350,16 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
     </div>
 
-    <!-- GENERATE -->
+    <!-- GENERATE MANUAL -->
     <div class="view" id="view-generate" style="display:none">
-      <div class="card" style="max-width:620px;margin:0 auto">
+      <div class="card" style="max-width:680px;margin:0 auto">
         <div class="card-header">
           <div class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License Manual</div>
         </div>
-        <div style="padding:26px">
+        <div style="padding:28px">
           <div class="alert alert-info">
             <i class="fa-solid fa-circle-info"></i>
-            <div>Untuk customer yang sudah terdaftar, lebih mudah pakai tab <b>Customers</b> → klik <b>Generate License</b>. Form ini untuk generate manual tanpa customer.</div>
+            <div>Untuk customer terdaftar, lebih mudah pakai tab <b>Customers</b> → <b>Kelola</b> → <b>Generate License</b>. Form ini untuk generate cepat tanpa customer.</div>
           </div>
 
           <div class="field">
@@ -349,7 +372,7 @@ tbody tr:hover{background:var(--surface-soft)}
           </div>
           <div class="field">
             <label>Machine ID</label>
-            <input type="text" id="genMid" placeholder="64 char hex" style="font-family:'JetBrains Mono',monospace;font-size:.75rem" />
+            <input type="text" id="genMid" placeholder="64 karakter hex" style="font-family:'JetBrains Mono',monospace;font-size:.75rem" />
           </div>
           <div class="field">
             <label>Tier</label>
@@ -382,13 +405,13 @@ tbody tr:hover{background:var(--surface-soft)}
   </main>
 </div>
 
-<!-- MODAL: EDIT CUSTOMER -->
+<!-- MODAL: KELOLA CUSTOMER -->
 <div class="modal-backdrop" id="editCustModal">
   <div class="modal">
     <div class="modal-head">
       <div class="modal-icon primary"><i class="fa-solid fa-user-pen"></i></div>
       <div style="flex:1">
-        <h3 id="editCustName">Edit Customer</h3>
+        <h3 id="editCustName">Kelola Customer</h3>
         <p id="editCustSub"></p>
       </div>
       <button class="icon-btn" onclick="closeModal('editCustModal')" style="width:32px;height:32px"><i class="fa-solid fa-xmark"></i></button>
@@ -407,16 +430,16 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
 
       <div class="field">
-        <label>Machine IDs <span style="text-transform:none;font-weight:500;color:var(--muted)">(maks 3)</span></label>
+        <label>Machine IDs <span style="text-transform:none;font-weight:500;color:var(--muted)">(maks 3 device)</span></label>
         <div class="mid-list" id="editMidList"></div>
         <div style="display:flex;gap:6px;margin-top:8px">
-          <input type="text" id="newMidInput" placeholder="Tambah MID baru (64 hex)" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:8px 10px;border-radius:8px;border:1px solid var(--border-strong)" />
-          <button class="btn" id="addMidBtn" style="padding:8px 12px;font-size:.78rem"><i class="fa-solid fa-plus"></i> Tambah</button>
+          <input type="text" id="newMidInput" placeholder="Tambah MID baru (64 hex)" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:.72rem" />
+          <button class="btn" id="addMidBtn"><i class="fa-solid fa-plus"></i> Tambah</button>
         </div>
       </div>
 
       <div class="field">
-        <label>Status</label>
+        <label>Status Akun</label>
         <select id="editActive">
           <option value="1">Aktif</option>
           <option value="0">Nonaktif</option>
@@ -425,7 +448,7 @@ tbody tr:hover{background:var(--surface-soft)}
 
       <div class="field">
         <label>Catatan Admin</label>
-        <textarea id="editNotes" rows="2" placeholder="Opsional"></textarea>
+        <textarea id="editNotes" rows="2" placeholder="Opsional — catatan internal"></textarea>
       </div>
 
       <!-- LICENSE BOX -->
@@ -438,14 +461,14 @@ tbody tr:hover{background:var(--surface-soft)}
       <button class="danger" id="deleteCustBtn"><i class="fa-solid fa-trash"></i> Hapus</button>
       <div style="flex:1"></div>
       <button onclick="closeModal('editCustModal')">Batal</button>
-      <button class="primary" id="saveCustBtn">Simpan Perubahan</button>
+      <button class="primary" id="saveCustBtn"><i class="fa-solid fa-check"></i> Simpan</button>
     </div>
   </div>
 </div>
 
 <!-- MODAL: GENERATE LICENSE FOR CUSTOMER -->
 <div class="modal-backdrop" id="genLicModal">
-  <div class="modal" style="max-width:440px">
+  <div class="modal" style="max-width:520px">
     <div class="modal-head">
       <div class="modal-icon primary"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
       <div style="flex:1">
@@ -456,6 +479,16 @@ tbody tr:hover{background:var(--surface-soft)}
     </div>
     <div class="modal-body">
       <div id="genLicAlert"></div>
+
+      <div class="field">
+        <label>Produk <span style="text-transform:none;font-weight:500;color:var(--muted)">— pilih produk atau kosongkan untuk universal</span></label>
+        <div class="product-chips" id="genLicProducts"></div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:10px;line-height:1.55">
+          <b style="color:var(--ink)">Kosong (universal)</b> = License berlaku untuk SEMUA produk DevAccTra.<br>
+          <b style="color:var(--ink)">Pilih produk</b> = License khusus produk tersebut saja.
+        </div>
+      </div>
+
       <div class="field">
         <label>Tier</label>
         <select id="genLicTier">
@@ -470,12 +503,12 @@ tbody tr:hover{background:var(--surface-soft)}
       </div>
       <div class="alert alert-info">
         <i class="fa-solid fa-circle-info"></i>
-        <div>License akan di-sign untuk semua MID yang terdaftar di customer ini.</div>
+        <div>License akan di-sign untuk <b>semua MID</b> yang terdaftar di customer ini.</div>
       </div>
     </div>
     <div class="modal-footer">
       <button onclick="closeModal('genLicModal')">Batal</button>
-      <button class="primary" id="doGenLicBtn"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate</button>
+      <button class="primary" id="doGenLicBtn"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License</button>
     </div>
   </div>
 </div>
@@ -483,23 +516,17 @@ tbody tr:hover{background:var(--surface-soft)}
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-// ============================================================
-// CONFIG
-// ============================================================
 const API_URL = 'https://devacctra-api.up.railway.app';
 const TOKEN_KEY = 'devacctra_admin_token';
 const VIEW_KEY = 'devacctra_admin_view';
 
 const PRODUCTS = {
-  'coretax-toolkit': 'Coretax PDF Downloader',
-  'rekap-faktur': 'Rekap Faktur',
-  'rekap-bupot-bppu': 'Rekap Bupot BPPU',
-  'rekap-bank-bca': 'Rekap Bank BCA',
+  'coretax-toolkit': { name: 'Coretax PDF Downloader', icon: 'fa-file-invoice', color: 'dev' },
+  'rekap-faktur': { name: 'Rekap Faktur', icon: 'fa-file-invoice-dollar', color: 'tra' },
+  'rekap-bupot-bppu': { name: 'Rekap Bupot BPPU', icon: 'fa-receipt', color: 'acc' },
+  'rekap-bank-bca': { name: 'Rekap Bank BCA', icon: 'fa-building-columns', color: 'sage' },
 };
 
-// ============================================================
-// STATE
-// ============================================================
 let TOKEN = '';
 let CURRENT_VIEW = 'dashboard';
 let licCache = [];
@@ -507,10 +534,8 @@ let custCache = [];
 let editingCustId = null;
 let editingMids = [];
 let generatingForCustId = null;
+let selectedProduct = ''; // '' = universal
 
-// ============================================================
-// HELPERS
-// ============================================================
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
@@ -542,9 +567,6 @@ function openModal(id) { $('#' + id).classList.add('show'); }
 function closeModal(id) { $('#' + id).classList.remove('show'); }
 window.closeModal = closeModal;
 
-// ============================================================
-// API — FIX: 401 → show login, bukan reload
-// ============================================================
 async function api(path, opts = {}) {
   const headers = { ...(opts.headers || {}) };
   if (TOKEN) headers['Authorization'] = 'Bearer ' + TOKEN;
@@ -553,13 +575,9 @@ async function api(path, opts = {}) {
     opts.body = JSON.stringify(opts.body);
   }
   let res;
-  try {
-    res = await fetch(API_URL + path, { ...opts, headers });
-  } catch (e) {
-    throw new Error('Network error: ' + e.message);
-  }
+  try { res = await fetch(API_URL + path, { ...opts, headers }); }
+  catch (e) { throw new Error('Network error: ' + e.message); }
 
-  // 401 → clear token, show login (JANGAN reload)
   if (res.status === 401) {
     TOKEN = '';
     localStorage.removeItem(TOKEN_KEY);
@@ -568,18 +586,12 @@ async function api(path, opts = {}) {
     err.status = 401;
     throw err;
   }
-
   let data;
   try { data = await res.json(); } catch (e) { data = {}; }
-  if (!res.ok) {
-    throw new Error(data.detail || data.message || ('HTTP ' + res.status));
-  }
+  if (!res.ok) throw new Error(data.detail || data.message || ('HTTP ' + res.status));
   return data;
 }
 
-// ============================================================
-// LOGIN
-// ============================================================
 function showLogin() {
   $('#loginScreen').style.display = 'flex';
   $('#app').classList.remove('active');
@@ -596,11 +608,9 @@ async function doLogin() {
   const err = $('#loginErr');
   err.classList.remove('show');
   if (!pw) { err.textContent = 'Password kosong'; err.classList.add('show'); return; }
-
   const btn = $('#loginBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...';
-
   try {
     const data = await api('/api/admin/login', { method: 'POST', body: { password: pw } });
     TOKEN = data.token;
@@ -613,12 +623,12 @@ async function doLogin() {
     err.classList.add('show');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Login';
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Masuk';
   }
 }
 
 function doLogout() {
-  if (!confirm('Logout dari admin panel?')) return;
+  if (!confirm('Logout dari admin console?')) return;
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(VIEW_KEY);
   TOKEN = '';
@@ -626,26 +636,21 @@ function doLogout() {
   toast('Logout berhasil');
 }
 
-// ============================================================
-// NAV
-// ============================================================
 function switchView(view) {
   CURRENT_VIEW = view;
   localStorage.setItem(VIEW_KEY, view);
   $$('.sidebar-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   $$('.view').forEach(v => v.style.display = 'none');
   $('#view-' + view).style.display = 'block';
-
   const titles = {
-    dashboard: ['Dashboard', 'Ringkasan aktivitas DevAccTra'],
-    customers: ['Customers', 'Kelola customer & license'],
+    dashboard: ['Dashboard', 'Ringkasan aktivitas dan statistik'],
+    customers: ['Customers', 'Kelola akun customer dan akses produk'],
     licenses: ['Licenses', 'Semua license yang pernah di-generate'],
-    trials: ['Trials', 'Daftar user trial'],
-    generate: ['Generate Manual', 'Bikin license tanpa customer'],
+    trials: ['Trials', 'Daftar user trial dari semua produk'],
+    generate: ['Generate Manual', 'Generate license tanpa customer'],
   };
   $('#pageTitle').textContent = titles[view][0];
   $('#pageSub').textContent = titles[view][1];
-
   if (view === 'dashboard') loadStats();
   if (view === 'customers') loadCustomers();
   if (view === 'licenses') loadLicenses();
@@ -653,9 +658,6 @@ function switchView(view) {
   $('#sidebar').classList.remove('open');
 }
 
-// ============================================================
-// DASHBOARD
-// ============================================================
 async function loadStats() {
   try {
     const s = await api('/api/admin/stats');
@@ -663,20 +665,16 @@ async function loadStats() {
     $('#stActive').textContent = s.active_licenses ?? 0;
     $('#stCust').textContent = s.total_customers ?? '—';
     $('#stTrial').textContent = s.total_trials ?? 0;
-
     const tiers = s.by_tier || {};
     const total = Object.values(tiers).reduce((a, b) => a + b, 0) || 1;
-    const colors = { pro: 'var(--dev-green)', basic: 'var(--tra-blue)', enterprise: 'var(--acc-green)', trial: 'var(--warning)' };
+    const colors = { pro: 'var(--tra-blue)', basic: 'var(--acc-green)', enterprise: 'var(--dev-green)', trial: 'var(--warning)' };
     $('#tierBreakdown').innerHTML = Object.entries(tiers).map(([tier, count]) => {
       const pct = Math.round((count / total) * 100);
-      return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:6px"><b style="text-transform:capitalize;color:var(--ink)">' + escapeHtml(tier) + '</b><span style="color:var(--muted)">' + count + ' · ' + pct + '%</span></div><div style="height:8px;background:var(--surface-soft);border-radius:999px;overflow:hidden;border:1px solid var(--border)"><div style="height:100%;width:' + pct + '%;background:' + (colors[tier] || 'var(--muted)') + ';border-radius:999px"></div></div></div>';
-    }).join('') || '<div class="empty-state" style="padding:20px"><p>Belum ada data</p></div>';
+      return '<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:8px"><b style="text-transform:capitalize;color:var(--ink)">' + escapeHtml(tier) + '</b><span style="color:var(--muted);font-variant-numeric:tabular-nums">' + count + ' · ' + pct + '%</span></div><div style="height:10px;background:var(--surface-soft);border-radius:999px;overflow:hidden;border:1px solid var(--border)"><div style="height:100%;width:' + pct + '%;background:' + (colors[tier] || 'var(--muted)') + ';border-radius:999px;transition:width .6s var(--ease)"></div></div></div>';
+    }).join('') || '<div class="empty-state" style="padding:20px"><p style="color:var(--muted)">Belum ada data</p></div>';
   } catch (e) { toast(e.message, 'error'); }
 }
 
-// ============================================================
-// CUSTOMERS
-// ============================================================
 async function loadCustomers() {
   const q = $('#searchCust').value.trim();
   const tb = $('#tbCust');
@@ -690,9 +688,9 @@ async function loadCustomers() {
     tb.innerHTML = custCache.map(c => {
       const mids = c.machine_ids || [];
       const midPreview = mids.length
-        ? '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--text)">' + mids.map(m => '<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="' + escapeHtml(m) + '">' + escapeHtml(m.substring(0,20)) + '…</div>').join('') + '</div>'
+        ? '<div style="font-family:\'JetBrains Mono\',monospace;font-size:.68rem;color:var(--text);line-height:1.55">' + mids.map(m => '<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px" title="' + escapeHtml(m) + '">' + escapeHtml(m.substring(0,22)) + '…</div>').join('') + '</div>'
         : '<span style="color:var(--muted);font-size:.78rem">—</span>';
-      const midCount = '<div style="font-size:.68rem;color:var(--muted);margin-top:4px">' + mids.length + ' / 3 device</div>';
+      const midCount = '<div style="font-size:.68rem;color:var(--muted);margin-top:6px">' + mids.length + ' / 3 device</div>';
       const lic = c.license_key
         ? '<span class="badge green">Aktif</span>'
         : '<span class="badge gray">Belum</span>';
@@ -717,7 +715,6 @@ window.editCustomer = function(id) {
   if (!c) return;
   editingCustId = id;
   editingMids = (c.machine_ids || []).slice();
-
   $('#editCustName').textContent = c.username;
   $('#editCustSub').textContent = 'ID #' + c.id + ' · Dibuat ' + fmtDate(c.created_at);
   $('#editUsername').value = c.username;
@@ -725,7 +722,6 @@ window.editCustomer = function(id) {
   $('#editActive').value = c.is_active ? '1' : '0';
   $('#editNotes').value = c.notes || '';
   $('#editCustAlert').innerHTML = '';
-
   renderMids();
   renderEditLicense(c.license_key);
   openModal('editCustModal');
@@ -734,7 +730,7 @@ window.editCustomer = function(id) {
 function renderMids() {
   const box = $('#editMidList');
   if (!editingMids.length) {
-    box.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:8px">Belum ada MID</div>';
+    box.innerHTML = '<div style="color:var(--muted);font-size:.78rem;padding:10px;background:var(--surface-soft);border-radius:9px;text-align:center">Belum ada MID</div>';
     return;
   }
   box.innerHTML = editingMids.map((m, i) =>
@@ -742,21 +738,16 @@ function renderMids() {
   ).join('');
 }
 
-window.removeMid = function(i) {
-  editingMids.splice(i, 1);
-  renderMids();
-};
+window.removeMid = function(i) { editingMids.splice(i, 1); renderMids(); };
 
 function renderEditLicense(licenseKey) {
   const box = $('#editLicenseContent');
   if (!licenseKey) {
     box.innerHTML =
-      '<div class="alert alert-warn" style="margin:0 0 10px"><i class="fa-solid fa-circle-info"></i><div>Belum ada license. Klik tombol di bawah untuk generate.</div></div>' +
+      '<div style="padding:12px;background:var(--warning-soft);border:1px solid rgba(217,119,6,.2);border-radius:10px;font-size:.8rem;color:#92400E;margin-bottom:10px"><i class="fa-solid fa-circle-info"></i> Belum ada license. Klik tombol di bawah untuk generate.</div>' +
       '<div class="btn-row"><button class="btn primary" onclick="openGenLic(' + editingCustId + ')" style="flex:1;justify-content:center"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate License</button></div>';
     return;
   }
-
-  // Parse payload dari license key
   let payload = null;
   try {
     const parts = licenseKey.split('.');
@@ -769,10 +760,14 @@ function renderEditLicense(licenseKey) {
 
   const tier = (payload && payload.t) || '?';
   const exp = (payload && payload.e) || null;
+  const tool = (payload && payload.tool) || '';
   const days = daysLeft(exp);
+  const productLabel = tool
+    ? '<span class="badge blue"><i class="fa-solid fa-cube"></i> ' + escapeHtml(PRODUCTS[tool]?.name || tool) + '</span>'
+    : '<span class="badge universal"><i class="fa-solid fa-globe"></i> Universal (semua produk)</span>';
 
   box.innerHTML =
-    '<div class="meta" style="margin:0 0 10px">' +
+    '<div class="meta" style="margin:0 0 12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center">' + productLabel +
       '<div>Tier: <b>' + escapeHtml(tier.toUpperCase()) + '</b></div>' +
       '<div>Expired: <b>' + fmtDate(exp) + '</b> (' + days + ' hari)</div>' +
     '</div>' +
@@ -785,21 +780,15 @@ function renderEditLicense(licenseKey) {
 }
 
 window.copyText = async function(text) {
-  try {
-    await navigator.clipboard.writeText(text);
-    toast('Copied!');
-  } catch (e) { toast('Gagal copy', 'error'); }
+  try { await navigator.clipboard.writeText(text); toast('Copied ke clipboard'); }
+  catch (e) { toast('Gagal copy', 'error'); }
 };
 
-// ============================================================
-// EDIT CUSTOMER — SAVE
-// ============================================================
 async function saveCustomer() {
   if (!editingCustId) return;
   const btn = $('#saveCustBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...';
-
   try {
     await api('/api/admin/customer/' + editingCustId, {
       method: 'PATCH',
@@ -817,13 +806,10 @@ async function saveCustomer() {
     $('#editCustAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>' + escapeHtml(e.message) + '</div></div>';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Simpan Perubahan';
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Simpan';
   }
 }
 
-// ============================================================
-// DELETE CUSTOMER
-// ============================================================
 async function deleteCustomer() {
   if (!editingCustId) return;
   const c = custCache.find(x => x.id === editingCustId);
@@ -837,38 +823,46 @@ async function deleteCustomer() {
   } catch (e) { toast(e.message, 'error'); }
 }
 
-// ============================================================
-// ADD MID
-// ============================================================
 function addMid() {
   const input = $('#newMidInput');
   const mid = input.value.trim();
-  if (!/^[a-f0-9]{64}$/.test(mid)) {
-    toast('MID harus 64 karakter hex (a-f, 0-9)', 'error');
-    return;
-  }
-  if (editingMids.includes(mid)) {
-    toast('MID sudah ada', 'error');
-    return;
-  }
-  if (editingMids.length >= 3) {
-    toast('Maksimal 3 MID. Hapus salah satu dulu.', 'error');
-    return;
-  }
+  if (!/^[a-f0-9]{64}$/.test(mid)) { toast('MID harus 64 karakter hex', 'error'); return; }
+  if (editingMids.includes(mid)) { toast('MID sudah ada', 'error'); return; }
+  if (editingMids.length >= 3) { toast('Maksimal 3 MID', 'error'); return; }
   editingMids.push(mid);
   input.value = '';
   renderMids();
 }
 
 // ============================================================
-// GENERATE LICENSE FOR CUSTOMER
+// PRODUCT CHIPS
 // ============================================================
+function renderProductChips() {
+  const box = $('#genLicProducts');
+  const entries = [['', 'Universal', 'fa-globe', 'Semua produk']].concat(
+    Object.entries(PRODUCTS).map(([id, p]) => [id, p.name, p.icon, ''])
+  );
+  box.innerHTML = entries.map(([id, name, icon, hint]) =>
+    '<button class="product-chip' + (selectedProduct === id ? ' selected' : '') + '" data-product="' + id + '">' +
+      '<i class="fa-solid ' + icon + '"></i>' +
+      '<span>' + escapeHtml(name) + (hint ? '<small>' + escapeHtml(hint) + '</small>' : '') + '</span>' +
+    '</button>'
+  ).join('');
+  box.querySelectorAll('[data-product]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedProduct = btn.dataset.product;
+      renderProductChips();
+    });
+  });
+}
+
 window.openGenLic = function(custId) {
   generatingForCustId = custId;
   const c = custCache.find(x => x.id === custId);
-  $('#genLicSub').textContent = c ? c.username + ' · ' + (c.machine_ids || []).length + ' MID' : '';
+  $('#genLicSub').textContent = c ? c.username + ' · ' + (c.machine_ids || []).length + ' MID terdaftar' : '';
   $('#genLicAlert').innerHTML = '';
-  // Default date: 1 tahun
+  selectedProduct = '';
+  renderProductChips();
   const d = new Date();
   d.setFullYear(d.getFullYear() + 1);
   $('#genLicDate').value = d.toISOString().slice(0, 10);
@@ -880,38 +874,30 @@ async function doGenerateLicenseForCust() {
   const btn = $('#doGenLicBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
-
   try {
     const body = {
       tier: $('#genLicTier').value,
       expires_at: $('#genLicDate').value || null,
+      product: selectedProduct || null,
     };
     const data = await api('/api/admin/customer/' + generatingForCustId + '/generate-license', {
       method: 'POST',
       body: body,
     });
-    toast('License berhasil dibuat untuk ' + data.machine_ids.length + ' MID');
-
-    // Refresh cache + edit modal
+    toast('License dibuat untuk ' + data.machine_ids.length + ' MID' + (data.product ? ' (' + data.product + ')' : ' (universal)'));
     const c = custCache.find(x => x.id === generatingForCustId);
     if (c) c.license_key = data.license_key;
-
     closeModal('genLicModal');
-    if (editingCustId === generatingForCustId) {
-      renderEditLicense(data.license_key);
-    }
+    if (editingCustId === generatingForCustId) renderEditLicense(data.license_key);
     loadCustomers();
   } catch (e) {
     $('#genLicAlert').innerHTML = '<div class="alert alert-error"><i class="fa-solid fa-circle-xmark"></i><div>' + escapeHtml(e.message) + '</div></div>';
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate';
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License';
   }
 }
 
-// ============================================================
-// REMOVE LICENSE FROM CUSTOMER
-// ============================================================
 window.removeLicense = async function(custId) {
   if (!confirm('Hapus license dari customer ini?')) return;
   try {
@@ -924,9 +910,6 @@ window.removeLicense = async function(custId) {
   } catch (e) { toast(e.message, 'error'); }
 };
 
-// ============================================================
-// LICENSES
-// ============================================================
 async function loadLicenses() {
   const q = $('#searchLic').value.trim();
   const tb = $('#tbLic');
@@ -954,9 +937,6 @@ async function loadLicenses() {
   } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
 }
 
-// ============================================================
-// TRIALS
-// ============================================================
 async function loadTrials() {
   const tb = $('#tbTrial');
   tb.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="width:100%;height:18px"></div></td></tr>';
@@ -969,7 +949,7 @@ async function loadTrials() {
       '<tr>' +
         '<td><div class="cell-strong">' + escapeHtml(t.email || '—') + '</div></td>' +
         '<td>' + escapeHtml(t.name || '—') + '</td>' +
-        '<td><span style="font-size:.78rem">' + escapeHtml(PRODUCTS[t.tool] || t.tool || '—') + '</span></td>' +
+        '<td><span style="font-size:.78rem">' + escapeHtml(PRODUCTS[t.tool]?.name || t.tool || '—') + '</span></td>' +
         '<td><span class="mono">' + escapeHtml(shortMid(t.machine_id)) + '</span></td>' +
         '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(t.expires_at) + '</td>' +
         '</tr>'
@@ -977,28 +957,21 @@ async function loadTrials() {
   } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
 }
 
-// ============================================================
-// GENERATE MANUAL (existing)
-// ============================================================
 async function genManual() {
   const name = $('#genName').value.trim();
   const email = $('#genEmail').value.trim();
   const mid = $('#genMid').value.trim();
   const tier = $('#genTier').value;
   const date = $('#genDate').value;
-
   if (!email || !mid) { toast('Email & MID wajib', 'error'); return; }
   if (!/^[a-f0-9]{64}$/.test(mid)) { toast('MID harus 64 hex', 'error'); return; }
-
   const btn = $('#genBtn');
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
-
   try {
     const body = { name, email, tool: 'coretax-toolkit', machine_id: mid, tier };
     if (date) body.expires_at = date;
     else body.days = 365;
-
     const data = await api('/api/admin/generate', { method: 'POST', body });
     $('#genResult').style.display = 'block';
     $('#genLicense').textContent = data.license_key;
@@ -1012,59 +985,37 @@ async function genManual() {
   finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License'; }
 }
 
-// ============================================================
-// INIT
-// ============================================================
 function init() {
-  // Login
   $('#loginBtn').addEventListener('click', doLogin);
   $('#password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
   $('#logoutBtn').addEventListener('click', doLogout);
-
-  // Nav
   $$('.sidebar-item[data-view]').forEach(b => b.addEventListener('click', () => switchView(b.dataset.view)));
   $('#menuToggle').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
   $('#refreshBtn').addEventListener('click', () => switchView(CURRENT_VIEW));
-
-  // Customers
   let sT;
   $('#searchCust').addEventListener('input', () => { clearTimeout(sT); sT = setTimeout(loadCustomers, 300); });
   $('#refreshCust').addEventListener('click', loadCustomers);
-
-  // Edit customer modal
   $('#saveCustBtn').addEventListener('click', saveCustomer);
   $('#deleteCustBtn').addEventListener('click', deleteCustomer);
   $('#addMidBtn').addEventListener('click', addMid);
   $('#newMidInput').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addMid(); } });
-
-  // Generate license modal
   $('#doGenLicBtn').addEventListener('click', doGenerateLicenseForCust);
-
-  // Licenses
   let sL;
   $('#searchLic').addEventListener('input', () => { clearTimeout(sL); sL = setTimeout(loadLicenses, 300); });
   $('#refreshLic').addEventListener('click', loadLicenses);
-
-  // Trials
   $('#refreshTrial').addEventListener('click', loadTrials);
-
-  // Generate manual
   $('#genBtn').addEventListener('click', genManual);
   $('#genCopy').addEventListener('click', () => copyText($('#genLicense').textContent));
 
-  // Auto-restore session
   const saved = localStorage.getItem(TOKEN_KEY);
   if (saved) {
     TOKEN = saved;
-    // Verify token masih valid
     (async () => {
       try {
         await api('/api/admin/stats');
         showApp();
         switchView(localStorage.getItem(VIEW_KEY) || 'dashboard');
       } catch (e) {
-        // 401 → showLogin udah dipanggil di api()
-        // Error lain → tetap showLogin
         if (e.status !== 401) showLogin();
       }
     })();
