@@ -6,24 +6,7 @@
 <meta name="robots" content="noindex">
 <title>Dashboard Customer - DevAccTra</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=20261008">
-<style>
-/* ==== INLINE CRITICAL — biar tombol Generate tampil benar ==== */
-.mid-input-row{display:flex !important;gap:8px !important;align-items:stretch !important;width:100% !important}
-.mid-input-row input{flex:1 1 auto !important;min-width:0 !important;width:auto !important}
-.btn-generate{flex:0 0 auto !important;display:inline-flex !important;flex-direction:row !important;align-items:center !important;justify-content:center !important;gap:6px !important;padding:0 16px !important;height:auto !important;min-height:42px !important;border-radius:10px !important;background:#004D2F !important;color:#fff !important;font-weight:800 !important;font-size:.78rem !important;cursor:pointer !important;border:1px solid #004D2F !important;white-space:nowrap !important;font-family:inherit !important;line-height:1 !important}
-.btn-generate svg{width:14px !important;height:14px !important;flex-shrink:0 !important;fill:currentColor !important}
-.btn-generate:hover{background:#003521 !important;transform:translateY(-1px) !important}
-.btn-generate span{display:inline !important}
-
-.mid-detail-box{background:#F4F6F1 !important;border:1px solid rgba(23,34,29,.14) !important;border-radius:12px !important;padding:14px 16px !important;display:flex !important;gap:10px !important;align-items:center !important}
-.mid-detail-box code{flex:1 1 auto !important;font-family:Consolas,monospace !important;font-size:.72rem !important;line-height:1.5 !important;color:#17221D !important;word-break:break-all !important;user-select:all !important;background:transparent !important;padding:0 !important;border:0 !important}
-.mid-detail-box .btn-copy-mid{padding:8px 12px !important;border-radius:8px !important;background:#32A852 !important;color:#fff !important;font-weight:800 !important;font-size:.72rem !important;cursor:pointer !important;border:0 !important;white-space:nowrap !important;flex-shrink:0 !important;font-family:inherit !important}
-.mid-detail-box .btn-copy-mid:hover{background:#268843 !important}
-.mid-detail-box .btn-copy-mid.ok{background:#004D2F !important}
-.spinner-dot{display:inline-block !important;width:12px !important;height:12px !important;border:2px solid rgba(0,77,47,.2) !important;border-top-color:#004D2F !important;border-radius:50% !important;animation:spin .8s linear infinite !important;vertical-align:middle !important;margin-right:6px !important}
-@keyframes spin{to{transform:rotate(360deg)}}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -43,6 +26,7 @@
   </div>
 </nav>
 
+<!-- ============ LOGIN VIEW ============ -->
 <div id="loginView" class="login-wrap">
   <div class="login-card">
     <div class="card">
@@ -65,8 +49,8 @@
           <div class="mid-input-row">
             <input type="text" id="midInput" placeholder="Klik tombol Generate di samping" style="font-family:Consolas,monospace;font-size:.75rem">
             <button type="button" class="btn-generate" id="generateMidBtn">
-              <svg viewBox="0 0 24 24"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm7 10l.8 2.4L22 15l-2.2.6L19 18l-.8-2.4L16 15l2.2-.6L19 12zM5 12l.8 2.4L8 15l-2.2.6L5 18l-.8-2.4L2 15l2.2-.6L5 12z"/></svg>
-              <span>Generate</span>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5L12 2zm7 10l.8 2.4L22 15l-2.2.6L19 18l-.8-2.4L16 15l2.2-.6L19 12zM5 12l.8 2.4L8 15l-2.2.6L5 18l-.8-2.4L2 15l2.2-.6L5 12z"/></svg>
+              Generate
             </button>
           </div>
           <div class="hint" id="midHint">Klik <b>Generate</b> untuk deteksi Machine ID otomatis, atau copy manual dari extension.</div>
@@ -90,8 +74,10 @@
   </div>
 </div>
 
+<!-- ============ DASHBOARD VIEW ============ -->
 <div id="dashboardView" class="main hidden">
   <div class="container">
+
     <div class="hero-dash">
       <div class="hero-dash-content">
         <h1>Halo, <em id="heroEmail">-</em></h1>
@@ -132,18 +118,22 @@
       <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
       <br>Tidak berafiliasi dengan Direktorat Jenderal Pajak (DJP)
     </div>
+
   </div>
 </div>
 
+<!-- ============ MODAL: GENERATE MID ============ -->
 <div class="modal-bg" id="midModal">
   <div class="modal">
     <h2>Machine ID Anda</h2>
-    <p class="modal-sub">Machine ID unik untuk browser &amp; device ini. Copy dan simpan. License yang dibeli akan terikat ke ID ini.</p>
+    <p class="modal-sub">Machine ID unik untuk browser & device ini. Copy dan simpan. License yang dibeli akan terikat ke ID ini.</p>
+
     <div id="midModalContent" style="margin-bottom:16px">
-      <div style="text-align:center;padding:24px 0;color:#69756D;font-size:.85rem">
+      <div style="text-align:center;padding:24px 0;color:var(--muted);font-size:.85rem">
         <span class="spinner-dot"></span> Mendeteksi...
       </div>
     </div>
+
     <div class="modal-actions">
       <button type="button" class="cancel" id="midModalClose">Tutup</button>
       <button type="button" class="confirm" id="midModalUse">Pakai ID Ini</button>
@@ -151,6 +141,7 @@
   </div>
 </div>
 
+<!-- ============ MODAL: LICENSE ============ -->
 <div class="modal-bg" id="licenseModal">
   <div class="modal">
     <h2>Masukkan License Key</h2>
@@ -164,6 +155,7 @@
   </div>
 </div>
 
-<script src="app.js?v=20261008"></script>
+<script src="auth.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
