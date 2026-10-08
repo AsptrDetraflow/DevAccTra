@@ -315,7 +315,7 @@ tbody tr:hover{background:var(--surface-soft)}
         </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Customer</th><th>Source</th><th>Produk</th><th>Tier</th><th>Machine ID</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
+            <thead><tr><th>Customer</th><th>Username</th><th>Produk</th><th>Tier</th><th>Machine IDs</th><th>Expired</th><th>Status</th><th style="text-align:right">Aksi</th></tr></thead>
             <tbody id="tbLic"></tbody>
           </table>
         </div>
@@ -555,6 +555,8 @@ let selectedProducts = []; // array of product IDs (multi-select) untuk customer
     let universalMode = true;  // true = universal (semua produk) untuk customer modal
     let manualSelectedProducts = []; // untuk Generate Manual
     let manualUniversalMode = true;  // universal untuk manual
+    let genMode = 'existing';
+    let customersSimpleCache = [];
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -1007,35 +1009,33 @@ async function loadLicenses() {
     $('#emptyLic').style.display = 'none';
     tb.innerHTML = licCache.map(l => {
       const expired = l.expires_at && new Date(l.expires_at) < new Date();
-      const status = !l.is_active ? '<span class="badge red">Revoked</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
+      const status = !l.is_active ? '<span class="badge red">Nonaktif</span>' : expired ? '<span class="badge yellow">Expired</span>' : '<span class="badge green">Aktif</span>';
 
-      // Source badge
-      const sourceBadge = l.source === 'manual'
-        ? '<span class="badge blue" title="Dari Generate Manual"><i class="fa-solid fa-wand-magic-sparkles"></i> Manual</span>'
-        : '<span class="badge" style="background:rgba(50,168,82,.12);color:#32A852" title="Dari Customer"><i class="fa-solid fa-user"></i> Customer</span>';
-
-      // Product scope
-      let prodLabel = '—';
+      let prodLabel = '<span style="color:#32A852;font-weight:700">Universal</span>';
       if (l.tools && Array.isArray(l.tools) && l.tools.length) {
-        prodLabel = l.tools.map(t => PRODUCTS[t]?.name || t).join(', ');
+        prodLabel = l.tools.map(t => escapeHtml(PRODUCTS[t]?.name || t)).join(', ');
       } else if (l.tool) {
-        prodLabel = PRODUCTS[l.tool]?.name || l.tool;
-      } else {
-        prodLabel = '<span style="color:#32A852;font-weight:700">Universal</span>';
+        prodLabel = escapeHtml(PRODUCTS[l.tool]?.name || l.tool);
       }
 
-      const keyEscaped = escapeHtml(l.license_key || '').replace(/'/g, "\\'");
+      const mids = l.machine_ids || [];
+      const midPreview = mids.length
+        ? '<div style="font-family:JetBrains Mono,monospace;font-size:.68rem;color:var(--text)">' + mids.map(m => '<div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px" title="' + escapeHtml(m) + '">' + escapeHtml(m.substring(0,16)) + '…</div>').join('') + '</div>'
+        : '<span style="color:var(--muted)">—</span>';
+
+      const keyEsc = escapeHtml(l.license_key || '').replace(/'/g, "\\'");
 
       return '<tr>' +
-        '<td><div class="cell-strong">' + escapeHtml(l.customer_name || '—') + '</div><div class="cell-sub">' + escapeHtml(l.customer_email || '—') + '</div></td>' +
-        '<td>' + sourceBadge + '</td>' +
-        '<td style="font-size:.78rem">' + escapeHtml(prodLabel) + '</td>' +
+        '<td><div class="cell-strong">' + escapeHtml(l.customer_email || '—') + '</div></td>' +
+        '<td><span style="font-weight:700;color:var(--ink)">' + escapeHtml(l.username || l.customer_name || '—') + '</span></td>' +
+        '<td style="font-size:.78rem;max-width:200px">' + prodLabel + '</td>' +
         '<td><span class="badge blue">' + escapeHtml((l.tier || 'pro').toUpperCase()) + '</span></td>' +
-        '<td><span class="mono" title="' + escapeHtml(l.machine_id || '') + '">' + escapeHtml(shortMid(l.machine_id)) + '</span></td>' +
+        '<td>' + midPreview + '</td>' +
         '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(l.expires_at) + '</td>' +
         '<td>' + status + '</td>' +
         '<td><div class="row-actions">' +
-          '<button class="btn-mini" onclick="copyText(\'' + keyEscaped + '\')" title="Copy"><i class="fa-solid fa-copy"></i></button>' +
+          '<button class="btn-mini" onclick="copyText(\'' + keyEsc + '\')" title="Copy License"><i class="fa-solid fa-copy"></i></button>' +
+          '<button class="btn-mini" onclick="editCustomer(' + l.id + ')" title="Kelola Customer"><i class="fa-solid fa-pen"></i></button>' +
         '</div></td>' +
         '</tr>';
     }).join('');
@@ -1097,7 +1097,34 @@ function renderManualProductChips() {
           manualSelectedProducts.push(id);
         }
       }
-      renderManualProductChips();
+      $('#genBtn').addEventListener('click', genManual);
+  renderManualProductChips();
+  loadCustomersSimple();
+
+  // Mode toggle
+  document.querySelectorAll('[data-genmode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      genMode = btn.dataset.genmode;
+      document.querySelectorAll('[data-genmode]').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('genModeExisting').style.display = genMode === 'existing' ? 'block' : 'none';
+      document.getElementById('genModeNew').style.display = genMode === 'new' ? 'block' : 'none';
+    });
+  });
+
+  // Customer select change → tampil info
+  const custSel = document.getElementById('genCustomerSelect');
+  if (custSel) {
+    custSel.addEventListener('change', () => {
+      const id = parseInt(custSel.value);
+      const info = document.getElementById('genCustomerInfo');
+      if (!info) return;
+      if (!id) { info.innerHTML = ''; return; }
+      const c = customersSimpleCache.find(x => x.id === id);
+      if (!c) { info.innerHTML = ''; return; }
+      info.innerHTML = '<b>MID terdaftar:</b> ' + c.machine_ids.length + ' device' +
+        (c.has_license ? ' · <b style="color:#D97706">sudah punya license (akan di-replace)</b>' : ' · <b style="color:#32A852">belum ada license</b>');
+    });
+  }
       updateManualProductsHint();
     });
   });
@@ -1117,41 +1144,80 @@ function updateManualProductsHint() {
 }
 
 async function genManual() {
-  const name = $('#genName').value.trim();
-  const email = $('#genEmail').value.trim();
-  const mid = $('#genMid').value.trim();
-  const tier = $('#genTier').value;
-  const date = $('#genDate').value;
-  if (!email || !mid) { toast('Email & MID wajib', 'error'); return; }
-  if (!/^[a-f0-9]{64}$/.test(mid)) { toast('MID harus 64 hex', 'error'); return; }
   const btn = $('#genBtn');
+  const errBox = { innerHTML: "", style: { display: "none" } };
+
+  let body = {};
+  if (genMode === 'existing') {
+    const custId = parseInt($('#genCustomerSelect').value);
+    if (!custId) { toast('Pilih customer dulu', 'error'); return; }
+    body.customer_id = custId;
+  } else {
+    const username = $('#genUsername').value.trim();
+    const email = $('#genEmailNew').value.trim();
+    const mid = $('#genMidNew').value.trim();
+    if (!username || !email || !mid) { toast('Username, Email, MID wajib diisi', 'error'); return; }
+    if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) { toast('Username: 3-20 karakter (a-z A-Z 0-9 _)', 'error'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('Format email tidak valid', 'error'); return; }
+    if (!/^[a-f0-9]{64}$/.test(mid)) { toast('MID harus 64 karakter hex', 'error'); return; }
+    body.username = username;
+    body.email = email;
+    body.machine_id = mid;
+  }
+
+  body.tier = $('#genTier').value;
+  body.products = manualUniversalMode ? [] : manualSelectedProducts.slice();
+  const dateVal = $('#genDate').value;
+  if (dateVal) body.expires_at = dateVal;
+  else body.days = 365;
+
   btn.disabled = true;
   btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+
   try {
-    const body = {
-      name: name,
-      email: email,
-      machine_id: mid,
-      tier: tier,
-      products: manualUniversalMode ? [] : manualSelectedProducts.slice(),
-    };
-    if (date) body.expires_at = date;
-    else body.days = 365;
     const data = await api('/api/admin/generate-manual', { method: 'POST', body });
     $('#genResult').style.display = 'block';
     $('#genLicense').textContent = data.license_key;
+
     const prodLabel = (data.products && data.products.length)
       ? data.products.map(p => PRODUCTS[p]?.name || p).join(', ')
       : 'Universal (semua produk)';
+
+    const custInfo = data.customer
+      ? '<div>Customer: <b>' + escapeHtml(data.customer.username) + '</b> (' + escapeHtml(data.customer.email) + ')</div>'
+      : '';
+
     $('#genMeta').innerHTML =
+      custInfo +
       '<div>Produk: <b>' + escapeHtml(prodLabel) + '</b></div>' +
       '<div>Tier: <b>' + escapeHtml(data.tier.toUpperCase()) + '</b></div>' +
       '<div>Expired: <b>' + fmtDate(data.expires_at) + '</b></div>' +
       '<div>Durasi: <b>' + data.days + ' hari</b></div>';
-    toast('License berhasil dibuat');
+
+    toast('License berhasil dibuat' + (data.customer ? ' untuk ' + data.customer.username : ''));
     loadLicenses();
-  } catch (e) { toast(e.message, 'error'); }
-  finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License'; }
+    loadCustomers();
+    loadCustomersSimple();
+  } catch (e) {
+    toast(e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate License';
+  }
+}
+
+async function loadCustomersSimple() {
+  try {
+    const data = await api('/api/admin/customers-simple', null, 'GET');
+    customersSimpleCache = data.customers || [];
+    const sel = $('#genCustomerSelect');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— Pilih Customer —</option>' + customersSimpleCache.map(c =>
+      '<option value="' + c.id + '">' + escapeHtml(c.username) + ' · ' + escapeHtml(c.email) + (c.has_license ? ' · (sudah ada license)' : '') + '</option>'
+    ).join('');
+  } catch (e) {
+    console.warn('loadCustomersSimple error:', e.message);
+  }
 }
 
 function init() {
@@ -1174,7 +1240,34 @@ function init() {
   $('#refreshLic').addEventListener('click', loadLicenses);
   $('#refreshTrial').addEventListener('click', loadTrials);
   $('#genBtn').addEventListener('click', genManual);
+  $('#genBtn').addEventListener('click', genManual);
   renderManualProductChips();
+  loadCustomersSimple();
+
+  // Mode toggle
+  document.querySelectorAll('[data-genmode]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      genMode = btn.dataset.genmode;
+      document.querySelectorAll('[data-genmode]').forEach(b => b.classList.toggle('active', b === btn));
+      document.getElementById('genModeExisting').style.display = genMode === 'existing' ? 'block' : 'none';
+      document.getElementById('genModeNew').style.display = genMode === 'new' ? 'block' : 'none';
+    });
+  });
+
+  // Customer select change → tampil info
+  const custSel = document.getElementById('genCustomerSelect');
+  if (custSel) {
+    custSel.addEventListener('change', () => {
+      const id = parseInt(custSel.value);
+      const info = document.getElementById('genCustomerInfo');
+      if (!info) return;
+      if (!id) { info.innerHTML = ''; return; }
+      const c = customersSimpleCache.find(x => x.id === id);
+      if (!c) { info.innerHTML = ''; return; }
+      info.innerHTML = '<b>MID terdaftar:</b> ' + c.machine_ids.length + ' device' +
+        (c.has_license ? ' · <b style="color:#D97706">sudah punya license (akan di-replace)</b>' : ' · <b style="color:#32A852">belum ada license</b>');
+    });
+  }
   $('#genCopy').addEventListener('click', () => copyText($('#genLicense').textContent));
 
   const saved = localStorage.getItem(TOKEN_KEY);
