@@ -136,23 +136,12 @@
 
     </div>
 
-    <footer class="site-footer">
-      <div class="footer-brand">
-        <div class="brand-logo-sm">D</div>
-        <div class="footer-brand-text">
-          <b>DevAccTra</b>
-          <small>Tools &amp; Software</small>
-        </div>
-      </div>
-      <div class="footer-links">
-        <a href="../">Produk</a>
-        <span>&middot;</span>
-        <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/" target="_blank" rel="noopener">Portfolio</a>
-        <span>&middot;</span>
-        <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
-      </div>
-      <div class="footer-copy">&copy; 2026 DevAccTra. Semua hak dilindungi.</div>
-    </footer>
+    <div class="footer">
+      <a href="../">Produk</a> &middot;
+      <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/">Portfolio</a> &middot;
+      <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
+      <div style="margin-top:8px">DevAccTra &copy; 2026 - Tidak berafiliasi dengan DJP</div>
+    </div>
   </div>
 </div>
 
@@ -231,23 +220,13 @@
       </div>
     </div>
 
-    <footer class="site-footer">
-      <div class="footer-brand">
-        <div class="brand-logo-sm">D</div>
-        <div class="footer-brand-text">
-          <b>DevAccTra</b>
-          <small>Tools &amp; Software</small>
-        </div>
-      </div>
-      <div class="footer-links">
-        <a href="../">Produk</a>
-        <span>&middot;</span>
-        <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/" target="_blank" rel="noopener">Portfolio</a>
-        <span>&middot;</span>
-        <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
-      </div>
-      <div class="footer-copy">&copy; 2026 DevAccTra. Semua hak dilindungi.</div>
-    </footer>
+    <div class="footer">
+      DevAccTra &copy; 2026 &middot;
+      <a href="../">Produk</a> &middot;
+      <a href="https://asptrdetraflow.github.io/Ade-Saputra-Profile/">Portfolio</a> &middot;
+      <a href="https://wa.me/6287888370395" target="_blank" rel="noopener">Kontak</a>
+      <br>Tidak berafiliasi dengan Direktorat Jenderal Pajak (DJP)
+    </div>
 
   </div>
 </div>
