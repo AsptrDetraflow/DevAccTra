@@ -1,23 +1,26 @@
 // ============================================================
-// DevAccTra Dashboard — Backend-Driven
-// Semua data customer di server. localStorage = cache session only.
+// DevAccTra Dashboard — App Logic (Backend-Driven)
+// Clean auth flow: register/login/sync dengan state machine
 // ============================================================
 (function () {
     "use strict";
 
+    // ============================================================
+    // CONSTANTS
+    // ============================================================
     const PUBLIC_KEY_B64 = "kN08rrwZddPxF2KjSIgZ0bH6veMmE94ExuEE3FbGs6s=";
-    const SESSION_KEY   = "devacctra_session_v2";
+    const SESSION_KEY = "devacctra_session_v3";
     const MID_CACHE_KEY = "devacctra_machine_id_v3";
-    const WA_NUMBER     = "6287888370395";
-    const WA_MSG        = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
-    const WA_URL        = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
-    const DIST          = "https://asptrdetraflow.github.io/DevAccTra/dist";
-    const API_URL       = "https://devacctra-api.up.railway.app";
+    const API_URL = "https://devacctra-api.up.railway.app";
+    const WA_NUMBER = "6287888370395";
+    const WA_MSG = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
+    const WA_URL = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
+    const DIST = "https://asptrdetraflow.github.io/DevAccTra/dist";
     const DEFAULT_MAX_DEVICES = 2;
 
     const RX_USERNAME = /^[a-zA-Z0-9_]{3,20}$/;
-    const RX_EMAIL    = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const RX_MID      = /^[a-f0-9]{64}$/;
+    const RX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const RX_MID = /^[a-f0-9]{64}$/;
 
     const PRODUCTS = [
         { id: "coretax-toolkit", name: "Coretax PDF Downloader", type: "Chrome Extension", accent: "dev",
@@ -25,13 +28,13 @@
           trial: "CoretaxPDFDownloader-Trial.zip", pro: "CoretaxPDFDownloader-Pro.zip", available: true },
         { id: "rekap-faktur", name: "Rekap Faktur", type: "Software Desktop", accent: "tra",
           desc: "Rekap faktur pajak dari PDF ke Excel siap pelaporan SPT secara otomatis.",
-          trial: null, pro: null, available: false },
+          trial: "RekapinFaktur-Trial.zip", pro: "RekapinFaktur-Pro.zip", available: false },
         { id: "rekap-bupot-bppu", name: "Rekap Bupot BPPU", type: "Software Desktop", accent: "acc",
           desc: "Rekap Bukti Potong BPPU dari folder PDF ke Excel otomatis dengan deteksi duplikat.",
-          trial: null, pro: null, available: false },
+          trial: "RekapinBupotBPPU-Trial.zip", pro: "RekapinBupotBPPU-Pro.zip", available: false },
         { id: "rekap-bank-bca", name: "Rekap Bank BCA", type: "Software Desktop", accent: "sage",
           desc: "Ekstrak mutasi bank BCA dari PDF atau CSV ke Excel siap rekonsiliasi.",
-          trial: null, pro: null, available: false },
+          trial: "RekapinBankBCA-Trial.zip", pro: "RekapinBankBCA-Pro.zip", available: false },
     ];
 
     const ICONS = {
@@ -41,45 +44,103 @@
         "rekap-bank-bca": '<path d="M12 2L2 7v2h20V7L12 2zM4 11v8H2v2h20v-2h-2v-8h-2v8h-4v-8h-2v8H8v-8H4z"/>',
     };
 
+    // ============================================================
+    // HELPERS
+    // ============================================================
     const $ = (s, r) => (r || document).querySelector(s);
     const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
     const show = el => el && el.classList.remove("hidden");
     const hide = el => el && el.classList.add("hidden");
 
-    // ============================================================
-    // STATE — customer data from backend
-    // ============================================================
-    let CURRENT_CUSTOMER = null; // { id, username, email, machine_ids[], license_key, ... }
-    let CURRENT_PAYLOAD  = null; // parsed license payload (local)
+    function escapeHtml(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, c =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c]));
+    }
+    function fmtDate(iso) {
+        if (!iso) return "-";
+        const d = new Date(iso);
+        if (isNaN(d)) return iso;
+        return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+    }
+    function shortMid(m) {
+        if (!m) return "-";
+        return m.length > 20 ? m.substring(0, 10) + "..." + m.substring(m.length - 6) : m;
+    }
+    function daysRemaining(exp) {
+        if (!exp) return 0;
+        const e = new Date(exp + "T23:59:59").getTime();
+        return Math.max(0, Math.ceil((e - Date.now()) / 86400000));
+    }
+    function isProTier(t) {
+        t = (t || "").toLowerCase();
+        return t === "pro" || t === "basic" || t === "enterprise" || t === "lifetime" || t === "subscription";
+    }
+    function toast(msg, type) {
+        type = type || "success";
+        let wrap = $("#toastWrap");
+        if (!wrap) {
+            wrap = document.createElement("div");
+            wrap.id = "toastWrap";
+            wrap.className = "toast-wrap";
+            document.body.appendChild(wrap);
+        }
+        const el = document.createElement("div");
+        el.className = "toast " + type;
+        el.innerHTML = '<i class="fa-solid ' + (type === "error" ? "fa-circle-xmark" : "fa-circle-check") + '"></i><span>' + escapeHtml(msg) + "</span>";
+        wrap.appendChild(el);
+        setTimeout(function () {
+            el.style.opacity = "0";
+            el.style.transition = "opacity .3s";
+            setTimeout(function () { el.remove(); }, 300);
+        }, 3200);
+    }
+    async function copyText(text) {
+        if (!text) return false;
+        try { await navigator.clipboard.writeText(text); return true; }
+        catch (e) { return false; }
+    }
 
     // ============================================================
-    // SESSION (hanya simpan username sebagai pointer)
+    // STATE
+    // ============================================================
+    let CURRENT_CUSTOMER = null;
+    let CURRENT_PAYLOAD = null;
+
+    // ============================================================
+    // SESSION
     // ============================================================
     function getSession() {
         try { return JSON.parse(localStorage.getItem(SESSION_KEY) || "null"); }
         catch (e) { return null; }
     }
-    function saveSession(s) {
-        try { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch (e) {}
+    function saveSession(obj) {
+        try { localStorage.setItem(SESSION_KEY, JSON.stringify(Object.assign({}, obj, { savedAt: Date.now() }))); }
+        catch (e) {}
     }
-    function clearSession() {
-        try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
-    }
+    function clearSession() { try { localStorage.removeItem(SESSION_KEY); } catch (e) {} }
 
     // ============================================================
-    // API HELPER
+    // API CALL
     // ============================================================
     async function apiCall(path, body, method) {
-        const res = await fetch(API_URL + path, {
-            method: method || "POST",
-            headers: { "Content-Type": "application/json" },
-            body: body ? JSON.stringify(body) : undefined,
-        });
+        method = method || "POST";
+        const opts = {
+            method: method,
+            headers: { "Content-Type": "application/json" }
+        };
+        if (body !== null && body !== undefined) opts.body = JSON.stringify(body);
+        if (method === "GET" && body) opts.body = undefined;
+
+        let res;
+        try { res = await fetch(API_URL + path, opts); }
+        catch (e) { throw new Error("Network error: " + e.message); }
+
         let data;
         try { data = await res.json(); } catch (e) { data = {}; }
+
         if (!res.ok) {
-            const msg = data.detail || data.message || ("HTTP " + res.status);
-            const err = new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+            const detail = data.detail || data.message || ("HTTP " + res.status);
+            const err = new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
             err.status = res.status;
             err.data = data;
             throw err;
@@ -119,7 +180,7 @@
         ];
         const fp = parts.join("|");
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fp));
-        const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+        const hex = Array.from(new Uint8Array(buf)).map(function (b) { return b.toString(16).padStart(2, "0"); }).join("");
         try { localStorage.setItem(MID_CACHE_KEY, hex); } catch (e) {}
         return hex;
     }
@@ -146,8 +207,7 @@
         if (parts.length !== 2) throw new Error("Format License Key tidak valid");
         const pk = await crypto.subtle.importKey("raw", b64ToBytes(PUBLIC_KEY_B64), { name: "Ed25519" }, false, ["verify"]);
         const ok = await crypto.subtle.verify(
-            { name: "Ed25519" },
-            pk,
+            { name: "Ed25519" }, pk,
             b64urlToBytes(parts[1]),
             new TextEncoder().encode(parts[0])
         );
@@ -156,34 +216,6 @@
         const today = new Date().toISOString().slice(0, 10);
         if (payload.e < today) throw new Error("License sudah kadaluarsa");
         return payload;
-    }
-
-    // ============================================================
-    // HELPERS
-    // ============================================================
-    function daysRemaining(exp) {
-        if (!exp) return 0;
-        const e = new Date(exp + "T23:59:59").getTime();
-        return Math.max(0, Math.ceil((e - Date.now()) / 86400000));
-    }
-    function fmtDate(iso) {
-        if (!iso) return "-";
-        const d = new Date(iso);
-        if (isNaN(d)) return iso;
-        return d.toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
-    }
-    function shortMid(m) {
-        if (!m) return "-";
-        return m.length > 20 ? m.substring(0, 10) + "..." + m.substring(m.length - 6) : m;
-    }
-    function isProTier(t) {
-        t = (t || "").toLowerCase();
-        return t === "pro" || t === "basic" || t === "enterprise" || t === "lifetime" || t === "subscription";
-    }
-    function escapeHtml(s) {
-        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
-            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[c];
-        });
     }
 
     // ============================================================
@@ -202,8 +234,8 @@
         renderDashboard();
     }
     function switchTab(tab) {
-        $$(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
-        $$(".view-panel").forEach(p => p.classList.remove("active"));
+        $$(".tab-btn").forEach(function (b) { b.classList.toggle("active", b.dataset.tab === tab); });
+        $$(".view-panel").forEach(function (p) { p.classList.remove("active"); });
         const panel = $("#panel" + tab.charAt(0).toUpperCase() + tab.slice(1));
         if (panel) panel.classList.add("active");
         hide($("#loginError"));
@@ -229,15 +261,12 @@
                 '</div>' +
                 '<div class="alert alert-info" style="margin:14px 0 0"><i>&#8505;</i><div>Simpan ID ini. Akan dipakai untuk login.</div></div>';
             const cb = $("#copyMidDetail");
-            cb.addEventListener("click", function () {
-                navigator.clipboard.writeText(mid).then(function () {
-                    cb.textContent = "OK!";
-                    cb.classList.add("ok");
-                    setTimeout(function () { cb.textContent = "Copy"; cb.classList.remove("ok"); }, 1500);
-                }).catch(function () { alert("Copy manual: " + mid); });
+            cb.addEventListener("click", async function () {
+                const ok = await copyText(mid);
+                if (ok) { cb.textContent = "OK!"; setTimeout(function () { cb.textContent = "Copy"; }, 1500); }
             });
         } catch (e) {
-            box.innerHTML = '<div class="alert alert-error" style="margin:0"><i>&#10007;</i><div><b>Gagal generate MID.</b><br>' + escapeHtml(e.message) + '</div></div>';
+            box.innerHTML = '<div class="alert alert-error" style="margin:0"><i>&#10007;</i><div><b>Gagal generate MID.</b><br>' + escapeHtml(e.message) + "</div></div>";
         }
     }
     function openMidModal(targetId) {
@@ -248,7 +277,7 @@
     function closeMidModal() { $("#midModal").classList.remove("show"); }
 
     // ============================================================
-    // SYNC MODAL (backend-driven)
+    // SYNC MODAL
     // ============================================================
     let _syncResolver = null;
 
@@ -257,17 +286,16 @@
             _syncResolver = { customer: customer, newMid: newMid, resolve: resolve, reject: reject };
             $("#syncOldMid").value = "";
             hide($("#syncError"));
-            const maxEl = $("#syncMax");
-            if (maxEl) maxEl.textContent = maxDev;
             const info = $("#syncInfo");
             const mids = customer.machine_ids || [];
+            const maxDev = parseInt(customer.max_devices) || DEFAULT_MAX_DEVICES;
             info.innerHTML =
-                '<b>Akun ditemukan: ' + escapeHtml(customer.username) + '</b><br>' +
-                'Terdaftar dengan <b>' + mids.length + '</b> Machine ID.<br>' +
-                'MID device ini: <code style="font-family:Consolas;font-size:.7rem">' + shortMid(newMid) + '</code>';
+                "<b>Akun ditemukan: " + escapeHtml(customer.username) + "</b><br>" +
+                "Terdaftar dengan <b>" + mids.length + "</b> dari " + maxDev + " MID.<br>" +
+                "MID device ini: <code style=\"font-family:Consolas;font-size:.7rem\">" + shortMid(newMid) + "</code>";
             show(info);
             $("#syncModal").classList.add("show");
-            setTimeout(() => $("#syncOldMid").focus(), 100);
+            setTimeout(function () { $("#syncOldMid").focus(); }, 100);
         });
     }
     function closeSyncModal(cancel) {
@@ -285,21 +313,21 @@
         const oldMid = $("#syncOldMid").value.trim();
         hide(err);
         if (!oldMid) { err.textContent = "Machine ID lama wajib diisi."; show(err); return; }
+        if (!RX_MID.test(oldMid)) { err.textContent = "Format MID tidak valid (64 hex)."; show(err); return; }
 
-        const { customer, newMid, resolve, reject } = _syncResolver;
-
+        const res = _syncResolver;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
+        btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff"></span> Memproses...';
 
         try {
             const data = await apiCall("/api/customer/sync", {
-                identifier: customer.username,
+                identifier: res.customer.username,
                 old_machine_id: oldMid,
-                new_machine_id: newMid,
+                new_machine_id: res.newMid
             });
             closeSyncModal(false);
             _syncResolver = null;
-            resolve(data);
+            res.resolve(data);
         } catch (e) {
             err.textContent = e.message;
             show(err);
@@ -310,7 +338,41 @@
     }
 
     // ============================================================
-    // REGISTER (backend)
+    // AUTH: common response handler
+    // ============================================================
+    async function handleAuthResponse(data, mid) {
+        // Case 1: Butuh sync
+        if (data.needs_sync && data.customer) {
+            try {
+                const syncResult = await openSyncModal(data.customer, mid);
+                CURRENT_CUSTOMER = syncResult.customer;
+                await loadLicensePayload();
+                saveSession({ username: CURRENT_CUSTOMER.username });
+                showDashboard();
+                if (syncResult.dropped && syncResult.dropped.length) {
+                    toast("Device lama terhapus otomatis (" + syncResult.dropped.length + ")", "success");
+                }
+                return { success: true, action: "sync" };
+            } catch (e) {
+                // User cancel — tetap di halaman auth
+                return { success: false, cancelled: true };
+            }
+        }
+
+        // Case 2: Login / Register sukses
+        if (data.customer) {
+            CURRENT_CUSTOMER = data.customer;
+            await loadLicensePayload();
+            saveSession({ username: CURRENT_CUSTOMER.username });
+            showDashboard();
+            return { success: true, action: data.action || "login" };
+        }
+
+        throw new Error("Response tidak valid dari server");
+    }
+
+    // ============================================================
+    // REGISTER
     // ============================================================
     async function handleRegister(e) {
         e.preventDefault();
@@ -319,13 +381,13 @@
         const mid = ($("#regMid").value || "").trim();
         const err = $("#registerError");
         hide(err);
-        ["#errUsername", "#errEmail", "#errMid"].forEach(s => hide($(s)));
-        $$("#registerForm input").forEach(i => i.classList.remove("error"));
+        ["#errUsername", "#errEmail", "#errMid"].forEach(function (s) { hide($(s)); });
+        $$("#registerForm input").forEach(function (i) { i.classList.remove("error"); });
 
         let hasErr = false;
-        if (!RX_USERNAME.test(username)) { showError("#errUsername", "Username: 3-20 karakter (a-z, A-Z, 0-9, _)"); hasErr = true; }
-        if (!RX_EMAIL.test(email)) { showError("#errEmail", "Format email tidak valid"); hasErr = true; }
-        if (!RX_MID.test(mid)) { showError("#errMid", "Machine ID harus 64 karakter hex"); hasErr = true; }
+        if (!RX_USERNAME.test(username)) { $("#errUsername").textContent = "Username: 3-20 karakter (a-z, A-Z, 0-9, _)"; show($("#errUsername")); $("#regUsername").classList.add("error"); hasErr = true; }
+        if (!RX_EMAIL.test(email)) { $("#errEmail").textContent = "Format email tidak valid"; show($("#errEmail")); $("#regEmail").classList.add("error"); hasErr = true; }
+        if (!RX_MID.test(mid)) { $("#errMid").textContent = "Machine ID harus 64 karakter hex"; show($("#errMid")); $("#regMid").classList.add("error"); hasErr = true; }
         if (hasErr) { err.textContent = "Periksa kembali data."; show(err); return; }
 
         const btn = $("#registerBtn");
@@ -333,42 +395,17 @@
         btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
 
         try {
-            console.log("[Register] POST /api/customer/register:", { username, email, mid: mid.substring(0,16)+"..." });
             const data = await apiCall("/api/customer/register", {
                 username: username,
                 email: email,
-                machine_id: mid,
+                machine_id: mid
             });
-            console.log("[Register] Response:", data);
-            console.log("[Register] needs_sync:", data.needs_sync, "| action:", data.action);
-
-            if (data.needs_sync) {
-                console.log("[Register] → Opening sync modal");
-                // Buka modal sync
-                try {
-                    const syncResult = await openSyncModal(data.customer, mid);
-                    CURRENT_CUSTOMER = syncResult.customer;
-                    saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
-                    await loadLicensePayload();
-                    showDashboard();
-                } catch (e) {
-                    // User cancel
-                }
-                return;
-            }
-
-            // Created atau login
-            CURRENT_CUSTOMER = data.customer;
-            saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
-            await loadLicensePayload();
-            showDashboard();
-
-            // Auto-download JSON kalau baru register
-            if (data.action === "created") {
-                downloadBackup(CURRENT_CUSTOMER);
+            const result = await handleAuthResponse(data, mid);
+            if (result.success && result.action === "created") {
+                setTimeout(function () { downloadBackup(CURRENT_CUSTOMER); }, 500);
             }
         } catch (e) {
-            err.textContent = "Gagal: " + e.message;
+            err.textContent = e.message;
             show(err);
         } finally {
             btn.disabled = false;
@@ -376,13 +413,8 @@
         }
     }
 
-    function showError(sel, msg) {
-        const el = $(sel);
-        if (el) { el.textContent = msg; el.classList.add("show"); }
-    }
-
     // ============================================================
-    // LOGIN (backend)
+    // LOGIN
     // ============================================================
     async function handleLogin(e) {
         e.preventDefault();
@@ -393,85 +425,19 @@
 
         if (!identifier) { err.textContent = "Username/email wajib diisi."; show(err); return; }
         if (!mid) { err.textContent = "Machine ID wajib diisi."; show(err); return; }
+        if (!RX_MID.test(mid)) { err.textContent = "Format Machine ID tidak valid."; show(err); return; }
 
         const btn = $("#loginBtn");
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Memproses...';
 
         try {
-            console.log("[Login] POST /api/customer/login with:", { identifier, mid: mid.substring(0,16)+"..." });
             const data = await apiCall("/api/customer/login", {
                 identifier: identifier,
-                machine_id: mid,
+                machine_id: mid
             });
-            console.log("[Login] Response:", data);
-            console.log("[Login] needs_sync:", data.needs_sync);
-
-            if (data.needs_sync) {
-                console.log("[Login] → Opening sync modal with customer:", data.customer?.username);
-                try {
-                    const syncResult = await openSyncModal(data.customer, mid);
-                    CURRENT_CUSTOMER = syncResult.customer;
-                    saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
-                    await loadLicensePayload();
-                    showDashboard();
-                } catch (e) {
-                    // User cancel
-                }
-                return;
-            }
-
-            CURRENT_CUSTOMER = data.customer;
-            saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
-            await loadLicensePayload();
-            showDashboard();
+            await handleAuthResponse(data, mid);
         } catch (e) {
-            console.error("[Login] Error:", e);
-
-            // Fallback: kalau "Akun tidak ditemukan", cek localStorage lama
-            if (e.message && e.message.toLowerCase().includes("tidak ditemukan")) {
-                try {
-                    const oldAccounts = JSON.parse(localStorage.getItem("devacctra_accounts_v1") || "{}");
-                    const lower = identifier.toLowerCase();
-                    let found = null;
-                    for (const k in oldAccounts) {
-                        if (k.toLowerCase() === lower || (oldAccounts[k].email || "").toLowerCase() === lower) {
-                            found = oldAccounts[k];
-                            break;
-                        }
-                    }
-
-                    if (found) {
-                        console.log("[Login] Auto-migrating from localStorage:", found.username);
-                        // Register ke backend
-                        const regResp = await apiCall("/api/customer/register", {
-                            username: found.username,
-                            email: found.email,
-                            machine_id: mid,
-                        });
-                        console.log("[Register] Migration response:", regResp);
-
-                        if (regResp.needs_sync) {
-                            const syncResult = await openSyncModal(regResp.customer, mid);
-                            CURRENT_CUSTOMER = syncResult.customer;
-                            saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
-                            await loadLicensePayload();
-                            showDashboard();
-                            return;
-                        }
-                        if (regResp.customer) {
-                            CURRENT_CUSTOMER = regResp.customer;
-                            saveSession({ username: CURRENT_CUSTOMER.username, loggedInAt: Date.now() });
-                            await loadLicensePayload();
-                            showDashboard();
-                            return;
-                        }
-                    }
-                } catch (migErr) {
-                    console.error("[Migration] Failed:", migErr);
-                }
-            }
-
             err.textContent = e.message;
             show(err);
         } finally {
@@ -480,6 +446,9 @@
         }
     }
 
+    // ============================================================
+    // LOGOUT
+    // ============================================================
     function doLogout() {
         if (!confirm("Logout dari dashboard?")) return;
         clearSession();
@@ -489,7 +458,7 @@
     }
 
     // ============================================================
-    // LOAD LICENSE PAYLOAD (verify local from customer.license_key)
+    // LOAD LICENSE PAYLOAD
     // ============================================================
     async function loadLicensePayload() {
         CURRENT_PAYLOAD = null;
@@ -503,7 +472,7 @@
     }
 
     // ============================================================
-    // REFRESH FROM BACKEND
+    // REFRESH CUSTOMER
     // ============================================================
     async function refreshCustomer() {
         const s = getSession();
@@ -515,15 +484,13 @@
             return true;
         } catch (e) {
             console.warn("[Refresh] Failed:", e.message);
-            if (e.status === 404) {
-                clearSession();
-            }
+            if (e.status === 404) clearSession();
             return false;
         }
     }
 
     // ============================================================
-    // BACKUP JSON
+    // DOWNLOAD BACKUP
     // ============================================================
     function downloadBackup(customer) {
         if (!customer) return;
@@ -549,49 +516,35 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
     }
 
     // ============================================================
     // IMPORT JSON
     // ============================================================
     function handleImportJson() {
-        const fileInput = $("#importJsonFile");
-        fileInput.value = "";
-        fileInput.click();
+        const fi = $("#importJsonFile");
+        fi.value = "";
+        fi.click();
     }
 
     async function handleImportFile(e) {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
+        const errBox = $("#registerError");
         try {
             const text = await file.text();
             const json = JSON.parse(text);
-            if (!json.account || !json.account.username) {
-                throw new Error("File JSON tidak valid");
-            }
+            if (!json.account || !json.account.username) throw new Error("File JSON tidak valid");
             const acc = json.account;
-            // Auto-fill register form
             switchTab("register");
             $("#regUsername").value = acc.username || "";
             $("#regEmail").value = acc.email || "";
-            // Set MID: kalau ada MID di JSON yang cocok dengan browser saat ini, pakai itu
-            // Kalau tidak, biar auto-load
-            const curMid = $("#regMid").value;
-            if (!curMid) {
-                try { $("#regMid").value = await getMachineId(); } catch (err) {}
-            }
-            // Kalau JSON ada license_key, kita simpan dulu di variabel temporary
-            if (acc.license_key) {
-                window.__importedLicenseKey = acc.license_key;
-            }
-            // Info ke user
-            const err = $("#registerError");
-            err.className = "alert alert-info";
-            err.textContent = "Data dari backup terisi. Klik 'Daftar & Login' untuk melanjutkan.";
-            err.classList.remove("hidden");
+            try { $("#regMid").value = await getMachineId(); } catch (err) {}
+            errBox.className = "alert alert-info";
+            errBox.textContent = "Data dari backup terisi. Klik 'Daftar & Login' untuk melanjutkan.";
+            errBox.classList.remove("hidden");
         } catch (err) {
-            const errBox = $("#registerError");
             errBox.className = "alert alert-error";
             errBox.textContent = "Gagal membaca JSON: " + err.message;
             errBox.classList.remove("hidden");
@@ -599,7 +552,7 @@
     }
 
     // ============================================================
-    // DEVICE LIST (dari backend)
+    // DEVICE LIST
     // ============================================================
     function renderDeviceList() {
         const box = $("#deviceList");
@@ -613,25 +566,67 @@
         let curMid = "";
         try { curMid = localStorage.getItem(MID_CACHE_KEY) || ""; } catch (e) {}
 
+        // Cek MID mismatch — device ini gak terdaftar
+        const isMismatch = curMid && !mids.includes(curMid);
+
+        let html = "";
+
+        // Alert mismatch kalau ada
+        if (isMismatch) {
+            html += '<div class="alert alert-warn" style="margin-bottom:12px"><i class="fa-solid fa-triangle-exclamation"></i><div><b>Device ini belum terdaftar.</b><br>MID device ini <code style="font-family:Consolas;font-size:.72rem">' + shortMid(curMid) + '</code> tidak ada di daftar. Klik tombol <b>Ganti Device</b> untuk sinkronisasi.</div></div>';
+        }
+
         if (!mids.length) {
-            box.innerHTML = '<div class="hint" style="color:#69756D">Belum ada device terdaftar.</div>';
+            html += '<div class="hint" style="color:#69756D">Belum ada device terdaftar.</div>';
+            box.innerHTML = html;
             return;
         }
 
-        box.innerHTML = mids.map(function (m, i) {
+        html += mids.map(function (m, i) {
             const isCurrent = m === curMid;
             const isOldest = i === 0 && mids.length >= maxDev;
-            return '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid ' + (isCurrent ? '#32A852' : 'rgba(23,34,29,.08)') + ';border-radius:10px;margin-bottom:8px;background:' + (isCurrent ? 'rgba(50,168,82,.05)' : '#fff') + '">' +
+            return '<div style="display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid ' +
+                (isCurrent ? "#32A852" : "rgba(23,34,29,.08)") + ';border-radius:10px;margin-bottom:8px;background:' +
+                (isCurrent ? "rgba(50,168,82,.05)" : "#fff") + '">' +
                 '<div style="flex:1;min-width:0">' +
-                    '<div style="font-family:Consolas,monospace;font-size:.72rem;word-break:break-all;color:#17221D">' + m + '</div>' +
+                    '<div style="font-family:Consolas,monospace;font-size:.72rem;word-break:break-all;color:#17221D">' + escapeHtml(m) + "</div>" +
                     '<div style="font-size:.68rem;color:#69756D;margin-top:2px">' +
-                        (isCurrent ? '<b style="color:#32A852">Device ini</b>' : 'Device lain') +
-                        (isOldest ? ' &middot; <span style="color:#D97706">Paling lama</span>' : '') +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-        }).join("") +
-        '<div style="font-size:.72rem;color:#69756D;margin-top:8px">' + mids.length + ' / ' + maxDev + ' device aktif</div>';
+                        (isCurrent ? '<b style="color:#32A852">Device ini</b>' : "Device lain") +
+                        (isOldest ? ' &middot; <span style="color:#D97706">Paling lama</span>' : "") +
+                    "</div>" +
+                "</div>" +
+            "</div>";
+        }).join("");
+        html += '<div style="font-size:.72rem;color:#69756D;margin-top:8px">' + mids.length + " / " + maxDev + " device aktif</div>";
+
+        if (isMismatch) {
+            html += '<button type="button" class="btn btn-primary" id="syncDeviceBtn" style="width:100%;margin-top:12px;justify-content:center"><i class="fa-solid fa-arrows-rotate"></i> Ganti / Sinkron Device</button>';
+        }
+
+        box.innerHTML = html;
+
+        const syncBtn = $("#syncDeviceBtn");
+        if (syncBtn) syncBtn.addEventListener("click", openSyncFromDashboard);
+    }
+
+    async function openSyncFromDashboard() {
+        if (!CURRENT_CUSTOMER) return;
+        let curMid = "";
+        try { curMid = localStorage.getItem(MID_CACHE_KEY) || ""; } catch (e) {}
+        if (!curMid) { toast("MID device ini belum terdeteksi.", "error"); return; }
+
+        try {
+            const result = await openSyncModal(CURRENT_CUSTOMER, curMid);
+            CURRENT_CUSTOMER = result.customer;
+            await loadLicensePayload();
+            toast("Device berhasil disinkronkan");
+            if (result.dropped && result.dropped.length) {
+                toast(result.dropped.length + " device lama terhapus", "success");
+            }
+            renderDashboard();
+        } catch (e) {
+            // Cancelled
+        }
     }
 
     // ============================================================
@@ -647,7 +642,7 @@
         const hasLicense = CURRENT_CUSTOMER.license_key && CURRENT_PAYLOAD;
 
         if (!hasLicense) {
-            box.innerHTML = '<div class="alert alert-warn" style="margin:0"><i>&#9888;</i><div><b>Belum ada License PRO.</b><br>Anda hanya bisa download versi <b>Trial</b>. Untuk versi PRO (berlaku semua produk), masukkan License Key dari Admin atau hubungi kami.</div></div>';
+            box.innerHTML = '<div class="alert alert-warn" style="margin:0"><i>&#9888;</i><div><b>Belum ada License PRO.</b><br>Download versi <b>Trial</b> gratis. Untuk versi PRO, masukkan License Key dari Admin.</div></div>';
             show(pasteBtn); show(payBtn); hide(removeBtn);
             return;
         }
@@ -658,12 +653,24 @@
         const exp = p.e || "-";
         const days = daysRemaining(exp);
 
+        // Produk scope
+        let scopeLabel = "";
+        if (p.tools && Array.isArray(p.tools) && p.tools.length) {
+            scopeLabel = '<div class="info-row"><span class="label">Produk</span><span class="value">' +
+                p.tools.map(function (t) { return "<b>" + escapeHtml(t) + "</b>"; }).join(", ") + "</span></div>";
+        } else if (p.tool) {
+            scopeLabel = '<div class="info-row"><span class="label">Produk</span><span class="value"><b>' + escapeHtml(p.tool) + "</b></span></div>";
+        } else {
+            scopeLabel = '<div class="info-row"><span class="label">Produk</span><span class="value"><b>Universal</b> (semua produk)</span></div>';
+        }
+
         box.innerHTML =
-            '<div class="info-row"><span class="label">Tier</span><span class="value"><span class="badge badge-' + (tier || "pro") + '">' + (tier || "pro") + '</span></span></div>' +
-            '<div class="info-row"><span class="label">Berlaku sampai</span><span class="value">' + fmtDate(exp) + ' <small style="color:#69756D">(' + days + ' hari)</small></span></div>' +
+            '<div class="info-row"><span class="label">Tier</span><span class="value"><span class="badge badge-' + (tier || "pro") + '">' + (tier || "pro") + "</span></span></div>" +
+            scopeLabel +
+            '<div class="info-row"><span class="label">Berlaku sampai</span><span class="value">' + fmtDate(exp) + ' <small style="color:#69756D">(' + days + " hari)</small></span></div>" +
             (isPro
-                ? '<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk bisa di-download versi PRO.</div></div>'
-                : '<div class="alert alert-info" style="margin:12px 0 0"><i>&#8505;</i><div>License tier <b>' + tier + '</b> tidak membuka akses PRO.</div></div>');
+                ? '<div class="alert alert-success" style="margin:12px 0 0"><i>&#10003;</i><div><b>Akses PRO aktif.</b></div></div>'
+                : '<div class="alert alert-info" style="margin:12px 0 0"><i>&#8505;</i><div>License tier <b>' + tier + "</b> tidak membuka akses PRO.</div></div>");
         show(removeBtn);
         if (isPro) hide(pasteBtn); else show(pasteBtn);
         show(payBtn);
@@ -672,37 +679,50 @@
     // ============================================================
     // PRODUCTS
     // ============================================================
+    function getProductAllowed(payload, productId) {
+        if (!payload) return false;
+        if (!isProTier(payload.t)) return false;
+        if (payload.tools && Array.isArray(payload.tools) && payload.tools.length) {
+            return payload.tools.indexOf(productId) >= 0;
+        }
+        if (payload.tool) return payload.tool === productId;
+        return true; // universal
+    }
+
     function renderProducts() {
         const grid = $("#productsGrid");
         if (!grid || !CURRENT_CUSTOMER) return;
-        const hasPro = CURRENT_PAYLOAD && isProTier(CURRENT_PAYLOAD.t);
 
         grid.innerHTML = PRODUCTS.map(function (p) {
             const icon = ICONS[p.id] || "";
             const isAvail = p.available;
+            const hasProForThis = getProductAllowed(CURRENT_PAYLOAD, p.id);
+
             const trialBtn = isAvail
                 ? '<a class="product-btn product-btn-trial" href="' + DIST + "/" + p.trial + '" download><svg viewBox="0 0 24 24"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg> Download Trial</a>'
                 : '<button class="product-btn product-btn-trial" disabled><svg viewBox="0 0 24 24"><path d="M12 15l-5-5h3V4h4v6h3l-5 5zM5 19h14v2H5z"/></svg> Trial</button>';
+
             const proBtn = !isAvail
                 ? '<button class="product-btn product-btn-pro" disabled><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Coming Soon</button>'
-                : (hasPro
+                : (hasProForThis
                     ? '<a class="product-btn product-btn-pro" href="' + DIST + "/" + p.pro + '" download><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Download PRO</a>'
                     : '<button class="product-btn product-btn-pro" data-open-license="1" type="button"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5 3.8 9.4 9 11 5.2-1.6 9-6 9-11V5l-9-4z"/></svg> Butuh License</button>');
+
             return '<div class="product-card">' +
                 (!isAvail ? '<span class="product-badge">Coming Soon</span>' : "") +
                 '<div class="product-head">' +
-                    '<div class="product-ico ' + p.accent + '"><svg viewBox="0 0 24 24">' + icon + '</svg></div>' +
+                    '<div class="product-ico ' + p.accent + '"><svg viewBox="0 0 24 24">' + icon + "</svg></div>" +
                     '<div class="product-head-text">' +
-                        '<div class="product-name">' + escapeHtml(p.name) + '</div>' +
-                        '<div class="product-type">' + escapeHtml(p.type) + '</div>' +
-                    '</div>' +
-                '</div>' +
-                '<p class="product-desc">' + escapeHtml(p.desc) + '</p>' +
-                '<div class="product-actions">' + trialBtn + proBtn + '</div>' +
-            '</div>';
+                        '<div class="product-name">' + escapeHtml(p.name) + "</div>" +
+                        '<div class="product-type">' + escapeHtml(p.type) + "</div>" +
+                    "</div>" +
+                "</div>" +
+                '<p class="product-desc">' + escapeHtml(p.desc) + "</p>" +
+                '<div class="product-actions">' + trialBtn + proBtn + "</div>" +
+            "</div>";
         }).join("");
 
-        grid.querySelectorAll('[data-open-license]').forEach(function (btn) {
+        grid.querySelectorAll("[data-open-license]").forEach(function (btn) {
             btn.addEventListener("click", openLicenseModal);
         });
     }
@@ -713,25 +733,22 @@
         $("#heroUsername").textContent = CURRENT_CUSTOMER.username;
         $("#heroEmail").textContent = CURRENT_CUSTOMER.email;
 
-        const mids = CURRENT_CUSTOMER.machine_ids || [];
-        let curMid = mids[0] || "-";
-        try {
-            const cached = localStorage.getItem(MID_CACHE_KEY);
-            if (cached && mids.includes(cached)) curMid = cached;
-        } catch (e) {}
-        $("#heroMid").textContent = shortMid(curMid);
+        let curMid = "";
+        try { curMid = localStorage.getItem(MID_CACHE_KEY) || ""; } catch (e) {}
+        $("#heroMid").textContent = shortMid(curMid || "-");
 
         renderProducts();
         renderLicenseStatus();
         renderDeviceList();
 
         const cb = $("#copyMidHero");
-        cb.onclick = function () {
-            navigator.clipboard.writeText(curMid).then(function () {
+        if (cb) cb.onclick = async function () {
+            const ok = await copyText(curMid);
+            if (ok) {
                 cb.textContent = "OK!";
                 cb.classList.add("ok");
                 setTimeout(function () { cb.textContent = "Copy"; cb.classList.remove("ok"); }, 1500);
-            });
+            }
         };
     }
 
@@ -742,7 +759,7 @@
         $("#licenseTextarea").value = "";
         hide($("#modalError"));
         $("#licenseModal").classList.add("show");
-        setTimeout(() => $("#licenseTextarea").focus(), 100);
+        setTimeout(function () { $("#licenseTextarea").focus(); }, 100);
     }
     function closeLicenseModal() { $("#licenseModal").classList.remove("show"); }
 
@@ -758,31 +775,26 @@
         btn.innerHTML = '<span class="spinner-dot" style="border-top-color:#fff;border-color:rgba(255,255,255,.3)"></span> Verifikasi...';
 
         try {
-            // 1. Verify local (Ed25519)
             const payload = await verifyLicense(key);
 
-            // 2. Cek MID match
             const allowedMids = Array.isArray(payload.m) ? payload.m : [payload.m];
             const myMids = CURRENT_CUSTOMER.machine_ids || [];
-            const isWildcard = allowedMids.includes("*");
-            const hasMatch = isWildcard || myMids.some(m => allowedMids.includes(m));
+            const isWildcard = allowedMids.indexOf("*") >= 0;
+            const hasMatch = isWildcard || myMids.some(function (m) { return allowedMids.indexOf(m) >= 0; });
 
-            if (!hasMatch) {
-                throw new Error("License ini tidak cocok dengan MID device ini. Hubungi admin untuk rebind, atau masuk ke device yang MID-nya terdaftar.");
-            }
+            if (!hasMatch) throw new Error("License ini tidak cocok dengan MID manapun di akun Anda.");
 
-            // 3. Save ke backend
             await apiCall("/api/customer/set-license", {
                 identifier: CURRENT_CUSTOMER.username,
-                license_key: key,
+                license_key: key
             });
 
-            // 4. Update local state
             CURRENT_CUSTOMER.license_key = key;
             CURRENT_PAYLOAD = payload;
 
             closeLicenseModal();
             renderDashboard();
+            toast("License PRO aktif");
         } catch (e) {
             err.textContent = "Gagal: " + e.message;
             show(err);
@@ -792,23 +804,19 @@
         }
     }
 
-    // ============================================================
-    // REMOVE LICENSE
-    // ============================================================
     async function handleRemoveLicense() {
         if (!CURRENT_CUSTOMER) return;
         if (!confirm("Hapus License dari akun?")) return;
         try {
             await apiCall("/api/customer/set-license", {
                 identifier: CURRENT_CUSTOMER.username,
-                license_key: "",
+                license_key: ""
             });
             CURRENT_CUSTOMER.license_key = null;
             CURRENT_PAYLOAD = null;
             renderDashboard();
-        } catch (e) {
-            alert("Gagal hapus: " + e.message);
-        }
+            toast("License dihapus");
+        } catch (e) { toast(e.message, "error"); }
     }
 
     // ============================================================
@@ -831,18 +839,15 @@
     // INIT
     // ============================================================
     function init() {
-        // Tabs
         $$(".tab-btn").forEach(function (btn) {
             btn.addEventListener("click", function () { switchTab(btn.dataset.tab); });
         });
 
-        // Forms
         const rForm = $("#registerForm");
         if (rForm) rForm.addEventListener("submit", handleRegister);
         const lForm = $("#loginForm");
         if (lForm) lForm.addEventListener("submit", handleLogin);
 
-        // MID buttons
         $$("[data-mid-target]").forEach(function (btn) {
             btn.addEventListener("click", function () { openMidModal(btn.dataset.midTarget); });
         });
@@ -861,15 +866,15 @@
             closeMidModal();
         });
 
-        // Sync modal
         const syncCancel = $("#syncCancel");
         if (syncCancel) syncCancel.addEventListener("click", function () { closeSyncModal(true); });
         const syncBg = $("#syncModal");
         if (syncBg) syncBg.addEventListener("click", function (e) { if (e.target === syncBg) closeSyncModal(true); });
         const syncConfirm = $("#syncConfirm");
         if (syncConfirm) syncConfirm.addEventListener("click", handleSyncConfirm);
+        const syncOldMid = $("#syncOldMid");
+        if (syncOldMid) syncOldMid.addEventListener("keydown", function (e) { if (e.key === "Enter") handleSyncConfirm(); });
 
-        // License modal
         const pasteBtn = $("#pasteLicenseBtn");
         if (pasteBtn) pasteBtn.addEventListener("click", openLicenseModal);
         const mCancel = $("#modalCancel");
@@ -879,33 +884,25 @@
         const mConfirm = $("#modalConfirm");
         if (mConfirm) mConfirm.addEventListener("click", handleLicenseConfirm);
 
-        // Remove license
         const removeBtn = $("#removeLicenseBtn");
         if (removeBtn) removeBtn.addEventListener("click", handleRemoveLicense);
 
-        // Buy PRO
         const buyBtn = $("#buyProBtn");
         if (buyBtn) buyBtn.addEventListener("click", function () { window.open(WA_URL, "_blank", "noopener"); });
 
-        // Download JSON
         const dlBtn = $("#downloadJsonBtn");
-        if (dlBtn) dlBtn.addEventListener("click", function () {
-            if (CURRENT_CUSTOMER) downloadBackup(CURRENT_CUSTOMER);
-        });
+        if (dlBtn) dlBtn.addEventListener("click", function () { if (CURRENT_CUSTOMER) downloadBackup(CURRENT_CUSTOMER); });
 
-        // Import JSON
         const importBtn = $("#importJsonBtn");
         if (importBtn) importBtn.addEventListener("click", handleImportJson);
         const importFile = $("#importJsonFile");
         if (importFile) importFile.addEventListener("change", handleImportFile);
 
-        // Logout
         const navLogout = $("#navLogout");
         if (navLogout) navLogout.addEventListener("click", doLogout);
         const logout2 = $("#logoutBtn2");
         if (logout2) logout2.addEventListener("click", doLogout);
 
-        // Start
         (async function boot() {
             const s = getSession();
             if (s && s.username) {
