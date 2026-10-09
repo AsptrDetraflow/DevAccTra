@@ -473,6 +473,7 @@ tbody tr:hover{background:var(--surface-soft)}
     <div class="modal-footer">
       <button class="danger" id="deleteCustBtn"><i class="fa-solid fa-trash"></i> Hapus Customer</button>
       <div style="flex:1"></div>
+      <button id="downloadJsonCustBtn"><i class="fa-solid fa-download"></i> Download JSON</button>
       <button onclick="closeModal('editCustModal')">Batal</button>
       <button class="primary" id="saveCustBtn"><i class="fa-solid fa-check"></i> Simpan</button>
     </div>
@@ -808,7 +809,7 @@ async function loadCustomers() {
         '<td>' + licBadge + '</td>' +
         '<td><b style="font-size:.9rem">' + c.max_devices + '</b></td>' +
         '<td>' + statusBadge + '</td>' +
-        '<td><div class="row-actions"><button class="btn-mini" onclick="editCustomer(' + c.id + ')"><i class="fa-solid fa-pen"></i> Kelola</button></div></td>' +
+        '<td><div class="row-actions"><button class="btn-mini" onclick="downloadCustomerJson(' + c.id + ')"><i class="fa-solid fa-download"></i> JSON</button><button class="btn-mini" onclick="editCustomer(' + c.id + ')"><i class="fa-solid fa-pen"></i> Kelola</button></div></td>' +
         '</tr>';
     }).join('');
   } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
@@ -1032,6 +1033,7 @@ async function loadTrials() {
       else if (t.status === 'expired') statusBadge = '<span class="badge gray">Expired</span>';
       else if (t.status === 'warning') statusBadge = '<span class="badge yellow">Warning</span>';
       const midEsc = escapeHtml(t.machine_id || '').replace(/'/g, "\\'");
+      const emailEsc = escapeHtml(t.email || '').replace(/'/g, "\\'");
       const toolEsc = escapeHtml(t.tool || 'coretax-toolkit').replace(/'/g, "\\'");
       const actionBtn = t.suspended
         ? '<button class="btn-mini" onclick="unsuspendTrial(\'' + midEsc + '\', \'' + toolEsc + '\')" title="Unsuspend"><i class="fa-solid fa-unlock"></i> Buka</button>'
@@ -1047,7 +1049,7 @@ async function loadTrials() {
         '<td>' + countBadge + '</td>' +
         '<td style="font-size:.8rem;color:var(--muted)">' + fmtDate(t.expires_at) + '</td>' +
         '<td>' + statusBadge + '</td>' +
-        '<td><div class="row-actions">' + actionBtn + '</div></td>' +
+        '<td><div class="row-actions">' + actionBtn + '<button class="btn-mini danger" onclick="deleteTrial(\'' + midEsc + '\', \'' + emailEsc + '\', \'' + toolEsc + '\')" title="Hapus Trial"><i class="fa-solid fa-trash"></i></button>' + '</div></td>' +
         '</tr>';
     }).join('');
   } catch (e) { tb.innerHTML = ''; toast(e.message, 'error'); }
@@ -1266,6 +1268,55 @@ async function doGenerateLicenseForCust() {
 // ============================================================
 // INIT
 // ============================================================
+// ============================================================
+// DOWNLOAD JSON CUSTOMER (userLicense.json)
+// ============================================================
+window.downloadCustomerJson = async function(custId) {
+  const c = custCache.find(x => x.id === custId);
+  if (!c) { toast('Customer tidak ditemukan', 'error'); return; }
+  try {
+    const data = await api('/api/admin/customer/' + custId + '/export-json', { method: 'GET' });
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'userLicense.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('File userLicense.json ter-download');
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+};
+
+// ============================================================
+// DELETE TRIAL (user bisa generate ulang)
+// ============================================================
+window.deleteTrial = async function(mid, email, tool) {
+  const shortMid = mid ? (mid.substring(0, 16) + '...') : '(kosong)';
+  if (!confirm(
+    '\u26a0\ufe0f HAPUS TRIAL?\n\n' +
+    'Email   : ' + (email || '-') + '\n' +
+    'MID     : ' + shortMid + '\n' +
+    'Tool    : ' + tool + '\n\n' +
+    'User bisa generate trial ULANG dengan email + MID yang sama.\n' +
+    'Extension yang sudah aktif TIDAK akan ter-revoke.\n\n' +
+    'Lanjutkan?'
+  )) return;
+  try {
+    const params = new URLSearchParams();
+    if (mid)   params.set('machine_id', mid);
+    if (email) params.set('email', email);
+    params.set('tool', tool);
+    const res = await api('/api/admin/trial?' + params.toString(), { method: 'DELETE' });
+    toast((res.message || 'Trial dihapus') + ' \u2014 user bisa generate ulang');
+    loadTrials();
+  } catch (e) {
+    toast(e.message, 'error');
+  }
+};
 function init() {
   $('#loginBtn').addEventListener('click', doLogin);
   $('#password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
@@ -1289,6 +1340,12 @@ function init() {
   $('#doGenLicBtn').addEventListener('click', doGenerateLicenseForCust);
   $('#genBtn').addEventListener('click', genManual);
   $('#doSuspendBtn').addEventListener('click', doSuspend);
+
+  // Wire Download JSON di modal Kelola Customer
+  const dlJsonBtn = document.getElementById('downloadJsonCustBtn');
+  if (dlJsonBtn) {
+    dlJsonBtn.onclick = () => { if (editingCustId) downloadCustomerJson(editingCustId); };
+  }
 
   // Copy handler (once, tidak perlu repatch)
   const genCopyBtn = $('#genCopy');
