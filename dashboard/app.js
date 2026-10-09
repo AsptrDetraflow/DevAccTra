@@ -8,7 +8,7 @@
     const PUBLIC_KEY_B64 = "kN08rrwZddPxF2KjSIgZ0bH6veMmE94ExuEE3FbGs6s=";
     const API_URL = "https://devacctra-api.up.railway.app";
     const SESSION_KEY = "devacctra_dashboard_session_v3";
-    const MID_CACHE_KEY = "devacctra_dashboard_mid_v33";
+    const MID_CACHE_KEY = "devacctra_dashboard_mid_v34";
     const WA_NUMBER = "6287888370395";
     const WA_MSG = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
     const WA_URL = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
@@ -139,19 +139,33 @@
             throw new Error("Browser tidak support crypto.subtle.");
         }
         const uaData = navigator.userAgentData || {};
+        let model = uaData.model || "";
+        let platformVersion = "";
+        let arch = uaData.architecture || "";
+        let bitness = uaData.bitness || "";
+        if (uaData.getHighEntropyValues) {
+            try {
+                const h = await uaData.getHighEntropyValues(["model", "platformVersion", "architecture", "bitness"]);
+                model = h.model || model;
+                platformVersion = h.platformVersion || "";
+                arch = h.architecture || arch;
+                bitness = h.bitness || bitness;
+            } catch (e) {}
+        }
         const parts = [
             navigator.platform || "",
             uaData.platform || "",
-            uaData.architecture || "",
-            uaData.bitness || "",
-            uaData.model || "",
+            arch,
+            bitness,
+            model,
+            platformVersion,
             String(navigator.hardwareConcurrency || 0),
         ];
         const fp = parts.join("|");
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fp));
         const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
         try { localStorage.setItem(MID_CACHE_KEY, hex); } catch (e) {}
-        console.log("[Dashboard MID v3.3] generated:", hex.substring(0, 16) + "...", "| model:", uaData.model || "-", "| platform:", uaData.platform || "-");
+        console.log("[Dashboard MID v3.4] generated:", hex.substring(0, 16) + "...", "| model:", model || "-", "| platVer:", platformVersion || "-");
         return hex;
     }
 
