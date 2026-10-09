@@ -139,18 +139,33 @@
             throw new Error("Browser tidak support crypto.subtle.");
         }
         const uaData = navigator.userAgentData || {};
+        let gpuSig = "";
+        try {
+            const canvas = document.createElement("canvas");
+            const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+            if (gl) {
+                const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+                gpuSig = dbg
+                    ? (gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || "")
+                    : (gl.getParameter(gl.RENDERER) || "");
+            }
+        } catch (e) {}
         const parts = [
             navigator.platform || "",
             uaData.platform || "",
             uaData.architecture || "",
             uaData.bitness || "",
+            uaData.model || "",
             String(navigator.hardwareConcurrency || 0),
+            String(navigator.maxTouchPoints || 0),
+            String(navigator.deviceMemory || 0),
+            gpuSig,
         ];
         const fp = parts.join("|");
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fp));
         const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
         try { localStorage.setItem(MID_CACHE_KEY, hex); } catch (e) {}
-        console.log("[Dashboard MID v3.1] generated:", hex.substring(0, 16) + "...");
+        console.log("[Dashboard MID v3.2] generated:", hex.substring(0, 16) + "...", "| model:", uaData.model || "-", "| gpu:", gpuSig.substring(0, 30) || "-");
         return hex;
     }
 
