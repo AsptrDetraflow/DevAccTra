@@ -1,5 +1,5 @@
-// ============================================================
-// DevAccTra Dashboard — App v3.0
+﻿// ============================================================
+// DevAccTra Dashboard â€” App v3.0
 // Backend-driven. Source of truth: /api/customer/me
 // ============================================================
 (function () {
@@ -8,7 +8,7 @@
     const PUBLIC_KEY_B64 = "kN08rrwZddPxF2KjSIgZ0bH6veMmE94ExuEE3FbGs6s=";
     const API_URL = "https://devacctra-api.up.railway.app";
     const SESSION_KEY = "devacctra_dashboard_session_v3";
-    const MID_CACHE_KEY = "devacctra_dashboard_mid_v3";
+    const MID_CACHE_KEY = "devacctra_dashboard_mid_v31";
     const WA_NUMBER = "6287888370395";
     const WA_MSG = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
     const WA_URL = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
@@ -115,18 +115,14 @@
     }
 
     // MID
-    // Browser name without version — stabil walau Chrome auto-update
-function getBrowserName() {
-    const ua = navigator.userAgent || "";
-    if (ua.indexOf("Edg/") > -1) return "Edge";
-    if (ua.indexOf("OPR/") > -1 || ua.indexOf("Opera") > -1) return "Opera";
-    if (ua.indexOf("Brave") > -1) return "Brave";
-    if (ua.indexOf("Firefox/") > -1) return "Firefox";
-    if (ua.indexOf("Chrome/") > -1) return "Chrome";
-    if (ua.indexOf("Safari/") > -1) return "Safari";
-    return "Unknown";
-}
-async function getMachineId(force) {
+    // ============================================================
+    // MID v3.1 — HARUS SAMA PERSIS dengan formula extension v3.1
+    // Formula: platform + userAgentData.platform + uaData.architecture
+    //        + uaData.bitness + hardwareConcurrency
+    // Dibuang (biang MID berubah-ubah):
+    //   userAgent, timeZone, timezoneOffset, language, deviceMemory
+    // ============================================================
+    async function getMachineId(force) {
         if (!force) {
             try {
                 const p = new URLSearchParams(location.search);
@@ -142,17 +138,19 @@ async function getMachineId(force) {
         if (!window.crypto || !window.crypto.subtle || !window.crypto.subtle.digest) {
             throw new Error("Browser tidak support crypto.subtle.");
         }
+        const uaData = navigator.userAgentData || {};
         const parts = [
-        navigator.platform || "",
-        navigator.hardwareConcurrency || 0,
-        (navigator.userAgentData && navigator.userAgentData.platform) || "",
-        Intl.DateTimeFormat().resolvedOptions().timeZone || "",
-        getBrowserName()
-    ];
+            navigator.platform || "",
+            uaData.platform || "",
+            uaData.architecture || "",
+            uaData.bitness || "",
+            String(navigator.hardwareConcurrency || 0),
+        ];
         const fp = parts.join("|");
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fp));
         const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
         try { localStorage.setItem(MID_CACHE_KEY, hex); } catch (e) {}
+        console.log("[Dashboard MID v3.1] generated:", hex.substring(0, 16) + "...");
         return hex;
     }
 
