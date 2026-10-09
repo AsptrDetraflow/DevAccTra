@@ -8,7 +8,7 @@
     const PUBLIC_KEY_B64 = "kN08rrwZddPxF2KjSIgZ0bH6veMmE94ExuEE3FbGs6s=";
     const API_URL = "https://devacctra-api.up.railway.app";
     const SESSION_KEY = "devacctra_dashboard_session_v3";
-    const MID_CACHE_KEY = "devacctra_dashboard_mid_v34";
+    const MID_CACHE_KEY = "devacctra_dashboard_mid_v35";
     const WA_NUMBER = "6287888370395";
     const WA_MSG = encodeURIComponent("Halo, saya mau beli License PRO DevAccTra");
     const WA_URL = "https://wa.me/" + WA_NUMBER + "?text=" + WA_MSG;
@@ -122,6 +122,30 @@
     // Dibuang (biang MID berubah-ubah):
     //   userAgent, timeZone, timezoneOffset, language, deviceMemory
     // ============================================================
+    let _hePromise = null;
+    async function getHighEntropyCached() {
+        if (_hePromise) return _hePromise;
+        try {
+            const stored = JSON.parse(localStorage.getItem("devacctra_he_v35") || "null");
+            if (stored) return stored;
+        } catch (e) {}
+        _hePromise = (async () => {
+            const uaData = navigator.userAgentData || {};
+            const he = { model: uaData.model || "", platformVersion: "", architecture: uaData.architecture || "", bitness: uaData.bitness || "" };
+            if (uaData.getHighEntropyValues) {
+                try {
+                    const h = await uaData.getHighEntropyValues(["model", "platformVersion", "architecture", "bitness"]);
+                    he.model = h.model || he.model;
+                    he.platformVersion = h.platformVersion || "";
+                    he.architecture = h.architecture || he.architecture;
+                    he.bitness = h.bitness || he.bitness;
+                } catch (e) {}
+            }
+            try { localStorage.setItem("devacctra_he_v35", JSON.stringify(he)); } catch (e) {}
+            return he;
+        })();
+        return _hePromise;
+    }
     async function getMachineId(force) {
         if (!force) {
             try {
@@ -139,33 +163,21 @@
             throw new Error("Browser tidak support crypto.subtle.");
         }
         const uaData = navigator.userAgentData || {};
-        let model = uaData.model || "";
-        let platformVersion = "";
-        let arch = uaData.architecture || "";
-        let bitness = uaData.bitness || "";
-        if (uaData.getHighEntropyValues) {
-            try {
-                const h = await uaData.getHighEntropyValues(["model", "platformVersion", "architecture", "bitness"]);
-                model = h.model || model;
-                platformVersion = h.platformVersion || "";
-                arch = h.architecture || arch;
-                bitness = h.bitness || bitness;
-            } catch (e) {}
-        }
+        const he = await getHighEntropyCached();
         const parts = [
             navigator.platform || "",
             uaData.platform || "",
-            arch,
-            bitness,
-            model,
-            platformVersion,
+            he.architecture,
+            he.bitness,
+            he.model,
+            he.platformVersion,
             String(navigator.hardwareConcurrency || 0),
         ];
         const fp = parts.join("|");
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fp));
         const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
         try { localStorage.setItem(MID_CACHE_KEY, hex); } catch (e) {}
-        console.log("[Dashboard MID v3.4] generated:", hex.substring(0, 16) + "...", "| model:", model || "-", "| platVer:", platformVersion || "-");
+        console.log("[Dashboard MID v3.5] generated:", hex.substring(0, 16) + "...", "| model:", he.model || "-", "| platVer:", he.platformVersion || "-");
         return hex;
     }
 
