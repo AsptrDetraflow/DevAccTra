@@ -115,7 +115,18 @@
     }
 
     // MID
-    async function getMachineId(force) {
+    // Browser name without version — stabil walau Chrome auto-update
+function getBrowserName() {
+    const ua = navigator.userAgent || "";
+    if (ua.indexOf("Edg/") > -1) return "Edge";
+    if (ua.indexOf("OPR/") > -1 || ua.indexOf("Opera") > -1) return "Opera";
+    if (ua.indexOf("Brave") > -1) return "Brave";
+    if (ua.indexOf("Firefox/") > -1) return "Firefox";
+    if (ua.indexOf("Chrome/") > -1) return "Chrome";
+    if (ua.indexOf("Safari/") > -1) return "Safari";
+    return "Unknown";
+}
+async function getMachineId(force) {
         if (!force) {
             try {
                 const p = new URLSearchParams(location.search);
@@ -132,15 +143,12 @@
             throw new Error("Browser tidak support crypto.subtle.");
         }
         const parts = [
-            navigator.platform || "",
-            navigator.hardwareConcurrency || 0,
-            navigator.deviceMemory || 0,
-            navigator.language || "",
-            (navigator.userAgentData && navigator.userAgentData.platform) || "",
-            Intl.DateTimeFormat().resolvedOptions().timeZone || "",
-            new Date().getTimezoneOffset(),
-            navigator.userAgent || "",
-        ];
+        navigator.platform || "",
+        navigator.hardwareConcurrency || 0,
+        (navigator.userAgentData && navigator.userAgentData.platform) || "",
+        Intl.DateTimeFormat().resolvedOptions().timeZone || "",
+        getBrowserName()
+    ];
         const fp = parts.join("|");
         const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(fp));
         const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
