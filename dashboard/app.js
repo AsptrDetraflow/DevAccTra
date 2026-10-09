@@ -522,6 +522,26 @@
             (isPro
                 ? '<div class="alert alert-success" style="margin:0"><i>&#10003;</i><div><b>Akses PRO aktif.</b> Semua produk di scope dapat di-download PRO.</div></div>'
                 : '<div class="alert alert-info" style="margin:0"><i>&#8505;</i><div>License tier <b>' + tier + '</b> tidak membuka akses PRO.</div></div>');
+        // Copy license button
+        var _lk = CURRENT_CUSTOMER.license_key || '';
+        box.innerHTML += '<div style="margin-top:14px;padding:14px;background:#f3f4f6;border-radius:10px;border:1px solid #e5e7eb">' +
+            '<div style="font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">License Key</div>' +
+            '<code style="display:block;font-family:Consolas,monospace;font-size:.66rem;word-break:break-all;color:#111827;margin-bottom:10px;background:#fff;padding:8px;border-radius:6px;border:1px solid #e5e7eb;max-height:80px;overflow-y:auto">' + escapeHtml(_lk) + '</code>' +
+            '<button type="button" class="btn btn-primary" id="copyLicBtn" style="width:100%;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License ke Extension</button>' +
+            '<div style="font-size:.68rem;color:var(--muted);margin-top:8px;text-align:center">Paste di popup extension Trial atau Pro, lalu klik Activate.</div>' +
+        '</div>';
+        var _copyBtn = box.querySelector("#copyLicBtn");
+        if (_copyBtn) _copyBtn.addEventListener("click", async () => {
+            var ok = await copyText(_lk);
+            if (ok) {
+                _copyBtn.innerHTML = '&#10003; Tersalin! Paste di extension.';
+                setTimeout(function() { _copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copy License ke Extension'; }, 2500);
+                toast('License ter-copy. Paste di popup extension.');
+            } else {
+                toast('Gagal copy. Copy manual dari kotak.', 'error');
+            }
+        });
+
         show(removeBtn);
         if (isPro) hide(pasteBtn); else show(pasteBtn);
         show(payBtn);
