@@ -544,7 +544,7 @@
 
         show(removeBtn);
         if (isPro) hide(pasteBtn); else show(pasteBtn);
-        show(payBtn);
+        if (isPro) hide(payBtn); else show(payBtn);
     }
 
     // PRODUCTS
