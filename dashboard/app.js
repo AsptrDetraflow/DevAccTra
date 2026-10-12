@@ -527,15 +527,15 @@
         box.innerHTML += '<div style="margin-top:14px;padding:14px;background:#f3f4f6;border-radius:10px;border:1px solid #e5e7eb">' +
             '<div style="font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">License Key</div>' +
             '<code style="display:block;font-family:Consolas,monospace;font-size:.66rem;word-break:break-all;color:#111827;margin-bottom:10px;background:#fff;padding:8px;border-radius:6px;border:1px solid #e5e7eb;max-height:80px;overflow-y:auto">' + escapeHtml(_lk) + '</code>' +
-            '<button type="button" class="btn btn-primary" id="copyLicBtn" style="width:100%;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License ke Extension</button>' +
-            '<div style="font-size:.68rem;color:var(--muted);margin-top:8px;text-align:center">Paste di popup extension Trial atau Pro, lalu klik Activate.</div>' +
+            '<button type="button" class="btn btn-primary" id="copyLicBtn" style="width:100%;justify-content:center"><i class="fa-solid fa-copy"></i> Copy License</button>' +
+            '<div style="font-size:.68rem;color:var(--muted);margin-top:8px;text-align:center">Paste di extension atau desktop app, lalu aktivasi.</div>' +
         '</div>';
         var _copyBtn = box.querySelector("#copyLicBtn");
         if (_copyBtn) _copyBtn.addEventListener("click", async () => {
             var ok = await copyText(_lk);
             if (ok) {
-                _copyBtn.innerHTML = '&#10003; Tersalin! Paste di extension.';
-                setTimeout(function() { _copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copy License ke Extension'; }, 2500);
+                _copyBtn.innerHTML = '&#10003; Tersalin! Paste di extension / app.';
+                setTimeout(function() { _copyBtn.innerHTML = '<i class="fa-solid fa-copy"></i> Copy License'; }, 2500);
                 toast('License ter-copy. Paste di popup extension.');
             } else {
                 toast('Gagal copy. Copy manual dari kotak.', 'error');
@@ -712,3 +712,37 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
     else init();
 })();
+
+// ============================================================
+// DIAGNOSTIC: cek tier license dari storage (dev-only)
+// Buka Console -> ketik: DEVACCTRA_checkLicense()
+// ============================================================
+window.DEVACCTRA_checkLicense = function() {
+    try {
+        var s = localStorage.getItem("devacctra_dashboard_session_v3");
+        if (!s) { console.log("NO SESSION"); return; }
+        var sess = JSON.parse(s);
+        fetch("https://devacctra-api.up.railway.app/api/customer/me?identifier=" + encodeURIComponent(sess.username))
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var lk = data.customer && data.customer.license_key;
+                if (!lk) { console.log("NO LICENSE"); return; }
+                var b64 = lk.split(".")[0].replace(/-/g,"+").replace(/_/g,"/");
+                while (b64.length % 4) b64 += "=";
+                var payload = JSON.parse(atob(b64));
+                console.log("=== LICENSE PAYLOAD ===");
+                console.log("TIER:", payload.t);
+                console.log("EXP:", payload.e);
+                console.log("TOOL/TOOLS:", payload.tool || payload.tools || "(universal)");
+                console.log("MID:", payload.m);
+                console.log("FULL:", payload);
+                if (payload.t === "trial") {
+                    console.warn("⚠ TIER ADALAH 'trial' — license ini dibuat sebagai TRIAL, bukan PRO.");
+                    console.warn("   Cek di admin panel: apakah generate pakai Tier 'Pro' atau 'Basic'?");
+                } else if (payload.t === "pro") {
+                    console.log("✓ TIER 'pro' — kalau extension bilang 'trial', ada bug di extension.");
+                }
+            })
+            .catch(function(e) { console.error("Fetch error:", e); });
+    } catch (e) { console.error("Error:", e.message); }
+};
